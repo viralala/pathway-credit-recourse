@@ -24,6 +24,12 @@ export function displayValue(key: FeatureKey, v: number): string {
 
 const UI = {
   en: {
+    today: "Today",
+    step: "Step",
+    reapply: "Re-apply",
+    kinds: { actionable: "Actionable", "slow-moving": "Slow-moving", time: "Time" } as Record<string, string>,
+    total: "Total",
+    projected: "projected",
     tagline: "A rejection should be a roadmap.",
     heroBody:
       "Pathway explains a loan decision in plain language, then finds the smallest realistic set of changes that turns a “no” into a “yes”, with a month-by-month timeline.",
@@ -82,6 +88,12 @@ const UI = {
     } as Record<FeatureKey, string>,
   },
   hi: {
+    today: "आज",
+    step: "चरण",
+    reapply: "दोबारा आवेदन",
+    kinds: { actionable: "बदलने योग्य", "slow-moving": "धीमा बदलाव", time: "समय" } as Record<string, string>,
+    total: "कुल",
+    projected: "अनुमानित",
     tagline: "अस्वीकृति एक रास्ता होनी चाहिए।",
     heroBody:
       "पाथवे ऋण निर्णय को सरल भाषा में समझाता है, फिर बदलावों का सबसे छोटा व्यावहारिक सेट ढूँढता है जो “ना” को “हाँ” में बदल दे, महीने-दर-महीने समयरेखा के साथ।",
@@ -140,6 +152,12 @@ const UI = {
     } as Record<FeatureKey, string>,
   },
   mr: {
+    today: "आज",
+    step: "पायरी",
+    reapply: "पुन्हा अर्ज",
+    kinds: { actionable: "बदलता येणारे", "slow-moving": "हळू बदल", time: "वेळ" } as Record<string, string>,
+    total: "एकूण",
+    projected: "अंदाजित",
     tagline: "नकार हा एक मार्ग असायला हवा.",
     heroBody:
       "पाथवे कर्जाचा निर्णय सोप्या भाषेत समजावतो, मग “नाही” चे “हो” मध्ये रूपांतर करणारे सर्वात लहान व्यवहार्य बदल शोधतो, महिना-दर-महिना वेळापत्रकासह.",

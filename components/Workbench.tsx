@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { analyze } from "@/lib/analyze";
 import { describeAssumptions } from "@/lib/config";
-import { actionText, money, pct, reasonText, summaryText, t, tf, type Lang } from "@/lib/i18n";
+import { actionText, pct, reasonText, summaryText, t, tf, type Lang } from "@/lib/i18n";
 import { SAMPLES } from "@/lib/samples";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { paramsFor } from "@/lib/url";
@@ -32,7 +32,6 @@ const KIND_STYLE: Record<string, string> = {
   "slow-moving": "bg-plum text-cream",
   time: "bg-rose text-brown",
 };
-const KIND_LABEL: Record<string, string> = { actionable: "Actionable", "slow-moving": "Slow-moving", time: "Time" };
 
 function Field({
   label,
@@ -338,15 +337,15 @@ export function Workbench({
               {!feasible && <p className="mb-4 bg-red p-4 font-semibold text-cream">{tf(ui.noPlan, { n: r.horizon })}</p>}
               <ol className="grid gap-3 md:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]">
                 <li className="flex flex-col justify-between bg-red p-5 text-cream">
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-cream/80">Today</span>
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-cream/80">{ui.today}</span>
                   <span className="mt-6 text-2xl font-extrabold">{ui.declined}</span>
                   <span className="text-sm text-cream/80">{Math.round(plan.scoreBefore)} pts</span>
                 </li>
                 {plan.actions.map((act, i) => (
                   <li key={act.key} className="flex flex-col bg-paper p-5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-plum">Step {i + 1}</span>
-                      <span className={`px-2 py-0.5 text-[11px] font-bold ${KIND_STYLE[act.kind]}`}>{KIND_LABEL[act.kind]}</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-plum">{ui.step} {i + 1}</span>
+                      <span className={`px-2 py-0.5 text-[11px] font-bold ${KIND_STYLE[act.kind]}`}>{ui.kinds[act.kind]}</span>
                     </div>
                     <p className="mt-3 flex-1 font-semibold leading-snug text-ink">{actionText(lang, act)}</p>
                     <p className="mt-4 text-xs text-brown">
@@ -355,7 +354,7 @@ export function Workbench({
                   </li>
                 ))}
                 <li className={`flex flex-col justify-between p-5 ${feasible ? "bg-orange text-ink" : "bg-rose text-brown"}`}>
-                  <span className="text-xs font-bold uppercase tracking-[0.2em]">Re-apply</span>
+                  <span className="text-xs font-bold uppercase tracking-[0.2em]">{ui.reapply}</span>
                   <span className="mt-6 text-2xl font-extrabold">{feasible ? `${ui.approved}*` : "—"}</span>
                   <span className="text-sm">
                     {ui.planScore}: {Math.round(plan.scoreAfter)}
@@ -368,7 +367,7 @@ export function Workbench({
                   <span className="text-sm text-cream/85">{ui.neverList}</span>
                 </div>
                 <div className="border border-cream/20 p-4 text-sm text-cream/85">
-                  Total {ui.effort}: <strong className="text-cream">{plan.effort.toFixed(1)}</strong> · *projected
+                  {ui.total} {ui.effort}: <strong className="text-cream">{plan.effort.toFixed(1)}</strong> · *{ui.projected}
                 </div>
               </div>
             </>
@@ -401,7 +400,7 @@ export function Workbench({
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-xs text-cream/60">Income shown in {money(1).slice(0, 1)} (US dataset units).</p>
+            <p className="mt-4 text-xs text-cream/60">Income in $ (units of the US Give Me Some Credit dataset).</p>
           </aside>
         </div>
       </section>
