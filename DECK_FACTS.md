@@ -2,7 +2,7 @@
 
 ## Links
 - **Live URL:** https://pathway-credit-recourse.vercel.app (verified 2026-10-03: HTTP 200 on all routes; the 3 sample applicants return declined / declined / approved)
-- **Repo URL:** https://github.com/<github-username>/pathway-credit-recourse (pending `gh auth login`)
+- **Repo URL:** https://github.com/viralala/pathway-credit-recourse (public)
 
 ## Results (copied from `public/metrics.json`)
 | Metric | Value |

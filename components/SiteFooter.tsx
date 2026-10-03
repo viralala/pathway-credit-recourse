@@ -9,7 +9,7 @@ export function SiteFooter() {
         </p>
         <a
           className="font-semibold text-indigo underline underline-offset-4"
-          href="https://github.com/search?q=pathway-credit-recourse&type=repositories"
+          href="https://github.com/viralala/pathway-credit-recourse"
         >
           Source on GitHub
         </a>
