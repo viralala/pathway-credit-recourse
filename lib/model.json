@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "trainedAt": "2026-10-03T06:04:07Z",
+  "dataSource": "synthetic",
+  "target": "Probability of serious delinquency (90+ days) within 2 years",
+  "intercept": -3.332258356616121,
+  "threshold": 0.08274094062714642,
+  "thresholdScore": 650,
+  "pointsToDoubleOdds": 50,
+  "incomeImputation": 5340.0,
+  "features": [
+    {
+      "key": "utilization",
+      "label": "Credit card utilization",
+      "source": "RevolvingUtilizationOfUnsecuredLines",
+      "clip": [
+        0.0,
+        1.5
+      ],
+      "log1p": false,
+      "mean": 0.2326288211111096,
+      "std": 0.2532464676478666,
+      "coef": 0.7419672957177428
+    },
+    {
+      "key": "age",
+      "label": "Age",
+      "source": "age",
+      "clip": [
+        18.0,
+        100.0
+      ],
+      "log1p": false,
+      "mean": 52.12296666666666,
+      "std": 14.261330048576513,
+      "coef": -0.30440165258175905
+    },
+    {
+      "key": "late30",
+      "label": "Payments 30-59 days late",
+      "source": "NumberOfTime30-59DaysPastDueNotWorse",
+      "clip": [
+        0.0,
+        10.0
+      ],
+      "log1p": false,
+      "mean": 0.2079111111111111,
+      "std": 0.5247599164155773,
+      "coef": 0.3398458303077674
+    },
+    {
+      "key": "debtRatio",
+      "label": "Debt-to-income ratio",
+      "source": "DebtRatio",
+      "clip": [
+        0.0,
+        3.0
+      ],
+      "log1p": false,
+      "mean": 0.3986167244444445,
+      "std": 0.2698313680473259,
+      "coef": 0.21102809962009988
+    },
+    {
+      "key": "monthlyIncome",
+      "label": "Monthly income",
+      "source": "MonthlyIncome",
+      "clip": [
+        0.0,
+        1000000.0
+      ],
+      "log1p": true,
+      "mean": 8.581310095523953,
+      "std": 0.5496093828038346,
+      "coef": -0.2800762983164265
+    },
+    {
+      "key": "openCreditLines",
+      "label": "Open credit lines and loans",
+      "source": "NumberOfOpenCreditLinesAndLoans",
+      "clip": [
+        0.0,
+        30.0
+      ],
+      "log1p": false,
+      "mean": 8.507155555555556,
+      "std": 3.023451654836913,
+      "coef": -0.1252046089512013
+    },
+    {
+      "key": "late90",
+      "label": "Payments 90+ days late",
+      "source": "NumberOfTimes90DaysLate",
+      "clip": [
+        0.0,
+        10.0
+      ],
+      "log1p": false,
+      "mean": 0.06536666666666667,
+      "std": 0.283831873161401,
+      "coef": 0.2835913971179278
+    },
+    {
+      "key": "realEstateLoans",
+      "label": "Real-estate loans",
+      "source": "NumberRealEstateLoansOrLines",
+      "clip": [
+        0.0,
+        10.0
+      ],
+      "log1p": false,
+      "mean": 1.0674666666666666,
+      "std": 1.0656471294215815,
+      "coef": -0.03323895366273862
+    },
+    {
+      "key": "late60",
+      "label": "Payments 60-89 days late",
+      "source": "NumberOfTime60-89DaysPastDueNotWorse",
+      "clip": [
+        0.0,
+        10.0
+      ],
+      "log1p": false,
+      "mean": 0.0787,
+      "std": 0.29802251779221184,
+      "coef": 0.21956349889400753
+    },
+    {
+      "key": "dependents",
+      "label": "Dependents",
+      "source": "NumberOfDependents",
+      "clip": [
+        0.0,
+        10.0
+      ],
+      "log1p": false,
+      "mean": 0.8508,
+      "std": 0.9351680918424348,
+      "coef": 0.11992054473929559
+    }
+  ]
+}
