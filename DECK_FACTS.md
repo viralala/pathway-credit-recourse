@@ -1,7 +1,7 @@
 # Pathway: deck facts
 
 ## Links
-- **Live URL:** https://pathway-credit-recourse.vercel.app (target; NOT YET VERIFIED, deploy pending)
+- **Live URL:** https://pathway-credit-recourse.vercel.app (verified 2026-10-03: HTTP 200 on all routes; the 3 sample applicants return declined / declined / approved)
 - **Repo URL:** https://github.com/<github-username>/pathway-credit-recourse (pending `gh auth login`)
 
 ## Results (copied from `public/metrics.json`)
