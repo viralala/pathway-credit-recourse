@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "trainedAt": "2026-10-03T06:04:07Z",
+  "trainedAt": "2026-10-03T06:08:48Z",
   "dataSource": "synthetic",
   "target": "Probability of serious delinquency (90+ days) within 2 years",
   "intercept": -3.332258356616121,
