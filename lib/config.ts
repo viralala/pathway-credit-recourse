@@ -49,6 +49,51 @@ export const ASSUMPTIONS = {
 
 export type Assumptions = typeof ASSUMPTIONS;
 
+/**
+ * Monte Carlo assumptions for the "how sure is this timeline?" band. Real life does not follow a
+ * plan at exactly the capped pace, so every simulated run draws its own pace and can be hit by
+ * shocks. All values are illustrative and rendered in the UI via `describeUncertainty()`.
+ */
+export interface Uncertainty {
+  runs: number;
+  paceMultiplier: { mean: number; sd: number; min: number; max: number };
+  incomeGrowthPerMonth: { mean: number; sd: number; min: number; max: number };
+  shockChancePerMonth: number;
+  shockMonths: [number, number];
+  newLateChancePerMonth: number;
+  percentiles: { low: number; mid: number; high: number };
+}
+
+export const UNCERTAINTY: Readonly<Uncertainty> = {
+  /** Simulated futures per applicant. Seeded, so the same applicant always gets the same band. */
+  runs: 400,
+  /** Per-run multiplier on card paydown and debt-cut pace: normal(mean, sd), clamped to [min, max]. */
+  paceMultiplier: { mean: 1, sd: 0.25, min: 0.4, max: 1.3 },
+  /** Per-run monthly income growth: normal(mean, sd), clamped to [min, max]. Still capped by the plan's target. */
+  incomeGrowthPerMonth: { mean: 0.006, sd: 0.004, min: 0, max: 0.015 },
+  /** Chance per month of an income shock that pauses all progress. */
+  shockChancePerMonth: 0.015,
+  /** How long a shock pauses progress, in months (inclusive range). */
+  shockMonths: [2, 3],
+  /** Chance per month of a fresh 30–59-day late payment while on the plan. */
+  newLateChancePerMonth: 0.006,
+  /** Percentiles reported as the band and the "best / likely / worst case" months. */
+  percentiles: { low: 0.1, mid: 0.5, high: 0.9 },
+};
+
+/** Plain-English description of the Monte Carlo assumptions, rendered next to the band. */
+export function describeUncertainty(u: Uncertainty = UNCERTAINTY): { label: string; value: string }[] {
+  const pct = (v: number, d = 0) => `${(v * 100).toFixed(d)}%`;
+  return [
+    { label: "Simulated futures", value: `${u.runs} per applicant (seeded, repeatable)` },
+    { label: "Pace of paydown", value: `${pct(u.paceMultiplier.min)}–${pct(u.paceMultiplier.max)} of the plan's pace, centred on ${pct(u.paceMultiplier.mean)}` },
+    { label: "Income growth", value: `${pct(u.incomeGrowthPerMonth.min, 1)}–${pct(u.incomeGrowthPerMonth.max, 1)} per month, centred on ${pct(u.incomeGrowthPerMonth.mean, 1)}` },
+    { label: "Income shocks", value: `${pct(u.shockChancePerMonth, 1)} chance a month, pausing progress ${u.shockMonths[0]}–${u.shockMonths[1]} months` },
+    { label: "New late payment", value: `${pct(u.newLateChancePerMonth, 1)} chance a month` },
+    { label: "Band shown", value: `${Math.round(u.percentiles.low * 100)}th to ${Math.round(u.percentiles.high * 100)}th percentile; "likely" is the median` },
+  ];
+}
+
 export const FEATURE_CLASS: Record<FeatureKey, FeatureClass> = {
   age: "immutable",
   dependents: "immutable",

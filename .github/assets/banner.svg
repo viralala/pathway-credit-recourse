@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="t d">
+  <title id="t">Pathway</title>
+  <desc id="d">A rejection should be a roadmap. A path line rises from a declined point to an approved point.</desc>
+  <style>
+    .path{stroke-dasharray:900;stroke-dashoffset:900;animation:draw 3.2s ease-out forwards infinite}
+    .coin{animation:float 3s ease-in-out infinite}
+    .c2{animation-delay:.8s}.c3{animation-delay:1.6s}
+    .pulse{animation:pulse 2.4s ease-in-out infinite;transform-origin:1010px 90px}
+    @keyframes draw{0%{stroke-dashoffset:900}60%,100%{stroke-dashoffset:0}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.6}}
+    text{font-family:Manrope,Segoe UI,Helvetica,Arial,sans-serif}
+  </style>
+  <rect width="1200" height="320" rx="28" fill="#faf7f2"/>
+  <circle cx="1080" cy="40" r="120" fill="#dde3fa"/>
+  <circle cx="120" cy="300" r="110" fill="#fde3d4"/>
+  <circle cx="960" cy="290" r="70" fill="#d7f0e3"/>
+  <text x="80" y="128" font-size="64" font-weight="800" fill="#2a2838">Pathway</text>
+  <text x="80" y="180" font-size="28" font-weight="600" fill="#4f5d95">A rejection should be a roadmap.</text>
+  <text x="80" y="222" font-size="18" fill="#646072">Explainable credit · feasible recourse · money saved · offer check · fairness audit</text>
+  <path class="path" d="M640 250 C 720 240, 760 200, 820 190 S 920 120, 1010 90" fill="none" stroke="#4f5d95" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="640" cy="250" r="12" fill="#f9dde2" stroke="#8c2f3e" stroke-width="3"/>
+  <circle class="pulse" cx="1010" cy="90" r="14" fill="#d7f0e3" stroke="#2b6249" stroke-width="3"/>
+  <g class="coin"><circle cx="740" cy="140" r="16" fill="#fbf1c9" stroke="#b08a2e" stroke-width="3"/><text x="733" y="147" font-size="18" font-weight="800" fill="#685310">₹</text></g>
+  <g class="coin c2"><circle cx="860" cy="230" r="13" fill="#fbf1c9" stroke="#b08a2e" stroke-width="3"/></g>
+  <g class="coin c3"><circle cx="930" cy="170" r="10" fill="#fbf1c9" stroke="#b08a2e" stroke-width="3"/></g>
+</svg>

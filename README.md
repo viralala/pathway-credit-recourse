@@ -1,88 +1,164 @@
-# Pathway: explainable loan rejection + path to approval
+<div align="center">
 
-> A rejection should be a roadmap.
+<img src=".github/assets/banner.svg" alt="Pathway: a rejection should be a roadmap. An animated path rises from a declined point to an approved point." width="100%" />
 
-Pathway takes a loan application and does four things:
+<h3>Explainable credit decisions, a realistic path to approval, and the money it saves you.</h3>
 
-1. **Explains the decision.** It gives a Pathway score, approve or decline, and ranked reason codes in plain English, Hindi or Marathi.
-2. **Finds feasible recourse.** It searches for the lowest-effort set of realistic changes that flips a decline into an approval. It never touches immutable traits.
-3. **Projects a timeline.** It simulates the plan month by month and reports "Approved in N months", with a chart of score vs. threshold.
-4. **Audits fairness and reports to lenders.** It compares recourse effort across age and income bands at equal risk, and produces a printable adverse-action style report.
+<a href="https://pathway-credit-recourse.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/Live%20demo-pathway--credit--recourse.vercel.app-4f5d95?style=for-the-badge" /></a>
+<img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-6aae8c?style=for-the-badge" />
+<img alt="Languages: English, Hindi, Marathi" src="https://img.shields.io/badge/EN%20·%20हिं%20·%20मरा-e3a07c?style=for-the-badge" />
 
-Live: https://pathway-credit-recourse.vercel.app · Facts for the pitch deck: [DECK_FACTS.md](DECK_FACTS.md)
+<br/>
 
-> **Disclaimer:** this is a hackathon simulation on public/synthetic data. It is not a credit decision, not financial advice, and not affiliated with any lender.
+<img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white" />
+<img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" />
+<img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white" />
+<img alt="shadcn/ui" src="https://img.shields.io/badge/shadcn%2Fui-radix-111111?logo=shadcnui&logoColor=white" />
+<img alt="Motion" src="https://img.shields.io/badge/Motion-animations-FFF312?logo=framer&logoColor=black" />
+<img alt="Vitest" src="https://img.shields.io/badge/Vitest-tested-6E9F18?logo=vitest&logoColor=white" />
+<img alt="Python scikit-learn" src="https://img.shields.io/badge/scikit--learn-training-F7931E?logo=scikitlearn&logoColor=white" />
+<img alt="Vercel" src="https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white" />
 
-## Routes
+</div>
 
-| Route | What it shows |
+---
+
+## Why Pathway?
+
+When a loan is declined, most people get a one-line "no" and a list of codes. They don't know **why**, **what to change**, or **when** to try again. Many then turn to instant-loan apps with hidden fees and triple-digit APRs.
+
+**Pathway turns a rejection into a roadmap.** It explains the decision in plain English, Hindi or Marathi. It finds the smallest realistic set of changes that flips the decision, projects month by month when you'll get there, and shows what that's worth in rupees and dollars.
+
+> **Disclaimer:** Pathway is an educational simulation built on synthetic data. It is not a credit decision, not financial advice, and not affiliated with any lender.
+
+## Features
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src=".github/assets/why.svg" alt="" width="40" align="left" />&nbsp;<b>Why: reason codes</b><br/>&nbsp;Exact per-feature score impact from an interpretable model, ranked and written in plain language.</td>
+<td width="50%" valign="top"><img src=".github/assets/plan.svg" alt="" width="40" align="left" />&nbsp;<b>What: lowest-effort plan</b><br/>&nbsp;An exhaustive search over realistic changes. Age, dependents and other traits you can't change are never touched.</td>
+</tr>
+<tr>
+<td valign="top"><img src=".github/assets/money.svg" alt="" width="40" align="left" />&nbsp;<b>Money saved</b><br/>&nbsp;The same loan borrowed today versus after the plan: APR tier, EMI, total interest and the next-tier bonus.</td>
+<td valign="top"><img src=".github/assets/chance.svg" alt="" width="40" align="left" />&nbsp;<b>When, and how sure</b><br/>&nbsp;A Monte Carlo timeline: 400 seeded futures with shocks and slips give a likely, best and worst approval month.</td>
+</tr>
+<tr>
+<td valign="top"><img src=".github/assets/goal.svg" alt="" width="40" align="left" />&nbsp;<b>Goal planner</b><br/>&nbsp;Start from the loan you want ("₹/$X at ≤ A% APR") and work backwards to the score, plan, milestones and affordability.</td>
+<td valign="top"><img src=".github/assets/offer.svg" alt="" width="40" align="left" />&nbsp;<b>Offer check</b><br/>&nbsp;The true APR of any instant-loan offer from its real cash flows, with red flags and guidance relevant in India.</td>
+</tr>
+<tr>
+<td valign="top"><img src=".github/assets/fair.svg" alt="" width="40" align="left" />&nbsp;<b>Fairness audit + lender report</b><br/>&nbsp;Risk-adjusted recourse-effort gaps by age and income, plus a printable adverse-action style report.</td>
+<td valign="top"><img src=".github/assets/lang.svg" alt="" width="40" align="left" />&nbsp;<b>Built for Bharat</b><br/>&nbsp;English, Hindi and Marathi throughout, phone-first, accessible, with a light pastel UI.</td>
+</tr>
+</table>
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Applicant profile] --> B[Logistic regression<br/>lib/model.ts]
+    B --> C{Score ≥ 650?}
+    C -- No --> D[Recourse search<br/>lib/recourse.ts]
+    D --> E[Timeline simulator<br/>lib/timeline.ts]
+    E --> F[Monte Carlo band<br/>lib/montecarlo.ts]
+    D --> G[Risk-based pricing<br/>lib/pricing.ts]
+    G --> H[Money saved]
+    C -- Yes --> G
+    B --> I[Reason codes<br/>EN / HI / MR]
+    J[Loan goal] --> K[lib/goal.ts] --> D
+    L[Instant-loan offer] --> M[IRR → true APR<br/>lib/offer.ts]
+```
+
+| Step | What happens |
 |---|---|
-| `/?sample=clear-rejection` · `borderline` · `approved` | Applicant form, score card, reasons (Why), plan (What), timeline (When) |
-| `/report?sample=…&lang=hi` | Printable lender report (EN / HI / MR) |
-| `/fairness` | Recourse-effort gap by age and income band, risk-adjusted |
-| `/method` | Model, feature classes, coefficients, assumptions, headline metrics |
-| `POST /api/explain` | Optional AI rewrite of the explanation (falls back to templates) |
+| **Train (offline)** | `ml/train.py` fits logistic regression (AUC 0.856 on hold-out) and exports coefficients to `lib/model.json`. No Python runs in production. |
+| **Explain** | Every reason is an exact log-odds contribution, converted to score points. |
+| **Plan** | Every feasible change set is scored exactly; the lowest weighted effort wins, ties broken by time. |
+| **Project** | Each change moves at a capped monthly pace; late payments age out of a 24-month window. |
+| **Stress-test** | 400 seeded simulated futures vary the pace and add income shocks and new late payments. |
+| **Price** | Illustrative APR tiers by score turn the plan into interest saved. |
 
-Any applicant can be encoded in the URL (`?income=4200&util=0.6&dti=0.4&age=33&lines=5&l30=1&l60=0&l90=0&dep=1&re=0&lang=mr`).
+Every assumption lives in `lib/config.ts` and `lib/pricing.ts`, and the UI shows them next to the numbers they affect.
 
-## Setup
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
+| UI | Tailwind CSS 4 design tokens, shadcn/ui (Radix), Lucide icons, Recharts |
+| Motion | Motion (page transitions, scroll reveals, count-ups, money cursor), reduced-motion aware |
+| Model | Python + scikit-learn (training) → JSON coefficients → TypeScript inference |
+| Quality | Vitest (unit and property tests), ESLint |
+| Platform | Vercel, security headers + CSP, rate-limited API |
+
+## Folder structure
+
+```
+.
+├── app/                    # Routes (App Router)
+│   ├── page.tsx            # Workbench: score, reasons, plan, money saved, timeline
+│   ├── goal/               # Goal planner
+│   ├── offer-check/        # Instant-loan offer checker
+│   ├── fairness/           # Fairness audit
+│   ├── report/             # Printable lender report
+│   ├── method/             # How it works
+│   ├── terms/ privacy/ licenses/
+│   ├── api/explain/        # Optional plain-language rewrite (validated, rate-limited)
+│   └── sitemap.ts robots.ts manifest.ts opengraph-image.tsx
+├── components/
+│   ├── workbench/ goal/ offer/ pages/ legal/   # Feature UI
+│   ├── site/               # Header, footer, cookie consent, money cursor
+│   ├── motion/             # Reveal, Stagger, CountUp
+│   └── ui/                 # shadcn/ui primitives
+├── lib/                    # Pure, tested logic
+│   ├── model.ts recourse.ts timeline.ts montecarlo.ts
+│   ├── pricing.ts goal.ts offer.ts evaluate.ts
+│   ├── i18n.ts strings/    # EN / HI / MR
+│   ├── security/           # Validation, same-origin, rate limiting
+│   └── __tests__/
+├── ml/train.py             # Offline training → lib/model.json
+└── scripts/evaluate.ts     # Plan success, months, fairness gap → public/metrics.json
+```
+
+## Getting started
 
 ```bash
 npm install
-npm run dev          # http://localhost:3000
-npm test             # vitest: model, recourse engine, timeline simulator
+npm run dev        # http://localhost:3000
+npm test           # unit tests
+npm run build      # production build
 ```
 
-No API key is needed. To try the optional AI rewrite, copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY`.
+Optional: copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` to enable the "rewrite in simpler words" button. Without a key, the built-in templates are used.
 
-## Retraining
+**Retrain the model:** `pip install numpy pandas scikit-learn`, optionally place Kaggle's `cs-training.csv` in `data/`, then `npm run train`.
 
-```bash
-pip install numpy pandas scikit-learn
-# optional: put Kaggle's "Give Me Some Credit" cs-training.csv at data/cs-training.csv
-python ml/train.py   # or: npm run train
-```
+## Results
 
-`ml/train.py` uses `data/cs-training.csv` if it exists. Otherwise it generates a synthetic dataset with the same columns. It then:
+| Metric | Value |
+|---|---|
+| Model AUC (hold-out) | **0.856** |
+| Recommended plans that flip the decision | **100%** (608 / 608 rejected hold-out applicants) |
+| Median months to approval | **12** |
+| Recourse-effort gap at equal risk | **31%** (income under $3k vs $6k+/mo) |
 
-- trains logistic regression (75/25 stratified split) and writes `lib/model.json` (coefficients, scaler, intercept, threshold);
-- writes `public/metrics.json` (AUC, data source) and a hold-out sample at `ml/artifacts/eval_sample.json`;
-- runs `scripts/evaluate.ts`, which uses the **same TypeScript recourse engine the app ships** to add the plan success rate, median months to approval and the fairness gap to `public/metrics.json`.
+## Security and privacy
 
-`data/` is git-ignored: never commit the Kaggle CSV. If you retrain on Kaggle data, also keep `ml/artifacts/eval_sample.json` out of the repo, since it would contain dataset rows.
+- A strict security-header set: CSP, HSTS, `X-Frame-Options: DENY`, a restrictive Permissions-Policy, COOP/CORP.
+- The API recomputes every explanation on the server from validated numbers. It is same-origin, JSON-only, size-capped and rate-limited.
+- No accounts, no database, no tracking cookies. One consent cookie; the money-cursor preference is stored only with consent.
 
-## Architecture
+## Future scope
 
-```
-ml/train.py ──► lib/model.json ──► lib/model.ts      score, PD, reason codes (exact log-odds contributions)
-                                   lib/recourse.ts   lowest-effort feasible change set (exhaustive grid, exact scoring)
-                lib/config.ts ───► lib/timeline.ts   month-by-month simulator, capped paces
-                                   lib/evaluate.ts   plan success, months, risk-adjusted fairness gap
-                                   lib/i18n.ts       EN / HI / MR templates
-app/ (Next.js App Router) renders it all server-side, with client interactivity for the form and charts (Recharts).
-```
-
-**Feature classes** (`lib/config.ts`):
-
-- *Immutable:* age, dependents, real-estate loans. Never changed.
-- *Actionable:* card utilization, debt-to-income (via cutting debt payments), open credit lines (±2).
-- *Slow-moving:* monthly income (0.6%/month, capped at +15% total), and late payments, which age out of a 24-month window if every future payment is on time.
-
-The plan search scores every candidate exactly with the linear model, minimizes a weighted effort, and breaks ties by time. The timeline moves each change at its capped monthly pace. Tests prove that every recommended plan's target state is approved by the model, and that the simulation reaches approval no later than the plan's completion month.
-
-**Fairness gap:** rejected hold-out applicants are split into Pathway-score risk bands. Each group's mean plan effort is directly standardized to the overall risk-band mix. The gap is the ratio of the highest to the lowest group, minus 1.
-
-## Honest limitations
-
-- **Synthetic by default.** The shipped model was trained on a synthetic replica of the Give Me Some Credit schema because the Kaggle CSV was not present. The AUC and recourse metrics describe that simulation, not real borrowers.
-- **The 100% plan success rate comes from the caps** (36-month horizon, generous paydown pace). Real data and stricter assumptions would leave some applicants with no feasible plan, and the UI handles that case.
-- **The assumptions are illustrative**, not calibrated to any lender or market. Paydown pace, income growth and effort weights are judgment calls, all visible in `lib/config.ts` and in the UI.
-- **The model is simple by design.** Logistic regression makes recourse exact but leaves performance on the table compared with gradient boosting.
-- **Causality is assumed.** The plan assumes that changing a feature changes risk the way the model's coefficient says it does.
-- **Currency.** Incomes are in the dataset's units ($), not ₹.
-- **The report is not legal advice.** It is "adverse-action style" for illustration (Reg B / GDPR Art. 22 / RBI digital lending inspired), not a compliant notice.
-- **Translations are templated.** The Hindi and Marathi strings are hand-written templates and would need review by native speakers before real use.
+- 🔐 Accounts with Google sign-in, saved plans and progress check-ins
+- 🗄️ A database to track plans over time, with reminders and nudges (WhatsApp/SMS)
+- 🏦 Account Aggregator cash-flow underwriting for thin-file and gig workers
+- 🤝 Lender dashboard: a second-chance pipeline and compliance-ready adverse-action notices
+- 🧩 Pluggable decision types: credit cards, BNPL limits, insurance premiums, rental approval
+- 🗣️ Voice-first guidance in more Indian languages
+- 📈 Calibration on real bureau data with partner lenders
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+[MIT](LICENSE) © 2026 Pathway contributors. Third-party notices are on the [/licenses](https://pathway-credit-recourse.vercel.app/licenses) page.

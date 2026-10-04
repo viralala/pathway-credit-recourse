@@ -1,0 +1,8 @@
+# Security contact for Pathway, an open-source hackathon prototype.
+# Please report vulnerabilities through GitHub issues, and keep personal data and
+# working exploit details out of public issues.
+Contact: https://github.com/viralala/pathway-credit-recourse/issues
+Expires: 2027-10-04T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://pathway-credit-recourse.vercel.app/.well-known/security.txt
+Policy: https://pathway-credit-recourse.vercel.app/terms#acceptable-use

@@ -1,6 +1,6 @@
 import { ASSUMPTIONS, type Assumptions } from "./config";
-import { MODEL, isApproved, score } from "./model";
-import { agedCount, debtRatioAfter, type RecoursePlan } from "./recourse";
+import { MODEL, isApproved, logit, score } from "./model";
+import { agedCount, debtRatioAfter, effectiveTargetScore, targetLogit, type RecoursePlan } from "./recourse";
 import type { Applicant, CreditModel } from "./types";
 
 export interface TimelinePoint {
@@ -18,6 +18,15 @@ export interface Timeline {
   approvalMonth: number | null;
   baselineApprovalMonth: number | null;
   thresholdScore: number;
+  /** First month the plan reaches `targetScore`, or null. Equals `approvalMonth` when no target is given. */
+  targetMonth: number | null;
+  /** Score the plan is aiming for: the requested target, never below `thresholdScore`. */
+  targetScore: number;
+}
+
+export interface SimulateOptions {
+  /** Track the first month the plan reaches this score (e.g. the score a cheaper APR tier needs). */
+  targetScore?: number;
 }
 
 /** Applicant state `month` months into a plan: every action moves at its capped monthly pace. */
@@ -50,23 +59,37 @@ export function stateAt(
   };
 }
 
-/** Month-by-month projection of the Pathway score under a plan versus doing nothing. */
+/**
+ * Month-by-month projection of the Pathway score under a plan versus doing nothing.
+ * With `opts.targetScore` it also reports the first month the plan reaches that score.
+ */
 export function simulate(
   applicant: Applicant,
   plan: RecoursePlan | null,
   model: CreditModel = MODEL,
   a: Assumptions = ASSUMPTIONS,
+  opts: SimulateOptions = {},
 ): Timeline {
+  const zGoal = targetLogit(opts.targetScore, model);
   const points: TimelinePoint[] = [];
   let approvalMonth: number | null = null;
   let baselineApprovalMonth: number | null = null;
+  let targetMonth: number | null = null;
   for (let m = 0; m <= a.horizonMonths; m++) {
     const state = stateAt(applicant, plan, m, a);
     const baseState = stateAt(applicant, null, m, a);
     const approved = isApproved(state, model);
     if (approved && approvalMonth === null) approvalMonth = m;
     if (isApproved(baseState, model) && baselineApprovalMonth === null) baselineApprovalMonth = m;
+    if (targetMonth === null && logit(state, model) <= zGoal) targetMonth = m;
     points.push({ month: m, score: score(state, model), baselineScore: score(baseState, model), approved, state });
   }
-  return { points, approvalMonth, baselineApprovalMonth, thresholdScore: model.thresholdScore };
+  return {
+    points,
+    approvalMonth,
+    baselineApprovalMonth,
+    thresholdScore: model.thresholdScore,
+    targetMonth,
+    targetScore: effectiveTargetScore(opts.targetScore, model),
+  };
 }

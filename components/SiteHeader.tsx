@@ -1,83 +1,146 @@
 "use client";
 
+import { ChevronRight, Menu, X } from "lucide-react";
+import { LayoutGroup, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { LANGS, asLang, t } from "@/lib/i18n";
+import { useState } from "react";
+import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { Logo } from "@/components/site/Logo";
+import { isActivePath, primaryNav, withLang, type NavItem } from "@/components/site/nav";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { asLang, type Lang } from "@/lib/i18n";
+import { shell } from "@/lib/strings/shell";
+import { cn } from "@/lib/utils";
 
-export function Logo() {
-  return (
-    <span className="flex items-center gap-2.5">
-      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden>
-        <rect width="30" height="30" fill="var(--indigo)" />
-        <path d="M0 30 A15 15 0 0 1 15 15 L15 30 Z" fill="var(--orange)" />
-        <circle cx="22" cy="8" r="4.5" fill="var(--cream)" />
-        <path d="M15 30 A15 15 0 0 1 30 15 L30 30 Z" fill="var(--red)" />
-      </svg>
-      <span className="text-xl font-extrabold tracking-tight text-indigo">Pathway</span>
-    </span>
-  );
+/** Reads `?lang=` and `?sample=` from the URL. Mount inside <Suspense> (see app/layout.tsx). */
+export function SiteHeader() {
+  const sp = useSearchParams();
+  return <HeaderBar lang={asLang(sp.get("lang"))} search={sp.toString()} sample={sp.get("sample")} />;
 }
 
-export function SiteHeader() {
+/**
+ * The header itself, driven by props so it can also render as the Suspense fallback
+ * (English, no query) while a statically prerendered page reads its query on the client.
+ */
+export function HeaderBar({ lang, search, sample }: { lang: Lang; search: string; sample: string | null }) {
   const pathname = usePathname();
-  const sp = useSearchParams();
-  const lang = asLang(sp.get("lang"));
-  const ui = t(lang);
-  const withLang = (href: string, l = lang) => {
-    const q = new URLSearchParams(href.includes("?") ? href.split("?")[1] : "");
-    if (l !== "en") q.set("lang", l);
-    const base = href.split("?")[0];
-    return q.toString() ? `${base}?${q}` : base;
-  };
-  const langHref = (l: string) => {
-    const q = new URLSearchParams(sp.toString());
-    if (l === "en") q.delete("lang");
-    else q.set("lang", l);
-    const s = q.toString();
-    return s ? `${pathname}?${s}` : pathname;
-  };
-  const nav = [
-    { href: "/", label: ui.applicant },
-    { href: "/fairness", label: ui.fairness },
-    { href: `/report${sp.get("sample") ? `?sample=${sp.get("sample")}` : ""}`, label: ui.report },
-    { href: "/method", label: ui.method },
-  ];
+  const [menuOpen, setMenuOpen] = useState(false);
+  const s = shell(lang);
+  const items: NavItem[] = primaryNav(lang).map((item) =>
+    item.key === "report" && sample ? { ...item, href: `/report?sample=${encodeURIComponent(sample)}` } : item,
+  );
 
   return (
-    <header className="no-print border-b border-brown/10 bg-cream/90 backdrop-blur sticky top-0 z-30">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
-        <Link href={withLang("/")} aria-label="Pathway home">
+    <header
+      lang={lang}
+      className="no-print sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/70"
+    >
+      <div className="page-container flex h-16 items-center justify-between gap-3">
+        <Link
+          href={withLang("/", lang)}
+          aria-label={s.homeAria}
+          className="-m-1 shrink-0 rounded-xl p-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
           <Logo />
         </Link>
-        <nav className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto text-sm font-semibold sm:order-none sm:w-auto">
-          {nav.map((n) => {
-            const active = n.href.split("?")[0] === pathname;
-            return (
-              <Link
-                key={n.href}
-                href={withLang(n.href)}
-                className={`whitespace-nowrap px-3 py-2 transition-colors ${
-                  active ? "bg-indigo text-cream" : "text-brown hover:bg-rose/50"
-                }`}
-              >
-                {n.label}
-              </Link>
-            );
-          })}
+
+        <nav aria-label={s.mainNav} className="hidden lg:block">
+          <MotionConfig reducedMotion="user">
+            <LayoutGroup id="site-nav">
+              <ul className="flex items-center gap-0.5 rounded-full bg-muted/70 p-1 ring-1 ring-foreground/5">
+                {items.map((item) => {
+                  const active = isActivePath(pathname, item.href);
+                  return (
+                    <li key={item.key} className="relative">
+                      {active && (
+                        <motion.span
+                          layoutId="site-nav-active"
+                          aria-hidden="true"
+                          className="absolute inset-0 rounded-full bg-card shadow-[0_1px_2px_rgb(42_40_56/0.08)] ring-1 ring-foreground/10"
+                          transition={{ type: "spring", stiffness: 420, damping: 36 }}
+                        />
+                      )}
+                      <Link
+                        href={withLang(item.href, lang)}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "relative z-10 inline-flex h-8 items-center rounded-full px-2.5 text-[13px] font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 xl:px-3.5 xl:text-sm",
+                          active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </LayoutGroup>
+          </MotionConfig>
         </nav>
-        <div className="flex border border-indigo/20 text-sm font-bold" role="group" aria-label="Language">
-          {LANGS.map((l) => (
-            <Link
-              key={l.id}
-              href={langHref(l.id)}
-              lang={l.id}
-              aria-current={l.id === lang}
-              title={l.label}
-              className={`px-3 py-1.5 transition-colors ${l.id === lang ? "bg-orange text-ink" : "text-indigo hover:bg-rose/40"}`}
+
+        <div className="flex shrink-0 items-center gap-2">
+          <LanguageSwitcher lang={lang} search={search} className="max-[359px]:hidden" />
+
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon-lg" className="rounded-full lg:hidden" aria-label={s.menu.open}>
+                <Menu aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              showCloseButton={false}
+              lang={lang}
+              className="gap-0 bg-background p-0 data-[side=right]:w-[min(20rem,85vw)]"
             >
-              {l.native}
-            </Link>
-          ))}
+              <SheetHeader className="flex-row items-start justify-between gap-3 border-b border-border px-4 py-3.5">
+                <div className="min-w-0">
+                  <SheetTitle className="text-base font-bold">{s.menu.title}</SheetTitle>
+                  <SheetDescription className="mt-0.5">{s.menu.description}</SheetDescription>
+                </div>
+                <SheetClose asChild>
+                  <Button variant="ghost" size="icon" className="-mr-1 shrink-0 rounded-full" aria-label={s.menu.close}>
+                    <X aria-hidden="true" />
+                  </Button>
+                </SheetClose>
+              </SheetHeader>
+
+              <nav aria-label={s.mainNav} className="flex-1 overflow-y-auto p-3">
+                <ul className="space-y-1">
+                  {items.map((item) => {
+                    const active = isActivePath(pathname, item.href);
+                    return (
+                      <li key={item.key}>
+                        <Link
+                          href={withLang(item.href, lang)}
+                          aria-current={active ? "page" : undefined}
+                          onClick={() => setMenuOpen(false)}
+                          className={cn(
+                            "flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                            active ? "bg-secondary text-secondary-foreground" : "text-foreground hover:bg-muted",
+                          )}
+                        >
+                          {item.label}
+                          {active ? (
+                            <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
+                          ) : (
+                            <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+
+              <div className="border-t border-border p-4">
+                <p className="mb-2 text-xs font-semibold text-muted-foreground">{s.language}</p>
+                <LanguageSwitcher lang={lang} search={search} onNavigate={() => setMenuOpen(false)} />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

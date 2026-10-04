@@ -34,6 +34,32 @@ export type RecourseResult =
   | { status: "plan"; plan: RecoursePlan }
   | { status: "infeasible"; closest: RecoursePlan };
 
+export interface RecourseOptions {
+  /**
+   * Pathway score the plan must reach instead of the approval cut-off (e.g. the score a cheaper
+   * APR tier needs). A target below the cut-off is ignored: a plan always has to reach approval.
+   */
+  targetScore?: number;
+}
+
+/**
+ * Log-odds a target Pathway score requires: the inverse of `scoreFromLogit`, never looser than the
+ * approval cut-off. With no (or a non-finite) target this is exactly `thresholdLogit(model)`.
+ */
+export function targetLogit(targetScore: number | undefined, model: CreditModel = MODEL): number {
+  const zThreshold = thresholdLogit(model);
+  if (targetScore === undefined || !Number.isFinite(targetScore)) return zThreshold;
+  const z = zThreshold - ((targetScore - model.thresholdScore) * Math.LN2) / model.pointsToDoubleOdds;
+  return Math.min(zThreshold, z);
+}
+
+/** The score a target actually means: never below the approval cut-off. */
+export function effectiveTargetScore(targetScore: number | undefined, model: CreditModel = MODEL): number {
+  return targetScore === undefined || !Number.isFinite(targetScore)
+    ? model.thresholdScore
+    : Math.max(model.thresholdScore, targetScore);
+}
+
 /** Late payments still inside the window after `months`, assuming the `n` events were evenly spread. */
 export function agedCount(n: number, months: number, window: number = ASSUMPTIONS.delinquencyWindowMonths): number {
   if (n <= 0) return 0;
@@ -78,15 +104,21 @@ interface Option<T> {
  * Lowest-effort feasible change set that flips a rejection into an approval.
  * Immutable features are never touched; slow-moving ones are capped by ASSUMPTIONS.
  * Because the model is logistic regression, every candidate is scored exactly.
+ *
+ * With `opts.targetScore`, "success" means reaching that score (or approval, whichever is
+ * stricter), and `{ status: "approved" }` means the applicant already meets the target today.
+ * Without it the search is exactly the approval search.
  */
 export function findRecourse(
   applicant: Applicant,
   model: CreditModel = MODEL,
   a: Assumptions = ASSUMPTIONS,
+  opts: RecourseOptions = {},
 ): RecourseResult {
   const zThreshold = thresholdLogit(model);
+  const zGoal = targetLogit(opts.targetScore, model);
   const z0 = logit(applicant, model);
-  if (z0 <= zThreshold) return { status: "approved" };
+  if (z0 <= zGoal) return { status: "approved" };
 
   const feat = Object.fromEntries(model.features.map((f) => [f.key, f])) as Record<FeatureKey, ModelFeature>;
   const c = (key: FeatureKey, v: number) => contribution(feat[key], v);
@@ -164,7 +196,7 @@ export function findRecourse(
           const z = zPart + u.logit;
           const effort = effPart + u.effort;
           const months = Math.max(w.months, l.months, f.months, u.months);
-          if (z <= zThreshold) {
+          if (z <= zGoal) {
             if (!best || effort < best.effort - 1e-9 || (Math.abs(effort - best.effort) <= 1e-9 && months < best.months))
               best = { u, l, w, f, z, effort, months };
           } else if (!closest || z < closest.z) {

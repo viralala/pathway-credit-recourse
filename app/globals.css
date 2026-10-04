@@ -1,57 +1,219 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * DESIGN TOKENS
+ * -------------
+ * Every colour in the app comes from this block, so a full re-skin is a change here only.
+ * Palette: light, pastel, low-saturation. No neon. Text colours keep WCAG AA contrast on the
+ * surfaces they sit on (the "deep-*" shades exist for text placed on a pastel fill).
+ *
+ * Use, in order of preference:
+ *   1. shadcn semantic tokens: background, foreground, card, primary, secondary, muted, accent,
+ *      destructive, border, input, ring  (e.g. bg-card, text-muted-foreground)
+ *   2. status tokens: success, warning, danger, money (+ -soft fill and -foreground text)
+ *   3. pastel families for decoration: pastel-{periwinkle,mint,peach,blush,butter,lavender,sky}
+ *      with matching deep-{…} text shades
+ *   4. chart-1 … chart-5 for data series
+ * The pre-pastel Bauhaus colour names (cream, indigo, rose, red, orange, plum, brown, paper, ink)
+ * have been removed; use the tokens above instead.
+ */
 :root {
-  --cream: #f6eae3;
-  --indigo: #08036a;
-  --rose: #d5beb7;
-  --red: #d30c01;
-  --orange: #f57709;
-  --plum: #75537e;
-  --brown: #422b32;
-  --paper: #fffdfb;
-  --ink: #1b1530;
+  /* pastel families: fills */
+  --pastel-periwinkle: #dde3fa;
+  --pastel-mint: #d7f0e3;
+  --pastel-peach: #fde3d4;
+  --pastel-blush: #f9dde2;
+  --pastel-butter: #fbf1c9;
+  --pastel-lavender: #e9e1f7;
+  --pastel-sky: #daeef7;
+  /* pastel families: text on a matching fill (AA on the fill and on white) */
+  --deep-periwinkle: #3e4a7e;
+  --deep-mint: #2b6249;
+  --deep-peach: #84401e;
+  --deep-blush: #8c2f3e;
+  --deep-butter: #685310;
+  --deep-lavender: #54407e;
+  --deep-sky: #255669;
+
+  /* shadcn semantic tokens */
+  --background: #faf7f2;
+  --foreground: #2a2838;
+  --card: #ffffff;
+  --card-foreground: #2a2838;
+  --popover: #ffffff;
+  --popover-foreground: #2a2838;
+  --primary: #4f5d95;
+  --primary-foreground: #ffffff;
+  --secondary: #e9ecfa;
+  --secondary-foreground: #35406e;
+  --muted: #f2eee8;
+  --muted-foreground: #646072;
+  --accent: #fde9dd;
+  --accent-foreground: #7a3e1d;
+  --destructive: #a8495a;
+  --border: #e6e0d6;
+  --input: #ddd5c9;
+  --ring: #8e9bd0;
+
+  /* status */
+  --success: #2b6249;
+  --success-soft: #d7f0e3;
+  --success-foreground: #1f4a36;
+  --warning: #7a5410;
+  --warning-soft: #fbf1c9;
+  --warning-foreground: #5c3f0a;
+  --danger: #8c2f3e;
+  --danger-soft: #f9dde2;
+  --danger-foreground: #6e2230;
+  --money: #b08a2e;
+  --money-soft: #fbf1c9;
+  --money-foreground: #5f4a12;
+
+  /* data series */
+  --chart-1: #6c7bc4;
+  --chart-2: #e3a07c;
+  --chart-3: #6aae8c;
+  --chart-4: #ad95d6;
+  --chart-5: #df96a3;
+
+  --radius: 0.875rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #2a2838;
+  --sidebar-primary: #4f5d95;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e9ecfa;
+  --sidebar-accent-foreground: #35406e;
+  --sidebar-border: #e6e0d6;
+  --sidebar-ring: #8e9bd0;
 }
 
 @theme inline {
-  --color-cream: var(--cream);
-  --color-indigo: var(--indigo);
-  --color-rose: var(--rose);
-  --color-red: var(--red);
-  --color-orange: var(--orange);
-  --color-plum: var(--plum);
-  --color-brown: var(--brown);
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
   --font-sans: var(--font-manrope), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
+
+  --color-pastel-periwinkle: var(--pastel-periwinkle);
+  --color-pastel-mint: var(--pastel-mint);
+  --color-pastel-peach: var(--pastel-peach);
+  --color-pastel-blush: var(--pastel-blush);
+  --color-pastel-butter: var(--pastel-butter);
+  --color-pastel-lavender: var(--pastel-lavender);
+  --color-pastel-sky: var(--pastel-sky);
+  --color-deep-periwinkle: var(--deep-periwinkle);
+  --color-deep-mint: var(--deep-mint);
+  --color-deep-peach: var(--deep-peach);
+  --color-deep-blush: var(--deep-blush);
+  --color-deep-butter: var(--deep-butter);
+  --color-deep-lavender: var(--deep-lavender);
+  --color-deep-sky: var(--deep-sky);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-money: var(--money);
+  --color-money-soft: var(--money-soft);
+  --color-money-foreground: var(--money-foreground);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-html {
-  background: var(--cream);
-  color: var(--ink);
-  scroll-behavior: smooth;
+/* Page-width wrapper used by every page: `<div className="page-container">`. */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
 }
 
-body {
-  background: var(--cream);
-  font-family: var(--font-sans);
-  font-feature-settings: "tnum" 1;
-}
-
-:lang(hi),
-:lang(mr) {
-  line-height: 1.7;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    background: var(--background);
+    color: var(--foreground);
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "tnum" 1;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Devanagari needs taller lines. In the base layer so Tailwind's leading-* utilities still win. */
+  :lang(hi),
+  :lang(mr) {
+    line-height: 1.7;
+  }
 }
 
 .field-input {
   background: transparent;
   border: 0;
-  border-bottom: 2px solid color-mix(in srgb, var(--cream) 30%, transparent);
+  border-bottom: 2px solid var(--input);
   outline: none;
   transition: border-color 160ms ease;
   -moz-appearance: textfield;
 }
 .field-input:focus {
-  border-bottom-color: var(--orange);
+  border-bottom-color: var(--primary);
 }
 .field-input::-webkit-outer-spin-button,
 .field-input::-webkit-inner-spin-button {
@@ -60,8 +222,22 @@ body {
 }
 
 .dot-grid {
-  background-image: radial-gradient(color-mix(in srgb, var(--brown) 22%, transparent) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in srgb, var(--muted-foreground) 18%, transparent) 1px, transparent 1px);
   background-size: 18px 18px;
+}
+
+/* Everyone who asks the OS for less motion gets none, whatever a component does. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media print {
