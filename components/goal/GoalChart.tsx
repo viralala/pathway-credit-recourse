@@ -1,6 +1,7 @@
 "use client";
 
 import { CartesianGrid, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { displayScore } from "@/lib/i18n";
 import type { Timeline } from "@/lib/timeline";
 
 /**
@@ -17,7 +18,7 @@ export function GoalChart({
   goalMonth: number | null;
   labels: { score: string; month: string; goal: string };
 }) {
-  const data = timeline.points.map((p) => ({ month: p.month, score: Math.round(p.score) }));
+  const data = timeline.points.map((p) => ({ month: p.month, score: displayScore(p.score, p.approved) }));
   const scores = data.map((d) => d.score);
   const min = Math.min(...scores, timeline.thresholdScore) - 25;
   const max = Math.max(...scores, timeline.targetScore) + 25;

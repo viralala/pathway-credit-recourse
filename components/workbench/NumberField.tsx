@@ -20,6 +20,7 @@ export function NumberField({
   className,
   inputClassName,
   describedBy,
+  belowMinMessage,
 }: {
   id: string;
   value: number;
@@ -33,9 +34,13 @@ export function NumberField({
   className?: string;
   inputClassName?: string;
   describedBy?: string;
+  /** With this set, a typed value below `min` is refused (not raised to `min`) and this message is shown. */
+  belowMinMessage?: string;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
+  const tooLow = belowMinMessage !== undefined && draft !== null && draft.trim() !== "" && Number(draft) < min;
+  const errorId = `${id}-error`;
 
   return (
     <div className={cn("relative", className)}>
@@ -52,12 +57,14 @@ export function NumberField({
         max={max}
         step={step}
         value={draft ?? String(value)}
-        aria-describedby={describedBy}
+        aria-describedby={tooLow ? errorId : describedBy}
+        aria-invalid={tooLow || undefined}
         onChange={(e) => {
           const raw = e.target.value;
           setDraft(raw);
           if (raw.trim() === "") return;
           const v = Number(raw);
+          if (belowMinMessage !== undefined && v < min) return;
           if (Number.isFinite(v)) onValue(clamp(v));
         }}
         onBlur={() => setDraft(null)}
@@ -72,6 +79,11 @@ export function NumberField({
         <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground">
           {suffix}
         </span>
+      )}
+      {tooLow && (
+        <p id={errorId} role="alert" className="mt-1.5 text-xs font-medium text-danger-foreground">
+          {belowMinMessage}
+        </p>
       )}
     </div>
   );

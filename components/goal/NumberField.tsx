@@ -21,6 +21,7 @@ export function NumberField({
   prefix,
   suffix,
   hint,
+  belowMinMessage,
   className,
 }: {
   label: string;
@@ -33,11 +34,15 @@ export function NumberField({
   prefix?: string;
   suffix?: string;
   hint?: string;
+  /** With this set, a typed value below `min` is refused (not raised to `min`) and this message is shown. */
+  belowMinMessage?: string;
   className?: string;
 }) {
   const id = useId();
   const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
   const [draft, setDraft] = useState<string | null>(null);
+  const tooLow = belowMinMessage !== undefined && draft !== null && draft.trim() !== "" && Number(draft) < min;
   const shown = String(Math.round(value * scale * 100) / 100);
 
   return (
@@ -59,11 +64,13 @@ export function NumberField({
           max={max}
           step={step}
           value={draft ?? shown}
-          aria-describedby={hint ? hintId : undefined}
+          aria-describedby={tooLow ? errorId : hint ? hintId : undefined}
+          aria-invalid={tooLow || undefined}
           onChange={(e) => {
             const raw = e.target.value;
             setDraft(raw);
             const v = Number(raw);
+            if (belowMinMessage !== undefined && v < min) return;
             if (raw.trim() !== "" && Number.isFinite(v)) onChange(Math.min(max, Math.max(min, v)) / scale);
           }}
           onBlur={() => setDraft(null)}
@@ -79,6 +86,11 @@ export function NumberField({
           </span>
         )}
       </div>
+      {tooLow && (
+        <p id={errorId} role="alert" className="text-xs font-medium text-danger-foreground">
+          {belowMinMessage}
+        </p>
+      )}
       {hint && (
         <p id={hintId} className="text-xs text-muted-foreground">
           {hint}

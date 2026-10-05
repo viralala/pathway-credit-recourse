@@ -1,5 +1,5 @@
 import { analyze } from "@/lib/analyze";
-import { summaryText, type Lang } from "@/lib/i18n";
+import { displayScore, summaryText, type Lang } from "@/lib/i18n";
 import type { Applicant } from "@/lib/types";
 
 /**
@@ -19,7 +19,7 @@ export interface ServerSummary {
 export function serverSummary(applicant: Applicant, name: string, lang: Lang): ServerSummary {
   const r = analyze(applicant);
   const a = r.assessment;
-  const score = Math.round(a.score);
+  const score = displayScore(a.score, a.approved);
   const text = summaryText(lang, {
     name,
     approved: a.approved,

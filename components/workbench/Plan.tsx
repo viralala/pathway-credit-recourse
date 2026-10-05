@@ -2,7 +2,7 @@
 
 import { CircleCheck, CircleAlert, Lock, TriangleAlert } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { actionText, tf, type Lang, type UIStrings } from "@/lib/i18n";
+import { actionText, displayScore, tf, type Lang, type UIStrings } from "@/lib/i18n";
 import type { RecoursePlan } from "@/lib/recourse";
 import { cn } from "@/lib/utils";
 import { KICKER, SectionHeading } from "./SectionHeading";
@@ -68,7 +68,7 @@ export function Plan({
                         {ui.declined}
                       </span>
                       <span className="mt-1 block text-sm tabular-nums">
-                        {Math.round(plan.scoreBefore)} {ui.pts}
+                        {displayScore(plan.scoreBefore, false)} {ui.pts}
                       </span>
                     </span>
                   </StaggerItem>
@@ -103,7 +103,7 @@ export function Plan({
                         {feasible ? `${ui.approved}*` : ui.declined}
                       </span>
                       <span className="mt-1 block text-sm tabular-nums">
-                        {ui.planScore}: {Math.round(plan.scoreAfter)}
+                        {ui.planScore}: {displayScore(plan.scoreAfter, plan.flipsDecision)}
                       </span>
                     </span>
                   </StaggerItem>

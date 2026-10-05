@@ -62,8 +62,8 @@ export default async function TermsPage({ searchParams }: { searchParams: Promis
         </P>
         <List>
           <Item>
-            The credit model is a logistic regression trained on synthetic data that follows the column layout of the Kaggle
-            &ldquo;Give Me Some Credit&rdquo; competition dataset. No Kaggle data is included in or redistributed by Pathway.
+            The credit model is a logistic regression trained on the public Kaggle &ldquo;Give Me Some Credit&rdquo;
+            competition dataset. The dataset itself is not included in or redistributed by Pathway.
           </Item>
           <Item>
             The &ldquo;Pathway score&rdquo; comes from that model only. It is not a credit score from any credit bureau or credit

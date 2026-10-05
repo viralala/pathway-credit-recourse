@@ -4,15 +4,12 @@ import type { Applicant } from "../types";
 
 const base: Applicant = {
   utilization: 0.3,
-  age: 40,
   late30: 0,
   debtRatio: 0.35,
   monthlyIncome: 5000,
   openCreditLines: 8,
   late90: 0,
-  realEstateLoans: 1,
   late60: 0,
-  dependents: 1,
 };
 
 describe("credit model", () => {

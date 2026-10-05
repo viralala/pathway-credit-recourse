@@ -200,7 +200,7 @@ const en: GoalStrings = {
   tiers: { excellent: "Excellent", "very-good": "Very good", good: "Good", fair: "Fair", declined: "Declined" },
   plan: {
     heading: "Your plan",
-    sub: "The lowest-effort changes that reach a score of {score}. Age, dependents and real-estate loans are never touched.",
+    sub: "The lowest-effort changes that reach a score of {score}. Age, dependents and real-estate loans are not used by the model.",
     closest: "Closest plan within realistic limits",
     none: "Nothing to change: your profile already meets this goal.",
     step: "Step {n}",
@@ -341,7 +341,7 @@ const hi: GoalStrings = {
   tiers: { excellent: "उत्कृष्ट", "very-good": "बहुत अच्छी", good: "अच्छी", fair: "सामान्य", declined: "अस्वीकृत" },
   plan: {
     heading: "आपकी योजना",
-    sub: "{score} स्कोर तक पहुँचने के लिए सबसे कम प्रयास वाले बदलाव। आयु, आश्रित और रियल-एस्टेट ऋण कभी नहीं छुए जाते।",
+    sub: "{score} स्कोर तक पहुँचने के लिए सबसे कम प्रयास वाले बदलाव। आयु, आश्रित और रियल-एस्टेट ऋण मॉडल में उपयोग नहीं होते।",
     closest: "व्यावहारिक सीमाओं में सबसे नज़दीकी योजना",
     none: "कुछ बदलने की ज़रूरत नहीं: आपकी प्रोफ़ाइल पहले से इस लक्ष्य को पूरा करती है।",
     step: "चरण {n}",
@@ -482,7 +482,7 @@ const mr: GoalStrings = {
   tiers: { excellent: "उत्कृष्ट", "very-good": "खूप चांगली", good: "चांगली", fair: "साधारण", declined: "नामंजूर" },
   plan: {
     heading: "तुमची योजना",
-    sub: "{score} स्कोअरपर्यंत पोहोचण्यासाठी सर्वात कमी प्रयत्नांचे बदल. वय, अवलंबित आणि स्थावर मालमत्ता कर्जे यांना कधीही हात लावला जात नाही.",
+    sub: "{score} स्कोअरपर्यंत पोहोचण्यासाठी सर्वात कमी प्रयत्नांचे बदल. वय, अवलंबित आणि स्थावर मालमत्ता कर्जे मॉडेलमध्ये वापरली जात नाहीत.",
     closest: "व्यवहार्य मर्यादांमधील सर्वात जवळची योजना",
     none: "काहीही बदलण्याची गरज नाही: तुमचे प्रोफाइल आधीच हे ध्येय पूर्ण करते.",
     step: "पायरी {n}",

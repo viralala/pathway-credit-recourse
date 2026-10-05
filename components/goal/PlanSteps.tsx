@@ -3,7 +3,7 @@
 import { CircleCheck, ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import type { GoalPlan } from "@/lib/goal";
-import { actionText, t, tf, type Lang } from "@/lib/i18n";
+import { actionText, displayScore, t, tf, type Lang } from "@/lib/i18n";
 import type { PlanAction } from "@/lib/recourse";
 import { goalStrings } from "@/lib/strings/goal";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,6 @@ const KIND_STYLE: Record<PlanAction["kind"], string> = {
   actionable: "bg-pastel-peach text-deep-peach",
   "slow-moving": "bg-pastel-lavender text-deep-lavender",
   time: "bg-pastel-sky text-deep-sky",
-  immutable: "bg-muted text-muted-foreground",
 };
 
 /** The lowest-effort plan to the goal score, step by step. */
@@ -63,7 +62,7 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
             </ol>
           </Reveal>
           <div className="mt-4 grid gap-2 text-sm">
-            <p className="font-semibold tabular-nums">{tf(s.plan.scoreAfter, { n: Math.round(gp.scoreAfter) })}</p>
+            <p className="font-semibold tabular-nums">{tf(s.plan.scoreAfter, { n: displayScore(gp.scoreAfter) })}</p>
             <p className="flex items-start gap-2 text-muted-foreground">
               <ShieldCheck aria-hidden className="mt-0.5 size-4 shrink-0" />
               <span>

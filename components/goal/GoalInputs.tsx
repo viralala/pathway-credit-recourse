@@ -2,9 +2,10 @@
 
 import { Link2, UserRound } from "lucide-react";
 import { GOAL_LIMITS, type Goal } from "@/lib/goal";
-import { t, tf, type Lang } from "@/lib/i18n";
+import { money, t, tf, type Lang } from "@/lib/i18n";
 import { PRICING, scoreForApr, tierFor } from "@/lib/pricing";
 import { SAMPLES } from "@/lib/samples";
+import { APPLICANT_LIMITS } from "@/lib/security/validate";
 import { aprText, goalStrings } from "@/lib/strings/goal";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -13,16 +14,13 @@ import { RangeField } from "./RangeField";
 
 type Unit = "money" | "pct" | "count";
 const PROFILE: { key: FeatureKey; unit: Unit; min?: number; max: number }[] = [
-  { key: "monthlyIncome", unit: "money", max: 100000 },
+  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 100000 },
   { key: "utilization", unit: "pct", max: 150 },
   { key: "debtRatio", unit: "pct", max: 300 },
-  { key: "age", unit: "count", min: 18, max: 100 },
   { key: "openCreditLines", unit: "count", max: 30 },
   { key: "late30", unit: "count", max: 10 },
   { key: "late60", unit: "count", max: 10 },
   { key: "late90", unit: "count", max: 10 },
-  { key: "dependents", unit: "count", max: 10 },
-  { key: "realEstateLoans", unit: "count", max: 10 },
 ];
 
 /** What a max APR implies: the tier it needs, or the best tier when none is that cheap. */
@@ -118,6 +116,7 @@ export function GoalInputs({
               scale={f.unit === "pct" ? 100 : 1}
               prefix={f.unit === "money" ? "$" : undefined}
               suffix={f.unit === "pct" ? "%" : undefined}
+              belowMinMessage={f.key === "monthlyIncome" ? tf(ui.incomeMin, { min: money(f.min ?? 0) }) : undefined}
               onChange={(v) => onField(f.key, v)}
             />
           ))}

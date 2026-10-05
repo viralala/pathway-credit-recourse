@@ -3,7 +3,7 @@
 import { CalendarCheck, CircleCheck, TriangleAlert } from "lucide-react";
 import { CountUp } from "@/components/motion/CountUp";
 import type { GoalPlan } from "@/lib/goal";
-import { tf, type Lang } from "@/lib/i18n";
+import { displayScore, tf, type Lang } from "@/lib/i18n";
 import { aprText, goalStrings } from "@/lib/strings/goal";
 import { cn } from "@/lib/utils";
 import { fillNode } from "./fillNode";
@@ -28,7 +28,7 @@ export function GoalTimelineCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
       ? tf(s.status.metSub, { apr: aprText(gp.currentApr ?? gp.targetApr) })
       : gp.status === "plan"
         ? s.status.planSub
-        : tf(s.status.infeasibleSub, { score: gp.targetScore, best: Math.round(gp.scoreAfter) });
+        : tf(s.status.infeasibleSub, { score: gp.targetScore, best: displayScore(gp.scoreAfter) });
   const outcome =
     gp.status === "met-today"
       ? s.chart.outcomeMet
@@ -37,8 +37,8 @@ export function GoalTimelineCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
         : s.chart.outcomeNone;
   const aria = tf(s.chart.aria, {
     months: gp.horizonMonths,
-    start: Math.round(points[0].score),
-    end: Math.round(points[points.length - 1].score),
+    start: displayScore(points[0].score, points[0].approved),
+    end: displayScore(points[points.length - 1].score, points[points.length - 1].approved),
     threshold: timeline.thresholdScore,
     goal: timeline.targetScore,
     outcome,

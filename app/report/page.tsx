@@ -10,7 +10,7 @@ import { PrintButton } from "@/components/PrintButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { analyze } from "@/lib/analyze";
-import { actionText, asLang, displayValue, pct, reasonText, summaryText, t, tf } from "@/lib/i18n";
+import { actionText, asLang, displayScore, displayValue, featureLabel, pct, reasonText, summaryText, t, tf } from "@/lib/i18n";
 import { MODEL } from "@/lib/model";
 import { simulateUncertainty } from "@/lib/montecarlo";
 import { moneySaved } from "@/lib/pricing";
@@ -30,9 +30,6 @@ const FIELDS: FeatureKey[] = [
   "late30",
   "late60",
   "late90",
-  "age",
-  "dependents",
-  "realEstateLoans",
 ];
 
 export default async function ReportPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
@@ -44,7 +41,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
   const { applicant, name, sampleId } = applicantFromParams(sp);
   const r = analyze(applicant);
   const a = r.assessment;
-  const ref = `PW-${(sampleId ?? "custom").toUpperCase()}-${Math.round(a.score)}`;
+  const ref = `PW-${(sampleId ?? "custom").toUpperCase()}-${displayScore(a.score, a.approved)}`;
   const summary = summaryText(lang, {
     name,
     approved: a.approved,
@@ -108,7 +105,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                   {a.approved ? <CircleCheck aria-hidden className="size-4" /> : <CircleX aria-hidden className="size-4" />}
                   {a.approved ? ui.approved : ui.declined}
                 </p>
-                <p className="mt-2 text-4xl font-extrabold tabular-nums">{Math.round(a.score)}</p>
+                <p className="mt-2 text-4xl font-extrabold tabular-nums">{displayScore(a.score, a.approved)}</p>
                 <p className="text-xs">
                   {ui.threshold} {r.thresholdScore} · {ui.pd} {pct(a.pd, 1)}
                 </p>
@@ -127,7 +124,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                         R{i + 1}
                       </span>
                       <span className="min-w-0">
-                        <strong className="text-foreground">{ui.fields[x.key]}</strong>
+                        <strong className="text-foreground">{featureLabel(lang, x.key)}</strong>
                         <span className="block text-sm text-muted-foreground">{reasonText(lang, x.key, x.value)}</span>
                       </span>
                       <span className="text-sm font-bold whitespace-nowrap text-danger-foreground tabular-nums">
@@ -195,11 +192,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                           >
                             <span className="inline-flex items-center justify-end gap-1">
                               {p.approved ? <CircleCheck aria-hidden className="size-3.5" /> : null}
-                              {Math.round(p.score)}
+                              {displayScore(p.score, p.approved)}
                               {p.approved ? <span className="sr-only"> ({ui.approved})</span> : null}
                             </span>
                           </td>
-                          <td className="py-1.5 text-right text-muted-foreground tabular-nums">{Math.round(p.baselineScore)}</td>
+                          <td className="py-1.5 text-right text-muted-foreground tabular-nums">{displayScore(p.baselineScore)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -245,7 +242,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
               <div>
                 <SheetHeading>{h.model}</SheetHeading>
                 <p className="mt-1.5">
-                  {tf(h.modelBody, { source: s.sources[asDataSource(metrics.dataSource)], auc: metrics.auc })}
+                  {tf(h.modelBody, {
+                    source: s.sources[asDataSource(metrics.dataSource)],
+                    auc: metrics.test.auc.toFixed(3),
+                    validationAuc: metrics.validation.auc.toFixed(3),
+                  })}
                 </p>
               </div>
               <div>

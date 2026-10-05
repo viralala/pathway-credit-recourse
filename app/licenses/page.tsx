@@ -131,14 +131,14 @@ export default async function LicensesPage({ searchParams }: { searchParams: Pro
 
       <LegalSection id="data" title="Data and model">
         <P>
-          The credit model is a logistic regression trained on synthetic data generated to follow the column schema of the{" "}
+          The credit model is a logistic regression trained on the public dataset of the{" "}
           <ExternalLink href={KAGGLE_COMPETITION_URL}>&ldquo;Give Me Some Credit&rdquo; competition on Kaggle</ExternalLink>.
-          Only the column layout is used: no Kaggle data is included in or redistributed by Pathway. The model&rsquo;s
-          coefficients were produced by the project&rsquo;s own training script.
+          The dataset itself is not included in or redistributed by Pathway: the site ships only the fitted coefficients and
+          summary statistics produced by the project&rsquo;s own training scripts.
         </P>
         <P>
-          Scores, plans, fairness figures and metrics on the site come from this synthetic data. They describe the simulation
-          only, not any real population, person or lender.
+          Scores, plans, fairness figures and metrics on the site come from that model and dataset. They describe the simulation
+          only, not any real person or lender.
         </P>
       </LegalSection>
 

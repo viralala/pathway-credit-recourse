@@ -3,7 +3,7 @@
 import { ArrowRight, CircleCheck, CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { CountUp } from "@/components/motion/CountUp";
-import { pct, type UIStrings } from "@/lib/i18n";
+import { displayScore, pct, type UIStrings } from "@/lib/i18n";
 import type { Assessment } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { BauhausArt, Scribble } from "../BauhausArt";
@@ -49,7 +49,7 @@ export function ScorePanel({
           </div>
 
           <p className="mt-2 text-6xl font-extrabold tracking-tight tabular-nums">
-            <CountUp value={Math.round(a.score)} />
+            <CountUp value={displayScore(a.score, a.approved)} />
           </p>
           <Scribble color={a.approved ? "var(--chart-3)" : "var(--chart-2)"} />
 

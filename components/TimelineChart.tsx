@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { displayScore } from "@/lib/i18n";
 import type { UncertaintyBand } from "@/lib/montecarlo";
 import type { Timeline } from "@/lib/timeline";
 
@@ -38,6 +39,9 @@ interface Row {
   plan: number;
   baseline: number;
   band?: [number, number];
+  /** Whole-number scores for the tooltip (see `displayScore`). */
+  planShown: number;
+  baselineShown: number;
 }
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
@@ -63,11 +67,11 @@ function ChartTooltip({
       </p>
       <p className="mt-1 flex items-center gap-2">
         <span aria-hidden className="h-0.5 w-3 rounded-full" style={{ background: TIMELINE_COLORS.plan }} />
-        {labels.withPlan}: <strong className="tabular-nums">{Math.round(row.plan)}</strong>
+        {labels.withPlan}: <strong className="tabular-nums">{row.planShown}</strong>
       </p>
       <p className="flex items-center gap-2">
         <span aria-hidden className="h-0.5 w-3 rounded-full" style={{ background: TIMELINE_COLORS.baseline }} />
-        {labels.withoutPlan}: <strong className="tabular-nums">{Math.round(row.baseline)}</strong>
+        {labels.withoutPlan}: <strong className="tabular-nums">{row.baselineShown}</strong>
       </p>
       {row.band && labels.band && (
         <p className="flex items-center gap-2">
@@ -105,6 +109,8 @@ export function TimelineChart({
       plan: round1(p.score),
       baseline: round1(p.baselineScore),
       ...(b ? { band: [round1(b.low), round1(b.high)] as [number, number] } : {}),
+      planShown: displayScore(p.score, p.approved),
+      baselineShown: displayScore(p.baselineScore),
     };
   });
   const lows = data.map((d) => Math.min(d.plan, d.baseline, d.band ? d.band[0] : Infinity));

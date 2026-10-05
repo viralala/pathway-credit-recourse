@@ -93,8 +93,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
       <LegalSection id="what-we-process" title="What we process and why">
         <SubHeading>Numbers you enter</SubHeading>
         <P>
-          The applicant tool asks for monthly income, credit card utilisation, debt-to-income ratio, age, number of open credit
-          lines, counts of late payments, number of dependents and number of real-estate loans, plus an optional display name.
+          The applicant tool asks for monthly income, credit card utilisation, debt-to-income ratio, number of open credit
+          lines and counts of late payments, plus an optional display name. It does not ask for age, dependents or real-estate
+          loans: the model does not use them.
           The offer check and the goal planner ask for similar figures and compute everything in your browser.
         </P>
         <P>

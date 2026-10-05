@@ -2,7 +2,7 @@
 
 import { CircleCheck } from "lucide-react";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { reasonText, type Lang, type UIStrings } from "@/lib/i18n";
+import { featureLabel, reasonText, type Lang, type UIStrings } from "@/lib/i18n";
 import type { Reason } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { SectionHeading } from "./SectionHeading";
@@ -34,7 +34,7 @@ export function Reasons({ ui, lang, reasons }: { ui: UIStrings; lang: Lang; reas
                     R{i + 1}
                   </span>
                   <div className="min-w-0">
-                    <p className="font-bold text-foreground">{ui.fields[x.key]}</p>
+                    <p className="font-bold text-foreground">{featureLabel(lang, x.key)}</p>
                     <p className="mt-0.5 text-[15px] text-pretty text-muted-foreground">{reasonText(lang, x.key, x.value)}</p>
                   </div>
                   <div className="flex items-center gap-3">

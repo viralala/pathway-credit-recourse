@@ -5,7 +5,7 @@ import { CountUp } from "@/components/motion/CountUp";
 import { Reveal } from "@/components/motion/Reveal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { describeAssumptions, UNCERTAINTY } from "@/lib/config";
-import { likelyText, monthsText, splitAt, tf, uncertaintyRows, type Lang, type UIStrings } from "@/lib/i18n";
+import { displayScore, likelyText, monthsText, splitAt, tf, uncertaintyRows, type Lang, type UIStrings } from "@/lib/i18n";
 import type { UncertaintyBand } from "@/lib/montecarlo";
 import type { Timeline } from "@/lib/timeline";
 import { cn } from "@/lib/utils";
@@ -57,9 +57,9 @@ export function TimelineSection({
   const last = timeline.points[timeline.points.length - 1];
   const ariaLabel = tf(mc.chartLabel, {
     h: horizon,
-    from: Math.round(first.score),
-    to: Math.round(last.score),
-    base: Math.round(last.baselineScore),
+    from: displayScore(first.score, first.approved),
+    to: displayScore(last.score, last.approved),
+    base: displayScore(last.baselineScore),
     threshold: thresholdScore,
     likely,
     share: shareText,

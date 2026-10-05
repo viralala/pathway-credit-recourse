@@ -16,14 +16,24 @@ import {
 import { hrefWithLang } from "@/components/legal/links";
 import { analyze } from "@/lib/analyze";
 import { summaryText } from "@/lib/i18n";
+import { PREPROCESSING, clean } from "@/lib/model";
 import { SAMPLES } from "@/lib/samples";
 import { MAX_BODY_BYTES, readBodyWithLimit } from "@/lib/security/body";
 import { acceptRewrite, numbersIn, rewritePrompt, serverSummary } from "@/lib/security/explain";
 import { clientKey, createRateLimiter } from "@/lib/security/rateLimit";
 import { isSameOriginRequest } from "@/lib/security/sameOrigin";
-import { APPLICANT_LIMITS, isJsonContentType, parseExplainRequest, parseLang, sanitizeName, validateApplicant } from "@/lib/security/validate";
+import {
+  APPLICANT_LIMITS,
+  MIN_MONTHLY_INCOME,
+  isJsonContentType,
+  parseExplainRequest,
+  parseLang,
+  sanitizeName,
+  validateApplicant,
+} from "@/lib/security/validate";
 import { SITE_URL } from "@/lib/site";
 import type { FeatureKey } from "@/lib/types";
+import { applicantFromParams } from "@/lib/url";
 import nextConfig from "@/next.config";
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -111,6 +121,25 @@ describe("input validation", () => {
     }
     expect(validateApplicant(null).ok).toBe(false);
     expect(validateApplicant([1, 2, 3]).ok).toBe(false);
+  });
+
+  it("refuses an income of 0 or 1, which the model reads as 'not provided', on every input path", () => {
+    const base = sample("borderline");
+    expect(MIN_MONTHLY_INCOME).toBe(PREPROCESSING.incomePlaceholderMax + 1);
+    for (const income of [0, 1, 1.5]) {
+      expect(validateApplicant({ ...base, monthlyIncome: income })).toEqual({ ok: false, error: "applicant.monthlyIncome" });
+      expect(parseExplainRequest({ applicant: { ...base, monthlyIncome: income } }).ok).toBe(false);
+      // A link carrying such an income keeps the profile's income instead.
+      expect(applicantFromParams({ sample: "borderline", income: String(income) }).applicant.monthlyIncome).toBe(base.monthlyIncome);
+    }
+    // The smallest accepted income is a real income to the model: no placeholder flag is set.
+    const lowest = validateApplicant({ ...base, monthlyIncome: MIN_MONTHLY_INCOME });
+    expect(lowest.ok).toBe(true);
+    expect(clean({ ...base, monthlyIncome: MIN_MONTHLY_INCOME }).incomePlaceholder).toBe(0);
+    expect(applicantFromParams({ sample: "borderline", income: "2" }).applicant.monthlyIncome).toBe(2);
+    // The model's own handling of missing and placeholder incomes is untouched.
+    expect(clean({ ...base, monthlyIncome: 0 }).incomePlaceholder).toBe(1);
+    expect(clean({ ...base, monthlyIncome: Number.NaN }).incomeMissing).toBe(1);
   });
 
   it("drops unknown applicant keys", () => {

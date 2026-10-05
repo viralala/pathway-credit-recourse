@@ -1,7 +1,7 @@
 import { ASSUMPTIONS, type Assumptions } from "./config";
 import { MODEL, logit, score as scoreOf } from "./model";
 import { PRICING, aprForScore, emi, scoreForApr, tierFor, totalInterest, type RateTier } from "./pricing";
-import { findRecourse, targetLogit, type RecoursePlan, type RecourseResult } from "./recourse";
+import { findRecourse, reachesGoal, targetLogit, type RecoursePlan, type RecourseResult } from "./recourse";
 import { simulate, type Timeline } from "./timeline";
 import type { Applicant, CreditModel } from "./types";
 
@@ -151,7 +151,7 @@ const KIND_ORDER: Record<MilestoneKind, number> = {
 /** First month the timeline's plan state reaches `targetScore`, or null. */
 function firstMonthAt(timeline: Timeline, targetScore: number, model: CreditModel): number | null {
   const z = targetLogit(targetScore, model);
-  const hit = timeline.points.find((pt) => logit(pt.state, model) <= z);
+  const hit = timeline.points.find((pt) => reachesGoal(logit(pt.state, model), z, model));
   return hit ? hit.month : null;
 }
 

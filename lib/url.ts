@@ -1,19 +1,20 @@
 import { DEFAULT_GOAL, normalizeGoal, type Goal } from "./goal";
 import { DEFAULT_SAMPLE, getSample } from "./samples";
+import { APPLICANT_LIMITS } from "./security/validate";
 import type { Applicant, FeatureKey } from "./types";
 
-/** Short query-string names for each applicant field. */
+/**
+ * Short query-string names for each applicant field. Older links may still carry `age`, `dep`
+ * and `re`; the model does not use those inputs, so they are ignored.
+ */
 export const PARAM: Record<FeatureKey, string> = {
   monthlyIncome: "income",
   utilization: "util",
   debtRatio: "dti",
-  age: "age",
   openCreditLines: "lines",
   late30: "l30",
   late60: "l60",
   late90: "l90",
-  dependents: "dep",
-  realEstateLoans: "re",
 };
 
 /** Query-string names for the loan goal: amount in dollars, term in months, APR in percent (apr=15 means 15%). */
@@ -35,7 +36,8 @@ export function applicantFromParams(sp: SearchParams): { applicant: Applicant; n
     const raw = first(sp[p]);
     if (raw === undefined) continue;
     const v = Number(raw);
-    if (Number.isFinite(v) && v >= 0) {
+    // Below the form's minimum (a negative number, or an income of 0 or 1) is not a value: ignored.
+    if (Number.isFinite(v) && v >= APPLICANT_LIMITS[key].min) {
       applicant[key] = v;
       custom = true;
     }

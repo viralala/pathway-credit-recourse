@@ -95,9 +95,6 @@ export function describeUncertainty(u: Uncertainty = UNCERTAINTY): { label: stri
 }
 
 export const FEATURE_CLASS: Record<FeatureKey, FeatureClass> = {
-  age: "immutable",
-  dependents: "immutable",
-  realEstateLoans: "immutable",
   utilization: "actionable",
   debtRatio: "actionable",
   openCreditLines: "actionable",
@@ -117,6 +114,6 @@ export function describeAssumptions(a: Assumptions = ASSUMPTIONS): { label: stri
     { label: "Income growth", value: `${pct(a.incomeGrowthPerMonth, 1)} per month, capped at +${pct(a.maxIncomeGrowth)} in total` },
     { label: "Open credit lines", value: `change by at most ${a.maxOpenLineChange}, effective after ${a.openLineLagMonths} month` },
     { label: "Late payments", value: `counted over ${a.delinquencyWindowMonths} months, assumed evenly spread, age out if every future payment is on time` },
-    { label: "Never changed", value: "age, dependents, real-estate loans" },
+    { label: "Not used by the model", value: "age, dependents, real-estate loans" },
   ];
 }

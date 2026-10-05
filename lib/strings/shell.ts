@@ -95,7 +95,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
         "A loan rejection should come with a roadmap. Pathway explains the decision and projects a realistic path to approval.",
       disclaimerTitle: "Please note",
       disclaimer:
-        "Pathway is a simulation built on public and synthetic data. It is not a credit decision, not financial advice, and not affiliated with any lender.",
+        "Pathway is a simulation built on a public dataset. It is not a credit decision, not financial advice, and not affiliated with any lender.",
       product: "Product",
       legal: "Legal",
       openSource: "Open source",
@@ -176,7 +176,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
         "ऋण अस्वीकृति के साथ आगे का रास्ता भी मिलना चाहिए। पाथवे निर्णय समझाता है और स्वीकृति तक का एक व्यावहारिक, अनुमानित रास्ता दिखाता है।",
       disclaimerTitle: "कृपया ध्यान दें",
       disclaimer:
-        "पाथवे सार्वजनिक और कृत्रिम डेटा पर बना एक सिमुलेशन है। यह कोई ऋण निर्णय या वित्तीय सलाह नहीं है, और किसी भी ऋणदाता से संबद्ध नहीं है।",
+        "पाथवे सार्वजनिक डेटा पर बना एक सिमुलेशन है। यह कोई ऋण निर्णय या वित्तीय सलाह नहीं है, और किसी भी ऋणदाता से संबद्ध नहीं है।",
       product: "उत्पाद",
       legal: "कानूनी",
       openSource: "ओपन सोर्स",
@@ -257,7 +257,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
         "कर्ज नाकारले गेले तरी पुढचा मार्ग दिसायला हवा. पाथवे निर्णय समजावतो आणि मंजुरीपर्यंतचा व्यवहार्य, अंदाजित मार्ग दाखवतो.",
       disclaimerTitle: "कृपया लक्षात घ्या",
       disclaimer:
-        "पाथवे हे सार्वजनिक आणि कृत्रिम डेटावर बनवलेले सिम्युलेशन आहे. हा कर्जाचा निर्णय किंवा आर्थिक सल्ला नाही, आणि कोणत्याही कर्जदात्याशी संलग्न नाही.",
+        "पाथवे हे सार्वजनिक डेटावर बनवलेले सिम्युलेशन आहे. हा कर्जाचा निर्णय किंवा आर्थिक सल्ला नाही, आणि कोणत्याही कर्जदात्याशी संलग्न नाही.",
       product: "उत्पादन",
       legal: "कायदेशीर",
       openSource: "ओपन सोर्स",

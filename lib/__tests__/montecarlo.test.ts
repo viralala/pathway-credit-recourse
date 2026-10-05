@@ -40,7 +40,7 @@ describe("seeded randomness", () => {
     expect(applicantSeed(sample("borderline"))).toBe(applicantSeed({ ...sample("borderline") }));
     expect(applicantSeed(sample("borderline"))).not.toBe(applicantSeed(sample("clear-rejection")));
     // Rounded like the URL, so a shared link reproduces the band.
-    expect(applicantSeed({ ...sample("borderline"), utilization: 0.55000001 })).toBe(applicantSeed(sample("borderline")));
+    expect(applicantSeed({ ...sample("borderline"), utilization: sample("borderline").utilization + 1e-8 })).toBe(applicantSeed(sample("borderline")));
   });
 });
 
@@ -194,7 +194,8 @@ describe("savingsView (money saved panel)", () => {
   });
 
   it("an infeasible applicant gets the closest plan, honestly (no saving while still declined)", () => {
-    const hard = { ...sample("clear-rejection"), monthlyIncome: 900, utilization: 1.4, debtRatio: 2.5, late90: 4, late60: 3, late30: 4, openCreditLines: 1, dependents: 4, age: 22 };
+    // A history reported as bureau code 98: the model flags it and no action clears the flag.
+    const hard = { ...sample("clear-rejection"), late30: 98, late60: 98, late90: 98 };
     const r = analyze(hard);
     expect(r.recourse.status).toBe("infeasible");
     const v = savingsView(r);

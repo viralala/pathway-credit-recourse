@@ -1,6 +1,6 @@
 import { ASSUMPTIONS, UNCERTAINTY, type Assumptions, type Uncertainty } from "./config";
-import { MODEL, logit, scoreFromLogit, thresholdLogit } from "./model";
-import { agedCount, debtRatioAfter, type RecoursePlan } from "./recourse";
+import { MODEL, approvesLogit, logit, scoreFromLogit } from "./model";
+import { agedLateCount, debtRatioAfter, type RecoursePlan } from "./recourse";
 import type { Applicant, CreditModel, FeatureKey } from "./types";
 
 /**
@@ -103,16 +103,15 @@ export function simulateUncertainty(
   const W = Math.max(1, Math.floor(a.delinquencyWindowMonths));
   const runs = Math.max(1, Math.floor(u.runs));
   const months = H + 1;
-  const zThreshold = thresholdLogit(model);
 
   // Calendar ageing of the late payments already on file: identical in every run.
   const aged30 = new Float64Array(months);
   const aged60 = new Float64Array(months);
   const aged90 = new Float64Array(months);
   for (let m = 0; m < months; m++) {
-    aged30[m] = agedCount(applicant.late30, m, W);
-    aged60[m] = agedCount(applicant.late60, m, W);
-    aged90[m] = agedCount(applicant.late90, m, W);
+    aged30[m] = agedLateCount(applicant.late30, m, W);
+    aged60[m] = agedLateCount(applicant.late60, m, W);
+    aged90[m] = agedLateCount(applicant.late90, m, W);
   }
 
   const u0 = applicant.utilization;
@@ -175,7 +174,7 @@ export function simulateUncertainty(
       // Equivalent to isApproved(s, model), sharing one logit with the score.
       const z = logit(s, model);
       scores[row + m] = scoreFromLogit(z, model);
-      if (approvedAt === Number.POSITIVE_INFINITY && z <= zThreshold) approvedAt = m;
+      if (approvedAt === Number.POSITIVE_INFINITY && approvesLogit(z, model)) approvedAt = m;
     }
     approvalMonths[r] = approvedAt;
   }

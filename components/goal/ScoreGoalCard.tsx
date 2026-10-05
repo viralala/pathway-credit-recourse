@@ -4,7 +4,7 @@ import { ArrowRight, CircleCheck, Flag } from "lucide-react";
 import type { CSSProperties } from "react";
 import { CountUp } from "@/components/motion/CountUp";
 import type { GoalPlan } from "@/lib/goal";
-import { tf, type Lang } from "@/lib/i18n";
+import { displayScore, tf, type Lang } from "@/lib/i18n";
 import { MODEL } from "@/lib/model";
 import { PRICING, type RateTier } from "@/lib/pricing";
 import { aprText, goalStrings } from "@/lib/strings/goal";
@@ -52,7 +52,7 @@ function labelPlacement(p: number): { className: string; style: CSSProperties } 
 export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const s = goalStrings(lang);
   const zs = zones();
-  const current = Math.round(gp.currentScore);
+  const current = displayScore(gp.currentScore, !gp.declinedToday);
   const goalPos = position(gp.targetScore, zs);
   const todayPos = position(gp.currentScore, zs);
   const goalLabel = labelPlacement(goalPos);

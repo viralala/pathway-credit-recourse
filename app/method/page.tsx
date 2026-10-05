@@ -13,7 +13,7 @@ import { asLang, money } from "@/lib/i18n";
 import { MODEL } from "@/lib/model";
 import { describePricing, emi, moneySaved, PRICING, scoreForApr, tierFor, totalInterest } from "@/lib/pricing";
 import { aprText, hrefWithLang, PAGES, pagesText } from "@/lib/strings/pages";
-import type { FeatureClass } from "@/lib/types";
+import type { FeatureClass, FeatureKey, ModelFeatureKey } from "@/lib/types";
 import type { SearchParams } from "@/lib/url";
 import metrics from "@/public/metrics.json";
 
@@ -23,11 +23,13 @@ export const metadata: Metadata = {
     "How Pathway works: an interpretable credit model, a lowest-effort recourse search, a month-by-month timeline, illustrative risk-based pricing and a Monte Carlo certainty band.",
 };
 
-const CLASS_STYLE: Record<FeatureClass, string> = {
-  immutable: "bg-pastel-lavender text-deep-lavender",
+/** "derived" marks the three 0/1 flags the cleaning works out; nobody enters them and no plan changes them. */
+const CLASS_STYLE: Record<FeatureClass | "derived", string> = {
+  derived: "bg-pastel-lavender text-deep-lavender",
   actionable: "bg-pastel-mint text-deep-mint",
   "slow-moving": "bg-pastel-butter text-deep-butter",
 };
+const classOf = (key: ModelFeatureKey): FeatureClass | "derived" => (key in FEATURE_CLASS ? FEATURE_CLASS[key as FeatureKey] : "derived");
 
 const ON_THIS_PAGE = [
   { id: "results", label: "Results" },
@@ -63,9 +65,18 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
   const en = PAGES.en;
 
   const steps = [
-    { t: "Train offline", d: "ml/train.py fits logistic regression in Python on Give Me Some Credit, or a synthetic equivalent." },
-    { t: "Export", d: "Coefficients, scaler, intercept and threshold go to lib/model.json. No Python runs in production." },
-    { t: "Recourse engine", d: "TypeScript searches every feasible change set and scores each one exactly with the linear model." },
+    {
+      t: "Train offline",
+      d: "Python cleans Kaggle's Give Me Some Credit data, splits it 60/20/20, fits logistic regression on the training rows and picks the cut-off on the validation rows.",
+    },
+    {
+      t: "Export",
+      d: "Coefficients, scaler, intercept, cut-off and cleaning rules go to lib/model.json and lib/model.meta.json. No Python runs in production.",
+    },
+    {
+      t: "Recourse engine",
+      d: "TypeScript searches every feasible change set, scores each one with the same cleaning and model, and only returns a plan the model itself approves.",
+    },
     { t: "Timeline", d: "A month-by-month simulator moves each change at a capped pace and finds the approval month." },
   ];
 
@@ -127,12 +138,15 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
         {/* Headline metrics (public/metrics.json) */}
         <section id="results" aria-labelledby="results-title" className="mt-12 scroll-mt-24">
           <SectionHeading id="results-title" eyebrow="Results" title="Headline metrics" />
-          <Stagger className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <Stagger className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-5">
             <StaggerItem>
-              <StatTile tone="periwinkle" label="Model AUC" value={metrics.auc} decimals={3} />
+              <StatTile tone="periwinkle" label="Model AUC, validation" value={metrics.validation.auc} decimals={3} />
             </StaggerItem>
             <StaggerItem>
-              <StatTile tone="mint" label="Plans that flip the decision" value={metrics.planSuccessRate * 100} suffix="%" />
+              <StatTile tone="periwinkle" label="Model AUC, test" value={metrics.test.auc} decimals={3} />
+            </StaggerItem>
+            <StaggerItem>
+              <StatTile tone="mint" label="Rejected applicants with a plan" value={metrics.planSuccessRate * 100} decimals={1} suffix="%" />
             </StaggerItem>
             <StaggerItem>
               <StatTile label="Median months to approval" value={metrics.medianMonthsToApproval} />
@@ -142,8 +156,12 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             </StaggerItem>
           </Stagger>
           <p className="mt-3 text-sm text-muted-foreground">
-            Data: {metrics.dataNote}. {metrics.rejectedEvaluated} rejected hold-out applicants evaluated by the same TypeScript engine
-            the app ships.
+            Data: {metrics.dataNote}. The cut-off was chosen on the validation rows; the test rows were used once, to confirm it.
+            At the cut-off the model approves {(metrics.validation.approvalRate * 100).toFixed(1)}% of validation applicants and
+            catches {(metrics.validation.recall * 100).toFixed(1)}% of defaulters (test: {(metrics.test.approvalRate * 100).toFixed(1)}%
+            and {(metrics.test.recall * 100).toFixed(1)}%). Plan figures: all {metrics.rejectedEvaluated.toLocaleString("en-US")}{" "}
+            rejected test applicants, run through the same TypeScript engine the app ships; every plan counted was re-scored by the
+            model and approved.
           </p>
         </section>
 
@@ -194,8 +212,8 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                       <TableRow key={f.key}>
                         <TableCell className="whitespace-normal font-semibold">{f.label}</TableCell>
                         <TableCell>
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[FEATURE_CLASS[f.key]]}`}>
-                            {FEATURE_CLASS[f.key]}
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[classOf(f.key)]}`}>
+                            {classOf(f.key)}
                           </span>
                         </TableCell>
                         <TableCell className="text-right font-mono tabular-nums">
@@ -207,8 +225,10 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                   </TableBody>
                 </Table>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Standardized coefficients on the log-odds of serious delinquency; positive means riskier. Income enters as log(1 +
-                  income).
+                  Standardized coefficients on the log-odds of serious delinquency; positive means riskier. Income and the three
+                  late-payment counts enter as log(1 + value). The three derived features are 0/1 flags worked out from the inputs
+                  (a late-payment count reported as code 96/98, no income given, income given as 0 or 1); for an applicant who enters
+                  a real income and real counts they are all 0. Age, dependents and real-estate loans are not model inputs.
                 </p>
               </div>
             </Reveal>
@@ -217,9 +237,11 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <h3 className="text-lg font-bold">Assumptions (lib/config.ts)</h3>
                 <ConfigList items={describeAssumptions()} className="mt-4 space-y-3 text-sm" />
                 <p className="mt-6 text-sm text-foreground/80">
-                  Approval cut-off: Pathway score {MODEL.thresholdScore} (predicted default probability ≤{" "}
-                  {(MODEL.threshold * 100).toFixed(2)}%, which rejects the riskiest 20% of training applicants). Every{" "}
-                  {MODEL.pointsToDoubleOdds} points doubles the odds of repaying.
+                  Approval cut-off: a predicted default probability below {(MODEL.threshold * 100).toFixed(0)}% is approved; exactly{" "}
+                  {(MODEL.threshold * 100).toFixed(0)}% or above is declined. {(MODEL.threshold * 100).toFixed(0)}% sits at Pathway score{" "}
+                  {MODEL.thresholdScore}. The cut-off was chosen on the validation rows, where it declines{" "}
+                  {(metrics.validation.rejectionRate * 100).toFixed(1)}% of applicants. Every {MODEL.pointsToDoubleOdds} points doubles
+                  the odds of repaying.
                 </p>
                 <Button asChild className="mt-6 h-10 rounded-xl px-4">
                   <Link href={L("/fairness")}>

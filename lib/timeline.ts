@@ -1,6 +1,6 @@
 import { ASSUMPTIONS, type Assumptions } from "./config";
 import { MODEL, isApproved, logit, score } from "./model";
-import { agedCount, debtRatioAfter, effectiveTargetScore, targetLogit, type RecoursePlan } from "./recourse";
+import { agedLateCount, debtRatioAfter, effectiveTargetScore, reachesGoal, targetLogit, type RecoursePlan } from "./recourse";
 import type { Applicant, CreditModel } from "./types";
 
 export interface TimelinePoint {
@@ -38,9 +38,9 @@ export function stateAt(
 ): Applicant {
   const w = a.delinquencyWindowMonths;
   const aged = {
-    late30: agedCount(applicant.late30, month, w),
-    late60: agedCount(applicant.late60, month, w),
-    late90: agedCount(applicant.late90, month, w),
+    late30: agedLateCount(applicant.late30, month, w),
+    late60: agedLateCount(applicant.late60, month, w),
+    late90: agedLateCount(applicant.late90, month, w),
   };
   if (!plan) return { ...applicant, ...aged };
 
@@ -81,7 +81,7 @@ export function simulate(
     const approved = isApproved(state, model);
     if (approved && approvalMonth === null) approvalMonth = m;
     if (isApproved(baseState, model) && baselineApprovalMonth === null) baselineApprovalMonth = m;
-    if (targetMonth === null && logit(state, model) <= zGoal) targetMonth = m;
+    if (targetMonth === null && reachesGoal(logit(state, model), zGoal, model)) targetMonth = m;
     points.push({ month: m, score: score(state, model), baselineScore: score(baseState, model), approved, state });
   }
   return {

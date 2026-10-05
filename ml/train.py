@@ -1,27 +1,37 @@
-"""Train Pathway's interpretable credit model offline and export it as JSON.
+"""RETIRED: the version-1 training script. It does NOT produce the model the app ships.
+
+The shipped model (lib/model.json, version 2) is the Kaggle-trained Logistic Regression
+built by the phased pipeline:
+
+    ml/preprocess.py -> ml/features.py -> ml/split.py -> ml/train_models.py
+    -> ml/evaluate_models.py -> ml/select_cutoff.py -> ml/export_model.py
+
+This script is the older one-file path (10 raw features including age and dependents,
+a 75/25 split, a cut-off at the riskiest 20%, and a synthetic fallback when the Kaggle
+file is absent). It used to write lib/model.json, public/metrics.json and
+ml/artifacts/eval_sample.json directly, so a single run would have silently replaced
+the production model with a different one. It can no longer do that:
+
+    * it only runs when given --legacy-out DIR, and writes everything inside DIR;
+    * DIR may not be (or be inside) lib/, public/ or ml/artifacts/;
+    * it no longer runs scripts/evaluate.ts, which describes the version-2 model.
+
+It is kept for reference, and because ml/artifacts/eval_sample.json (3,000 synthetic
+applicants it generated) is still used as a fixed fixture by the app's tests.
 
 Usage (from the repo root):
-    python ml/train.py              # trains, exports, then runs the TS recourse evaluation
-    python ml/train.py --skip-eval  # only trains + exports
+    python ml/train.py --legacy-out /some/scratch/dir
 
-Data:
-    If data/cs-training.csv (Kaggle "Give Me Some Credit") exists it is used.
-    Otherwise a synthetic dataset with the same columns is generated so the
-    project works out of the box. The data source is recorded in the outputs.
-
-Outputs:
-    lib/model.json                 coefficients, scaler, intercept, threshold
-    public/metrics.json            AUC + data notes (recourse metrics are merged
-                                   in by scripts/evaluate.ts, the same TypeScript
-                                   engine the web app ships)
-    ml/artifacts/eval_sample.json  held-out applicants used for recourse metrics
+Outputs, all inside DIR:
+    model.json         version-1 coefficients, scaler, intercept, threshold
+    metrics.json       AUC + data notes
+    eval_sample.json   held-out applicants
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,9 +45,8 @@ from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "data" / "cs-training.csv"
-MODEL_OUT = ROOT / "lib" / "model.json"
-METRICS_OUT = ROOT / "public" / "metrics.json"
-EVAL_OUT = ROOT / "ml" / "artifacts" / "eval_sample.json"
+# Where the shipped model and its reports live. This script must never write there.
+PROTECTED_DIRS = [ROOT / "lib", ROOT / "public", ROOT / "ml" / "artifacts"]
 
 SEED = 42
 TARGET = "SeriousDlqin2yrs"
@@ -152,10 +161,27 @@ def transform(x: pd.DataFrame) -> np.ndarray:
     return np.column_stack(cols)
 
 
+def legacy_out_dir(value: Path | None) -> Path:
+    """The directory to write to, or exit with an explanation. Never a protected directory."""
+    if value is None:
+        sys.exit(
+            "ml/train.py is the retired version-1 training script and no longer writes lib/model.json.\n"
+            "The shipped model comes from ml/train_models.py -> ml/select_cutoff.py -> ml/export_model.py.\n"
+            "To run this script for reference: python ml/train.py --legacy-out <a scratch directory>"
+        )
+    out = value.resolve()
+    for protected in PROTECTED_DIRS:
+        if out == protected.resolve() or protected.resolve() in out.parents:
+            sys.exit(f"--legacy-out may not be inside {protected.relative_to(ROOT).as_posix()}/: that is where the shipped model lives")
+    return out
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--skip-eval", action="store_true")
+    parser = argparse.ArgumentParser(description="Retired version-1 training script; see the module docstring.")
+    parser.add_argument("--legacy-out", type=Path, help="directory to write the version-1 outputs to (required)")
     args = parser.parse_args()
+    out_dir = legacy_out_dir(args.legacy_out)
+    MODEL_OUT, METRICS_OUT, EVAL_OUT = out_dir / "model.json", out_dir / "metrics.json", out_dir / "eval_sample.json"
 
     raw, source = load_data()
     income_median = float(raw["MonthlyIncome"].median())
@@ -240,11 +266,7 @@ def main() -> None:
     sample = x_test.sample(n=min(3000, len(x_test)), random_state=SEED)
     EVAL_OUT.parent.mkdir(parents=True, exist_ok=True)
     EVAL_OUT.write_text(json.dumps(sample.round(4).to_dict(orient="records")) + "\n")
-    print(f"wrote {MODEL_OUT.relative_to(ROOT)}, {METRICS_OUT.relative_to(ROOT)}, {EVAL_OUT.relative_to(ROOT)}")
-
-    if not args.skip_eval:
-        npx = "npx.cmd" if sys.platform == "win32" else "npx"
-        subprocess.run([npx, "tsx", "scripts/evaluate.ts"], cwd=ROOT, check=True)
+    print(f"wrote {MODEL_OUT}, {METRICS_OUT}, {EVAL_OUT}")
 
 
 if __name__ == "__main__":

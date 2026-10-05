@@ -1,20 +1,34 @@
+/**
+ * What an applicant provides: the seven inputs the model reads. Age, dependents and
+ * real-estate loans are not here because the model does not use them (see EXCLUDED_FEATURES
+ * in ml/features.py).
+ */
 export type FeatureKey =
   | "utilization"
-  | "age"
   | "late30"
   | "debtRatio"
   | "monthlyIncome"
   | "openCreditLines"
   | "late90"
-  | "realEstateLoans"
-  | "late60"
-  | "dependents";
+  | "late60";
 
-/** One applicant, in the units of the Give Me Some Credit dataset. */
+/** 0/1 flags the cleaning step works out from the inputs. Nobody types these in. */
+export type DerivedFeatureKey = "lateSpecialCode" | "incomeMissing" | "incomePlaceholder";
+
+/** The ten features the Logistic Regression is fitted on. */
+export type ModelFeatureKey = FeatureKey | DerivedFeatureKey;
+
+/**
+ * One applicant, in the units of the Give Me Some Credit dataset.
+ * `monthlyIncome: NaN` means the income was not provided; every other field must be a number.
+ */
 export type Applicant = Record<FeatureKey, number>;
 
+/** An applicant after cleaning (lib/model.ts `clean`): the values the model is actually given. */
+export type ModelInput = Record<ModelFeatureKey, number>;
+
 export interface ModelFeature {
-  key: FeatureKey;
+  key: ModelFeatureKey;
   label: string;
   source: string;
   clip: [number, number];
@@ -37,5 +51,5 @@ export interface CreditModel {
   features: ModelFeature[];
 }
 
-/** How a feature may be used in a plan. */
-export type FeatureClass = "immutable" | "actionable" | "slow-moving";
+/** How an applicant input may be used in a plan. */
+export type FeatureClass = "actionable" | "slow-moving";

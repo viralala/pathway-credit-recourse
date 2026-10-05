@@ -1,18 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ASSUMPTIONS, FEATURE_CLASS } from "../config";
-import { evaluateApplicants, summarize } from "../evaluate";
+import { ASSUMPTIONS } from "../config";
+import { evaluateApplicants, summarize, type EvalApplicant } from "../evaluate";
 import { MODEL, isApproved } from "../model";
 import { agedCount, findRecourse } from "../recourse";
 import { SAMPLES } from "../samples";
 import { simulate } from "../timeline";
-import type { Applicant, FeatureKey } from "../types";
+import type { Applicant } from "../types";
 
-const evalSample: Applicant[] = JSON.parse(
+/** Synthetic applicants kept as a fixed test fixture (they carry an age, which the model ignores). */
+const evalSample: EvalApplicant[] = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "../../ml/artifacts/eval_sample.json"), "utf8"),
 );
-const immutable = (Object.keys(FEATURE_CLASS) as FeatureKey[]).filter((k) => FEATURE_CLASS[k] === "immutable");
 
 describe("late payments ageing out", () => {
   it("never increases and reaches zero at the end of the window", () => {
@@ -40,12 +40,11 @@ describe("recourse engine", () => {
     }
   });
 
-  it("never alters immutable features and respects every cap", () => {
+  it("respects every cap", () => {
     for (const a of evalSample.slice(0, 600)) {
       const r = findRecourse(a);
       if (r.status !== "plan") continue;
       const p = r.plan;
-      for (const k of immutable) expect(p.target[k]).toBe(a[k]);
       expect(p.incomeGrowth).toBeLessThanOrEqual(ASSUMPTIONS.maxIncomeGrowth + 1e-9);
       expect(p.debtPaymentCut).toBeLessThanOrEqual(ASSUMPTIONS.maxDebtPaymentCut + 1e-9);
       expect(Math.abs(p.openLineChange)).toBeLessThanOrEqual(ASSUMPTIONS.maxOpenLineChange);

@@ -3,7 +3,7 @@ import { MODEL } from "./model";
 import { PRICING, describePricing, type RateTier } from "./pricing";
 import type { PlanAction } from "./recourse";
 import type { Sample } from "./samples";
-import type { FeatureKey } from "./types";
+import type { DerivedFeatureKey, FeatureKey, ModelFeatureKey } from "./types";
 
 export type Lang = "en" | "hi" | "mr";
 export const LANGS: { id: Lang; label: string; native: string }[] = [
@@ -26,6 +26,16 @@ export function displayValue(key: FeatureKey, v: number): string {
   if (key === "monthlyIncome") return money(v);
   if (key === "utilization" || key === "debtRatio") return pct(v);
   return String(Math.round(v));
+}
+
+/**
+ * A Pathway score as the whole number shown on screen. A declined applicant's score never rounds up
+ * to the approval score: 649.6 is shown as 649, not as "650" next to "approval needs 650".
+ * Display only; decisions and plans use the unrounded score. `approved` defaults to what the score says.
+ */
+export function displayScore(score: number, approved: boolean = score >= MODEL.thresholdScore): number {
+  const rounded = Math.round(score);
+  return approved ? rounded : Math.min(rounded, MODEL.thresholdScore - 1);
 }
 
 const EN = {
@@ -59,8 +69,8 @@ const EN = {
   noReasons: "Nothing is holding this application back.",
   what: "What",
   whatTitle: "The lowest-effort plan that flips the decision",
-  whatSub: "Only changes a person can realistically make. Immutable traits are never touched.",
-  never: "Never changed",
+  whatSub: "Only changes a person can realistically make. Age, dependents and real-estate loans are not used by the model.",
+  never: "Not used by the model",
   neverList: "Age · Dependents · Real-estate loans",
   effort: "effort",
   monthsShort: "mo",
@@ -78,25 +88,23 @@ const EN = {
   rewriteNote: "Uses Claude only if the server has an API key; otherwise you keep the template.",
   printReport: "Open lender report",
   disclaimer:
-    "Pathway is a simulation built on public/synthetic data for a hackathon. It is not a credit decision, not financial advice, and not affiliated with any lender.",
+    "Pathway is a simulation built on a public dataset for a hackathon. It is not a credit decision, not financial advice, and not affiliated with any lender.",
   fields: {
     monthlyIncome: "Monthly income",
     utilization: "Card utilization",
     debtRatio: "Debt-to-income",
-    age: "Age",
     openCreditLines: "Open credit lines",
     late30: "30–59 days late",
     late60: "60–89 days late",
     late90: "90+ days late",
-    dependents: "Dependents",
-    realEstateLoans: "Real-estate loans",
   } as Record<FeatureKey, string>,
 
   // Workbench
   kicker: "Explainable credit, in plain words",
   profileTitle: "Applicant profile",
   profileSub: "Change any value and everything below updates instantly.",
-  historyTitle: "Credit history and household",
+  incomeMin: "Enter a monthly income of at least {min}. The model reads 0 or 1 as “income not provided”, not as an income.",
+  historyTitle: "Credit history",
   pts: "pts",
   aiBadge: "AI rewrite",
   templateBadge: "Template",
@@ -242,8 +250,8 @@ const UI: Record<Lang, UIStrings> = {
     noReasons: "इस आवेदन को कुछ भी नहीं रोक रहा।",
     what: "क्या",
     whatTitle: "निर्णय बदलने वाली सबसे आसान योजना",
-    whatSub: "केवल वही बदलाव जो व्यक्ति वास्तव में कर सकता है। न बदलने योग्य बातें कभी नहीं छुई जातीं।",
-    never: "कभी नहीं बदला जाता",
+    whatSub: "केवल वही बदलाव जो व्यक्ति वास्तव में कर सकता है। आयु, आश्रित और रियल-एस्टेट ऋण मॉडल में उपयोग नहीं होते।",
+    never: "मॉडल में उपयोग नहीं होता",
     neverList: "आयु · आश्रित · रियल-एस्टेट ऋण",
     effort: "प्रयास",
     monthsShort: "माह",
@@ -261,24 +269,22 @@ const UI: Record<Lang, UIStrings> = {
     rewriteNote: "सर्वर पर API कुंजी होने पर ही Claude का उपयोग होता है; अन्यथा यही टेम्पलेट रहता है।",
     printReport: "ऋणदाता रिपोर्ट खोलें",
     disclaimer:
-      "पाथवे एक हैकथॉन के लिए सार्वजनिक/कृत्रिम डेटा पर बना सिमुलेशन है। यह कोई ऋण निर्णय या वित्तीय सलाह नहीं है और किसी ऋणदाता से संबद्ध नहीं है।",
+      "पाथवे एक हैकथॉन के लिए सार्वजनिक डेटा पर बना सिमुलेशन है। यह कोई ऋण निर्णय या वित्तीय सलाह नहीं है और किसी ऋणदाता से संबद्ध नहीं है।",
     fields: {
       monthlyIncome: "मासिक आय",
       utilization: "कार्ड उपयोग",
       debtRatio: "कर्ज़-आय अनुपात",
-      age: "आयु",
       openCreditLines: "सक्रिय क्रेडिट खाते",
       late30: "30–59 दिन देरी",
       late60: "60–89 दिन देरी",
       late90: "90+ दिन देरी",
-      dependents: "आश्रित",
-      realEstateLoans: "रियल-एस्टेट ऋण",
     } as Record<FeatureKey, string>,
 
     kicker: "समझ में आने वाले ऋण निर्णय, सरल शब्दों में",
     profileTitle: "आवेदक प्रोफ़ाइल",
     profileSub: "कोई भी मान बदलें, नीचे सब कुछ तुरंत अपडेट हो जाएगा।",
-    historyTitle: "क्रेडिट इतिहास और परिवार",
+    incomeMin: "कम से कम {min} की मासिक आय दर्ज करें। मॉडल 0 या 1 को आय नहीं, बल्कि “आय नहीं दी गई” मानता है।",
+    historyTitle: "क्रेडिट इतिहास",
     pts: "अंक",
     aiBadge: "AI द्वारा दोबारा लिखा गया",
     templateBadge: "टेम्पलेट",
@@ -419,8 +425,8 @@ const UI: Record<Lang, UIStrings> = {
     noReasons: "या अर्जाला काहीही अडवत नाही.",
     what: "काय",
     whatTitle: "निर्णय बदलणारी सर्वात सोपी योजना",
-    whatSub: "फक्त व्यक्ती प्रत्यक्षात करू शकेल असे बदल. न बदलता येणाऱ्या गोष्टींना कधीही हात लावला जात नाही.",
-    never: "कधीही बदलले जात नाही",
+    whatSub: "फक्त व्यक्ती प्रत्यक्षात करू शकेल असे बदल. वय, अवलंबित आणि स्थावर मालमत्ता कर्जे मॉडेलमध्ये वापरली जात नाहीत.",
+    never: "मॉडेलमध्ये वापरले जात नाही",
     neverList: "वय · अवलंबित · स्थावर मालमत्ता कर्जे",
     effort: "प्रयत्न",
     monthsShort: "म.",
@@ -438,24 +444,22 @@ const UI: Record<Lang, UIStrings> = {
     rewriteNote: "सर्व्हरवर API की असेल तरच Claude वापरले जाते; अन्यथा हाच साचा राहतो.",
     printReport: "कर्जदाता अहवाल उघडा",
     disclaimer:
-      "पाथवे हे हॅकॅथॉनसाठी सार्वजनिक/कृत्रिम डेटावर बनवलेले सिम्युलेशन आहे. हा कर्जाचा निर्णय किंवा आर्थिक सल्ला नाही आणि कोणत्याही कर्जदात्याशी संलग्न नाही.",
+      "पाथवे हे हॅकॅथॉनसाठी सार्वजनिक डेटावर बनवलेले सिम्युलेशन आहे. हा कर्जाचा निर्णय किंवा आर्थिक सल्ला नाही आणि कोणत्याही कर्जदात्याशी संलग्न नाही.",
     fields: {
       monthlyIncome: "मासिक उत्पन्न",
       utilization: "कार्ड वापर",
       debtRatio: "कर्ज-उत्पन्न गुणोत्तर",
-      age: "वय",
       openCreditLines: "सक्रिय क्रेडिट खाती",
       late30: "30–59 दिवस उशीर",
       late60: "60–89 दिवस उशीर",
       late90: "90+ दिवस उशीर",
-      dependents: "अवलंबित",
-      realEstateLoans: "स्थावर मालमत्ता कर्जे",
     } as Record<FeatureKey, string>,
 
     kicker: "समजण्याजोगे कर्ज निर्णय, सोप्या शब्दांत",
     profileTitle: "अर्जदार प्रोफाइल",
     profileSub: "कोणतेही मूल्य बदला, खालील सर्व काही लगेच अद्ययावत होईल.",
-    historyTitle: "पत इतिहास आणि कुटुंब",
+    incomeMin: "किमान {min} इतके मासिक उत्पन्न भरा. मॉडेल 0 किंवा 1 ला उत्पन्न न मानता “उत्पन्न दिलेले नाही” असे मानते.",
+    historyTitle: "पत इतिहास",
     pts: "गुण",
     aiBadge: "AI ने पुन्हा लिहिलेले",
     templateBadge: "साचा",
@@ -651,7 +655,37 @@ export function uncertaintyRows(lang: Lang): { label: string; value: string }[] 
   ];
 }
 
-const REASONS: Record<Lang, Record<FeatureKey, string>> = {
+/** Short names for the three flags the cleaning derives. Inputs take their name from `fields`. */
+const FLAG_LABELS: Record<Lang, Record<DerivedFeatureKey, string>> = {
+  en: {
+    lateSpecialCode: "Late payments reported as a code",
+    incomeMissing: "Income not provided",
+    incomePlaceholder: "Income given as 0 or 1",
+  },
+  hi: {
+    lateSpecialCode: "देर से भुगतान कोड के रूप में दर्ज",
+    incomeMissing: "आय नहीं दी गई",
+    incomePlaceholder: "आय 0 या 1 दी गई",
+  },
+  mr: {
+    lateSpecialCode: "उशिरा हप्ते कोड म्हणून नोंदवले",
+    incomeMissing: "उत्पन्न दिलेले नाही",
+    incomePlaceholder: "उत्पन्न 0 किंवा 1 दिले",
+  },
+};
+
+const isFlag = (key: ModelFeatureKey): key is DerivedFeatureKey => key in FLAG_LABELS.en;
+
+/** Display name of any model feature: an applicant input or a derived flag. */
+export function featureLabel(lang: Lang, key: ModelFeatureKey): string {
+  return isFlag(key) ? FLAG_LABELS[lang][key] : t(lang).fields[key];
+}
+
+/**
+ * One sentence per model feature. lib/model.ts `reasons` only lists a flag when it is set, so the
+ * flag sentences are always true of the applicant they are shown to.
+ */
+const REASONS: Record<Lang, Record<ModelFeatureKey, string>> = {
   en: {
     utilization: "Your credit cards are {value} used. High balances signal stretched finances.",
     debtRatio: "Monthly debt payments take {value} of your income.",
@@ -660,9 +694,10 @@ const REASONS: Record<Lang, Record<FeatureKey, string>> = {
     late60: "{value} payment(s) were 60–89 days late in the last 2 years.",
     late90: "{value} payment(s) were 90+ days late in the last 2 years.",
     openCreditLines: "Only {value} open credit lines: a thin credit history.",
-    age: "Your age group ({value}) shows higher default rates in the data. This can't change, so it is never part of your plan.",
-    dependents: "{value} dependents add to household obligations.",
-    realEstateLoans: "Your number of real-estate loans ({value}).",
+    lateSpecialCode:
+      "Your late-payment history was reported as a special code (96 or 98) instead of a count. Applicants reported this way defaulted far more often in the data.",
+    incomeMissing: "No monthly income was provided.",
+    incomePlaceholder: "Monthly income was given as 0 or 1, which is treated as not provided.",
   },
   hi: {
     utilization: "आपके क्रेडिट कार्ड की सीमा का {value} उपयोग हो चुका है। ऊँचा बकाया आर्थिक दबाव का संकेत है।",
@@ -672,9 +707,10 @@ const REASONS: Record<Lang, Record<FeatureKey, string>> = {
     late60: "पिछले 2 वर्षों में {value} भुगतान 60–89 दिन देर से हुए।",
     late90: "पिछले 2 वर्षों में {value} भुगतान 90+ दिन देर से हुए।",
     openCreditLines: "केवल {value} सक्रिय क्रेडिट खाते — क्रेडिट इतिहास कम है।",
-    age: "आपके आयु वर्ग ({value}) में डेटा के अनुसार डिफ़ॉल्ट दर अधिक है। यह बदला नहीं जा सकता, इसलिए यह आपकी योजना में कभी शामिल नहीं होता।",
-    dependents: "{value} आश्रित परिवार की आर्थिक ज़िम्मेदारी बढ़ाते हैं।",
-    realEstateLoans: "आपके रियल-एस्टेट ऋणों की संख्या ({value})।",
+    lateSpecialCode:
+      "आपके देर से भुगतान का इतिहास गिनती के बजाय विशेष कोड (96 या 98) के रूप में दर्ज है। डेटा में ऐसे आवेदकों में डिफ़ॉल्ट कहीं अधिक रहा।",
+    incomeMissing: "मासिक आय नहीं दी गई।",
+    incomePlaceholder: "मासिक आय 0 या 1 दी गई, जिसे 'नहीं दी गई' माना जाता है।",
   },
   mr: {
     utilization: "तुमच्या क्रेडिट कार्ड मर्यादेपैकी {value} वापरली गेली आहे. जास्त थकबाकी आर्थिक ताणाचे लक्षण आहे.",
@@ -684,14 +720,15 @@ const REASONS: Record<Lang, Record<FeatureKey, string>> = {
     late60: "गेल्या 2 वर्षांत {value} हप्ते 60–89 दिवस उशिरा भरले गेले.",
     late90: "गेल्या 2 वर्षांत {value} हप्ते 90+ दिवस उशिरा भरले गेले.",
     openCreditLines: "फक्त {value} सक्रिय क्रेडिट खाती — पत इतिहास कमी आहे.",
-    age: "तुमच्या वयोगटात ({value}) डेटानुसार थकबाकीचे प्रमाण जास्त आहे. हे बदलता येत नाही, म्हणून ते तुमच्या योजनेत कधीही नसते.",
-    dependents: "{value} अवलंबित व्यक्तींमुळे कुटुंबाची आर्थिक जबाबदारी वाढते.",
-    realEstateLoans: "तुमच्या स्थावर मालमत्ता कर्जांची संख्या ({value}).",
+    lateSpecialCode:
+      "तुमच्या उशिरा भरलेल्या हप्त्यांचा इतिहास संख्येऐवजी विशेष कोड (96 किंवा 98) म्हणून नोंदवला आहे. डेटामध्ये अशा अर्जदारांमध्ये थकबाकीचे प्रमाण खूप जास्त होते.",
+    incomeMissing: "मासिक उत्पन्न दिलेले नाही.",
+    incomePlaceholder: "मासिक उत्पन्न 0 किंवा 1 दिले आहे, जे 'दिलेले नाही' असे मानले जाते.",
   },
 };
 
-export function reasonText(lang: Lang, key: FeatureKey, value: number): string {
-  return fill(REASONS[lang][key], { value: displayValue(key, value) });
+export function reasonText(lang: Lang, key: ModelFeatureKey, value: number): string {
+  return fill(REASONS[lang][key], { value: isFlag(key) ? "" : displayValue(key, value) });
 }
 
 const ACTIONS: Record<Lang, Record<PlanAction["key"], string>> = {
@@ -757,7 +794,7 @@ export function summaryText(
     approved: boolean;
     score: number;
     threshold: number;
-    topReason: { key: FeatureKey; value: number } | null;
+    topReason: { key: ModelFeatureKey; value: number } | null;
     approvalMonth: number | null;
     horizon: number;
   },
@@ -768,7 +805,7 @@ export function summaryText(
     fill(s.head, {
       name: o.name,
       decision: (o.approved ? ui.approved : ui.declined).toLowerCase(),
-      score: Math.round(o.score),
+      score: displayScore(o.score, o.approved),
       threshold: o.threshold,
     }),
   ];

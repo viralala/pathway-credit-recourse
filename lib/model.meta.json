@@ -1,0 +1,70 @@
+{
+  "describes": "lib/model.json",
+  "modelVersion": 2,
+  "featureOrder": [
+    "utilization",
+    "late30",
+    "late60",
+    "late90",
+    "lateSpecialCode",
+    "monthlyIncome",
+    "debtRatio",
+    "openCreditLines",
+    "incomeMissing",
+    "incomePlaceholder"
+  ],
+  "decisionRule": {
+    "approve": "probability < threshold",
+    "reject": "probability >= threshold",
+    "threshold": 0.1,
+    "selectedOn": "validation"
+  },
+  "preprocessing": {
+    "note": "Cleaning applied to the raw inputs BEFORE the per-feature clip, log1p and standardization. Needed only for missing or out-of-range inputs; for a normal applicant no rule fires and all three flags are 0.",
+    "steps": [
+      "lateSpecialCode = 1 if any of late30/late60/late90 >= lateSpecialCodeMin, else 0; any such count becomes lateSpecialReplacement",
+      "incomeMissing = 1 if monthlyIncome is missing; incomePlaceholder = 1 if monthlyIncome <= incomePlaceholderMax",
+      "if either income flag is 1: monthlyIncome = medians.monthlyIncome and debtRatio = medians.debtRatio",
+      "if utilization > utilizationInvalidAbove: utilization = medians.utilization",
+      "then per feature: clip to [clip[0], clip[1]], log1p if set, subtract mean, divide by std",
+      "logit = intercept + sum(coef * standardized feature); probability = 1 / (1 + exp(-logit))"
+    ],
+    "lateSpecialCodeMin": 90,
+    "lateSpecialReplacement": 0.0,
+    "incomePlaceholderMax": 1.0,
+    "utilizationInvalidAbove": 10.0,
+    "medians": {
+      "monthlyIncome": 5480.0,
+      "debtRatio": 0.291451425,
+      "utilization": 0.1503633295
+    },
+    "statisticsFittedOn": "training rows only (90,000)"
+  },
+  "provenance": {
+    "model": "sklearn.linear_model.LogisticRegression",
+    "params": {
+      "C": 1.0,
+      "l1_ratio": 0.0,
+      "class_weight": null,
+      "fit_intercept": true,
+      "solver": "lbfgs",
+      "max_iter": 1000,
+      "tol": 0.0001,
+      "random_state": 42
+    },
+    "coefficientScale": "per 1 training standard deviation of the transformed feature",
+    "datasetSha256": "1bd46da486a5708c58c7b01a034fae2a13b327f6f7b62ea7ba4fe3b5824b24ac",
+    "splitSeed": 42,
+    "trainingRows": 90000,
+    "trainingReport": "ml/artifacts/phase6_training.json",
+    "cutoffReport": "ml/artifacts/phase8_cutoff.json",
+    "trainingReportSha256": "c1d9f325dbac9d175b50b8b4e36c06d8ecbdb41b27fdcaffa47e1f3503be97c6",
+    "cutoffReportSha256": "128f3a2331a02c6ed5cd80b8f265bd611340f069de917a90afc789aa04258e7b",
+    "versions": {
+      "python": "3.14.3",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scikit-learn": "1.9.1"
+    }
+  }
+}

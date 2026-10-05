@@ -1,11 +1,18 @@
-import { MODEL, score } from "./model";
+import { MODEL, isApproved, isIncomeUnusable, score } from "./model";
 import { findRecourse } from "./recourse";
 import { simulate } from "./timeline";
 import type { Applicant, CreditModel } from "./types";
 
+/**
+ * An applicant plus their age. The model does not use age; it is carried only so the audit can
+ * compare recourse effort across age groups.
+ */
+export type EvalApplicant = Applicant & { age: number };
+
 export interface ApplicantOutcome {
   score: number;
   age: number;
+  /** NaN when no usable income was given (not provided, or a 0/1 placeholder): in no income band. */
   income: number;
   feasible: boolean;
   effort: number | null;
@@ -47,7 +54,7 @@ const median = (xs: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
-export function evaluateApplicants(applicants: Applicant[], model: CreditModel = MODEL): ApplicantOutcome[] {
+export function evaluateApplicants(applicants: EvalApplicant[], model: CreditModel = MODEL): ApplicantOutcome[] {
   const out: ApplicantOutcome[] = [];
   for (const a of applicants) {
     const r = findRecourse(a, model);
@@ -57,11 +64,12 @@ export function evaluateApplicants(applicants: Applicant[], model: CreditModel =
     out.push({
       score: score(a, model),
       age: a.age,
-      income: a.monthlyIncome,
+      income: isIncomeUnusable(a.monthlyIncome) ? Number.NaN : a.monthlyIncome,
       feasible: !!plan,
       effort: plan ? plan.effort : null,
       approvalMonth,
-      flips: plan ? plan.flipsDecision : false,
+      // Checked against the model itself, not read off the plan's own flag.
+      flips: plan ? isApproved(plan.target, model) : false,
     });
   }
   return out;
@@ -109,6 +117,8 @@ export function summarize(rows: ApplicantOutcome[]) {
     rejectedEvaluated: rows.length,
     plansFound: rows.filter((r) => r.feasible).length,
     plansThatFlip: rows.filter((r) => r.flips).length,
+    /** Rejected applicants with no usable income: counted everywhere except the income bands. */
+    incomeNotUsable: rows.filter((r) => Number.isNaN(r.income)).length,
     planSuccessRate: successes.length / rows.length,
     medianMonthsToApproval: median(successes.map((r) => r.approvalMonth!)),
     medianEffort: median(rows.filter((r) => r.effort !== null).map((r) => r.effort!)),

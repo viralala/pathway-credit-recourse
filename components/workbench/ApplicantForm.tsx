@@ -2,7 +2,8 @@
 
 import { useId } from "react";
 import { Label } from "@/components/ui/label";
-import type { UIStrings } from "@/lib/i18n";
+import { money, tf, type UIStrings } from "@/lib/i18n";
+import { APPLICANT_LIMITS } from "@/lib/security/validate";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { NumberField } from "./NumberField";
@@ -16,20 +17,17 @@ interface FieldSpec {
   max: number;
 }
 
-/** Field layout: the four that matter most first, then history and household. */
+/** Field layout: the four that matter most first, then late-payment history. Every field here is a model input. */
 export const PRIMARY_FIELDS: FieldSpec[] = [
-  { key: "monthlyIncome", unit: "money", max: 100000 },
+  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 100000 },
   { key: "utilization", unit: "pct", max: 150 },
   { key: "debtRatio", unit: "pct", max: 300 },
-  { key: "age", unit: "count", min: 18, max: 100 },
+  { key: "openCreditLines", unit: "count", max: 30 },
 ];
 export const SECONDARY_FIELDS: FieldSpec[] = [
-  { key: "openCreditLines", unit: "count", max: 30 },
   { key: "late30", unit: "count", max: 10 },
   { key: "late60", unit: "count", max: 10 },
   { key: "late90", unit: "count", max: 10 },
-  { key: "dependents", unit: "count", max: 10 },
-  { key: "realEstateLoans", unit: "count", max: 10 },
 ];
 
 function Field({
@@ -37,12 +35,14 @@ function Field({
   label,
   value,
   big,
+  belowMinMessage,
   onChange,
 }: {
   spec: FieldSpec;
   label: string;
   value: number;
   big?: boolean;
+  belowMinMessage?: string;
   onChange: (v: number) => void;
 }) {
   const id = useId();
@@ -61,6 +61,7 @@ function Field({
         step={spec.unit === "money" ? 100 : 1}
         prefix={spec.unit === "money" ? "$" : undefined}
         suffix={spec.unit === "pct" ? "%" : undefined}
+        belowMinMessage={belowMinMessage}
         onValue={(v) => onChange(spec.unit === "pct" ? v / 100 : v)}
         inputClassName={cn(big ? "h-12 text-xl" : "text-base")}
       />
@@ -90,7 +91,15 @@ export function ApplicantForm({
 
       <div className="mt-6 grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
         {PRIMARY_FIELDS.map((f) => (
-          <Field key={f.key} big spec={f} label={ui.fields[f.key]} value={applicant[f.key]} onChange={(v) => onField(f.key, v)} />
+          <Field
+            key={f.key}
+            big
+            spec={f}
+            label={ui.fields[f.key]}
+            value={applicant[f.key]}
+            belowMinMessage={f.key === "monthlyIncome" ? tf(ui.incomeMin, { min: money(f.min ?? 0) }) : undefined}
+            onChange={(v) => onField(f.key, v)}
+          />
         ))}
       </div>
 
