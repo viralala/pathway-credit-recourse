@@ -1,3 +1,4 @@
+import { INR_PER_MODEL_UNIT } from "./money";
 import modelJson from "./model.json";
 import type { Applicant, CreditModel, FeatureKey, ModelFeature } from "./types";
 
@@ -5,8 +6,11 @@ export const MODEL = modelJson as CreditModel;
 
 const clip = (v: number, [lo, hi]: [number, number]) => Math.min(hi, Math.max(lo, v));
 
+/** Applicant values are in rupees; the model's income feature is in its dataset's units (see lib/money.ts). */
+const toModelUnits = (f: ModelFeature, raw: number) => (f.key === "monthlyIncome" ? raw / INR_PER_MODEL_UNIT : raw);
+
 export function featureValue(f: ModelFeature, raw: number): number {
-  const v = clip(Number.isFinite(raw) ? raw : 0, f.clip);
+  const v = clip(Number.isFinite(raw) ? toModelUnits(f, raw) : 0, f.clip);
   return f.log1p ? Math.log1p(v) : v;
 }
 

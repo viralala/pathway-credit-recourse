@@ -10,18 +10,17 @@ import { PRICING, type RateTier } from "./pricing";
  * all priced in automatically.
  *
  * Everything here is pure (no I/O, no dates, no randomness) and runs in the browser.
- * Currency is independent of the credit model: amounts are plain numbers in the chosen currency.
+ * Amounts are whole rupees. Currency stays a type so formatting has one place to change.
  */
 
 /* ------------------------------------------------------------------------------------------------
  * Types
  * ---------------------------------------------------------------------------------------------- */
 
-export type Currency = "INR" | "USD";
-export const CURRENCIES: Currency[] = ["INR", "USD"];
+export type Currency = "INR";
+export const CURRENCIES: Currency[] = ["INR"];
 export const CURRENCY_FORMAT: Record<Currency, { symbol: string; locale: string }> = {
   INR: { symbol: "₹", locale: "en-IN" },
-  USD: { symbol: "$", locale: "en-US" },
 };
 
 /** Days between instalments. "Monthly" is treated as 30 days (see the day-count note on `analyzeOffer`). */
@@ -593,7 +592,6 @@ export const OFFER_EXAMPLES: OfferExample[] = [
     id: "app7",
     byCurrency: {
       INR: { sanctioned: 5000, processingFee: 750, otherCharges: 0, gstPct: 18, repayment: { kind: "bullet", amount: 5250, days: 7 } },
-      USD: { sanctioned: 300, processingFee: 45, otherCharges: 0, gstPct: 0, repayment: { kind: "bullet", amount: 315, days: 7 } },
     },
   },
   {
@@ -606,13 +604,6 @@ export const OFFER_EXAMPLES: OfferExample[] = [
         otherCharges: 500,
         gstPct: 18,
         repayment: { kind: "instalments", count: 12, amount: 2000, everyDays: 7 },
-      },
-      USD: {
-        sanctioned: 1000,
-        processingFee: 75,
-        otherCharges: 25,
-        gstPct: 0,
-        repayment: { kind: "instalments", count: 12, amount: 100, everyDays: 7 },
       },
     },
   },
@@ -627,13 +618,6 @@ export const OFFER_EXAMPLES: OfferExample[] = [
         gstPct: 18,
         repayment: { kind: "instalments", count: 24, amount: 4708, everyDays: 30 },
       },
-      USD: {
-        sanctioned: 5000,
-        processingFee: 50,
-        otherCharges: 0,
-        gstPct: 0,
-        repayment: { kind: "instalments", count: 24, amount: 236, everyDays: 30 },
-      },
     },
   },
 ];
@@ -646,7 +630,7 @@ export function exampleById(id: ExampleId): OfferExample {
  * Formatting (locale-stable, Latin digits, same as the rest of the app)
  * ---------------------------------------------------------------------------------------------- */
 
-/** Whole-unit money in the chosen currency, e.g. "₹1,00,000" or "$1,000". Negative uses a minus sign. */
+/** Whole-unit money in the chosen currency, e.g. "₹1,00,000". Negative uses a minus sign. */
 export function formatMoney(v: number, c: Currency): string {
   const { symbol, locale } = CURRENCY_FORMAT[c];
   const r = Math.round(v);
@@ -663,7 +647,7 @@ export function formatNumber(v: number, c: Currency): string {
  * numbers above, grouped.
  * Very large or infinite rates read "> 1,000,000%" (grouped in the currency's locale).
  */
-export function formatRate(v: number, c: Currency = "USD"): string {
+export function formatRate(v: number, c: Currency = "INR"): string {
   const locale = CURRENCY_FORMAT[c].locale;
   if (!Number.isFinite(v) || v >= RATE_DISPLAY_CAP) return `> ${(RATE_DISPLAY_CAP * 100).toLocaleString(locale)}%`;
   let p = v * 100;

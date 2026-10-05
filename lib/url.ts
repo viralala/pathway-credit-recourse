@@ -16,7 +16,7 @@ export const PARAM: Record<FeatureKey, string> = {
   realEstateLoans: "re",
 };
 
-/** Query-string names for the loan goal: amount in dollars, term in months, APR in percent (apr=15 means 15%). */
+/** Query-string names for the loan goal: amount in rupees, term in months, APR in percent (apr=15 means 15%). */
 export const GOAL_PARAM: Record<keyof Goal, string> = {
   amount: "amount",
   termMonths: "term",

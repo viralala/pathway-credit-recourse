@@ -6,7 +6,7 @@ import type { Applicant, FeatureKey } from "@/lib/types";
  * produce is accepted and anything else is rejected before it reaches the model.
  */
 export const APPLICANT_LIMITS: Record<FeatureKey, { min: number; max: number }> = {
-  monthlyIncome: { min: 0, max: 100_000 },
+  monthlyIncome: { min: 0, max: 20_00_000 },
   utilization: { min: 0, max: 1.5 },
   debtRatio: { min: 0, max: 3 },
   age: { min: 18, max: 100 },

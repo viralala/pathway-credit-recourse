@@ -6,7 +6,7 @@ import { simulate, type Timeline } from "./timeline";
 import type { Applicant, CreditModel } from "./types";
 
 /**
- * Goal-first planning: start from the loan a person wants ("$X over N months at no more than A% APR")
+ * Goal-first planning: start from the loan a person wants ("₹X over N months at no more than A% a year")
  * and work backwards to the Pathway score that APR needs, the lowest-effort plan to reach it, when they
  * get there and whether the monthly payment fits their budget.
  *
@@ -14,7 +14,7 @@ import type { Applicant, CreditModel } from "./types";
  */
 
 export interface Goal {
-  /** Principal in US dollars (the model's dataset units). */
+  /** Principal in rupees. */
   amount: number;
   termMonths: number;
   /** Highest APR the person would accept, as a fraction (0.15 = 15%). */
@@ -23,7 +23,7 @@ export interface Goal {
 
 /** Input ranges the planner accepts. Anything outside is clamped by `normalizeGoal`. */
 export const GOAL_LIMITS = {
-  amount: { min: 500, max: 100000, step: 500 },
+  amount: { min: 10_000, max: 20_00_000, step: 10_000 },
   termMonths: { min: 12, max: 60, step: 6 },
   maxApr: { min: 0.1, max: 0.36, step: 0.005 },
 } as const;
@@ -37,7 +37,7 @@ export const DEFAULT_GOAL: Goal = {
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const finiteOr = (v: number | undefined, fallback: number) => (v !== undefined && Number.isFinite(v) ? v : fallback);
 
-/** A goal inside GOAL_LIMITS: whole dollars, whole months, APR rounded to 0.01 percentage points. */
+/** A goal inside GOAL_LIMITS: whole rupees, whole months, APR rounded to 0.01 percentage points. */
 export function normalizeGoal(g: Partial<Goal>, fallback: Goal = DEFAULT_GOAL): Goal {
   const L = GOAL_LIMITS;
   return {

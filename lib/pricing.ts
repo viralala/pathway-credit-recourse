@@ -1,4 +1,5 @@
 import { MODEL } from "./model";
+import { inr } from "./money";
 
 /**
  * Risk-based pricing: the Pathway score decides the APR a prime lender would offer.
@@ -27,7 +28,7 @@ export const PRICING = {
   /** What a declined borrower typically pays elsewhere (high-cost personal credit). */
   declinedAlternativeApr: 0.36,
   /** Loan used for "money saved" when the applicant has not entered one. */
-  defaultLoan: { amount: 10000, termMonths: 36 },
+  defaultLoan: { amount: 2_00_000, termMonths: 36 },
   /** Lenders commonly cap total EMIs at this share of monthly income (FOIR). */
   maxEmiToIncome: 0.5,
 } as const;
@@ -132,7 +133,7 @@ export function describePricing(p: typeof PRICING = PRICING): { label: string; v
   return [
     ...p.tiers.map((t) => ({ label: `Score ${t.minScore}+`, value: `${pct(t.apr)} APR` })),
     { label: `Below ${MODEL.thresholdScore} (declined)`, value: `${pct(p.declinedAlternativeApr)} APR from a high-cost alternative lender` },
-    { label: "Default loan", value: `$${p.defaultLoan.amount.toLocaleString("en-US")} over ${p.defaultLoan.termMonths} months` },
+    { label: "Default loan", value: `${inr(p.defaultLoan.amount)} over ${p.defaultLoan.termMonths} months` },
     { label: "Affordability", value: `all EMIs at most ${pct(p.maxEmiToIncome)} of monthly income` },
   ];
 }

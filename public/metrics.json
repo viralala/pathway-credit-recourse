@@ -63,21 +63,21 @@
     ],
     "income": [
       {
-        "group": "Under $3,000/mo",
+        "group": "Under ₹60,000/mo",
         "n": 169,
         "adjustedEffort": 3.5400829323842276,
         "noPlanRate": 0,
         "medianMonths": 12
       },
       {
-        "group": "$3,000–6,000/mo",
+        "group": "₹60,000 to ₹1.2 lakh/mo",
         "n": 325,
         "adjustedEffort": 3.125241483927871,
         "noPlanRate": 0,
         "medianMonths": 12
       },
       {
-        "group": "$6,000+/mo",
+        "group": "₹1.2 lakh+/mo",
         "n": 114,
         "adjustedEffort": 2.7031805365686936,
         "noPlanRate": 0,
@@ -88,7 +88,7 @@
     "incomeGapRatio": 1.3095991497770487,
     "fairnessGap": 0.3095991497770487,
     "fairnessGapDimension": "income",
-    "fairnessGapHighest": "Under $3,000/mo",
-    "fairnessGapLowest": "$6,000+/mo"
+    "fairnessGapHighest": "Under ₹60,000/mo",
+    "fairnessGapLowest": "₹1.2 lakh+/mo"
   }
 }

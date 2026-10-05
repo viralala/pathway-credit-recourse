@@ -2,10 +2,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { evaluateApplicants, summarize } from "../lib/evaluate";
+import { INR_PER_MODEL_UNIT } from "../lib/money";
 import type { Applicant } from "../lib/types";
 
 const root = path.resolve(__dirname, "..");
-const sample: Applicant[] = JSON.parse(fs.readFileSync(path.join(root, "ml/artifacts/eval_sample.json"), "utf8"));
+// The held-out sample is in the model's dataset units; the engine takes rupees (see lib/money.ts).
+const raw: Applicant[] = JSON.parse(fs.readFileSync(path.join(root, "ml/artifacts/eval_sample.json"), "utf8"));
+const sample: Applicant[] = raw.map((a) => ({ ...a, monthlyIncome: a.monthlyIncome * INR_PER_MODEL_UNIT }));
 const metricsPath = path.join(root, "public/metrics.json");
 const metrics = JSON.parse(fs.readFileSync(metricsPath, "utf8"));
 

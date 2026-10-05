@@ -14,7 +14,7 @@ export const SAMPLES: Sample[] = [
     tagline: "Maxed-out cards and recent late payments",
     applicant: {
       age: 29,
-      monthlyIncome: 2800,
+      monthlyIncome: 56000,
       utilization: 0.97,
       debtRatio: 0.62,
       openCreditLines: 4,
@@ -31,7 +31,7 @@ export const SAMPLES: Sample[] = [
     tagline: "Just under the line: high card balance",
     applicant: {
       age: 36,
-      monthlyIncome: 4600,
+      monthlyIncome: 92000,
       utilization: 0.55,
       debtRatio: 0.42,
       openCreditLines: 6,
@@ -48,7 +48,7 @@ export const SAMPLES: Sample[] = [
     tagline: "Low utilization, clean history",
     applicant: {
       age: 46,
-      monthlyIncome: 6500,
+      monthlyIncome: 130000,
       utilization: 0.18,
       debtRatio: 0.28,
       openCreditLines: 9,

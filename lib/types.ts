@@ -10,7 +10,7 @@ export type FeatureKey =
   | "late60"
   | "dependents";
 
-/** One applicant, in the units of the Give Me Some Credit dataset. */
+/** One applicant. Income is monthly, in rupees; ratios are fractions (0.55 = 55%); the rest are counts. */
 export type Applicant = Record<FeatureKey, number>;
 
 export interface ModelFeature {
