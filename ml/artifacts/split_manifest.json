@@ -1,0 +1,168 @@
+{
+  "dataset": {
+    "file": "data/cs-training.csv",
+    "sha256": "1bd46da486a5708c58c7b01a034fae2a13b327f6f7b62ea7ba4fe3b5824b24ac",
+    "rowIdConvention": "0-based position of the row in the CSV (first data row = 0)"
+  },
+  "target": "SeriousDlqin2yrs",
+  "method": "stratified on target; sklearn train_test_split twice (test first, then validation)",
+  "seed": 42,
+  "fractions": {
+    "train": 0.6,
+    "validation": 0.2,
+    "test": 0.2
+  },
+  "rows": {
+    "total": 150000,
+    "defaults": 10026,
+    "defaultRate": 0.06684
+  },
+  "parts": {
+    "train": {
+      "rows": 90000,
+      "defaults": 6016,
+      "defaultRate": 0.06684444444444444,
+      "idsSha256": "fc0977811866fe1a8a852456ea521cc3b7d32494a8fc92eb1b4d3e9489173eca"
+    },
+    "validation": {
+      "rows": 30000,
+      "defaults": 2005,
+      "defaultRate": 0.06683333333333333,
+      "idsSha256": "a783e8d200507e444e83e42bcd77cc3a653f2fdf0f1836ac9aca0d0c6e18e244"
+    },
+    "test": {
+      "rows": 30000,
+      "defaults": 2005,
+      "defaultRate": 0.06683333333333333,
+      "idsSha256": "d3d52fae1f17382041e22080e107b66570a80d43550786e41d411a1f8ed9d0a9"
+    }
+  },
+  "idsFile": "ml/artifacts/split_ids.npz",
+  "featureBuilderFittedOn": "train",
+  "featureBuilder": {
+    "preprocessor": {
+      "medians": {
+        "monthlyIncome": 5480.0,
+        "debtRatio": 0.291451425,
+        "utilization": 0.1503633295,
+        "dependents": 0.0,
+        "age": 52.0
+      },
+      "thresholds": {
+        "lateSpecialMin": 90,
+        "lateSpecialReplacement": 0.0,
+        "incomePlaceholderMax": 1.0,
+        "utilizationCap": 1.5,
+        "utilizationInvalidAbove": 10.0,
+        "debtRatioCap": 2.0,
+        "minValidAge": 18
+      },
+      "columns": [
+        "utilization",
+        "age",
+        "late30",
+        "debtRatio",
+        "monthlyIncome",
+        "openCreditLines",
+        "late90",
+        "realEstateLoans",
+        "late60",
+        "dependents",
+        "lateSpecialCode",
+        "incomeMissing",
+        "incomePlaceholder",
+        "debtRatioUnreliable",
+        "utilizationInvalid",
+        "dependentsMissing"
+      ]
+    },
+    "features": [
+      {
+        "key": "utilization",
+        "floor": 0.0,
+        "cap": 1.5,
+        "log1p": false,
+        "mean": 0.31993203007662224,
+        "std": 0.3559121690073633
+      },
+      {
+        "key": "late30",
+        "floor": 0.0,
+        "cap": 5.0,
+        "log1p": true,
+        "mean": 0.13897227001411974,
+        "std": 0.34181389941746937
+      },
+      {
+        "key": "late60",
+        "floor": 0.0,
+        "cap": 5.0,
+        "log1p": true,
+        "mean": 0.03995901965661511,
+        "std": 0.18252055180857002
+      },
+      {
+        "key": "late90",
+        "floor": 0.0,
+        "cap": 5.0,
+        "log1p": true,
+        "mean": 0.04871133825011049,
+        "std": 0.21695686036327413
+      },
+      {
+        "key": "lateSpecialCode",
+        "floor": 0.0,
+        "cap": null,
+        "log1p": false,
+        "mean": 0.0018777777777777777,
+        "std": 0.04329262903076067
+      },
+      {
+        "key": "monthlyIncome",
+        "floor": 1000.0,
+        "cap": 25000.0,
+        "log1p": true,
+        "mean": 8.580098871814537,
+        "std": 0.5830212450933641
+      },
+      {
+        "key": "debtRatio",
+        "floor": 0.0,
+        "cap": 2.0,
+        "log1p": false,
+        "mean": 0.3428060740915,
+        "std": 0.29356649433044846
+      },
+      {
+        "key": "openCreditLines",
+        "floor": 0.0,
+        "cap": 5.0,
+        "log1p": false,
+        "mean": 4.487955555555556,
+        "std": 1.1148440041459822
+      },
+      {
+        "key": "incomeMissing",
+        "floor": 0.0,
+        "cap": null,
+        "log1p": false,
+        "mean": 0.19773333333333334,
+        "std": 0.39828992232069116
+      },
+      {
+        "key": "incomePlaceholder",
+        "floor": 0.0,
+        "cap": null,
+        "log1p": false,
+        "mean": 0.015033333333333333,
+        "std": 0.12168538212218519
+      }
+    ]
+  },
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.9.1"
+  }
+}
