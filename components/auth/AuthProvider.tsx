@@ -66,6 +66,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function initAuth() {
       try {
+        // Fallback: If redirected to root / with ?code=, exchange code on client
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const code = params.get("code");
+          if (code) {
+            await supabase.auth.exchangeCodeForSession(code);
+            params.delete("code");
+            const newSearch = params.toString() ? `?${params.toString()}` : "";
+            window.history.replaceState(null, "", `${window.location.pathname}${newSearch}${window.location.hash}`);
+          }
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (mounted) {
           const currentUser = session?.user ?? null;
