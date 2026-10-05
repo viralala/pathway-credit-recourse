@@ -20,7 +20,7 @@ then trained logistic regression on a 75/25 stratified split. The lender cut-off
 (36-month horizon, +15% max income growth) on synthetic data. Real data would likely show more infeasible cases.
 
 ## Tests
-- `npm test` (vitest): **13 tests, 13 passed, 0 failed** (2 test files: model, recourse + timeline)
+- `npx vitest run` (2026-10-05): **155 tests, 155 passed, 0 failed** (11 test files)
 
 ## Suggested screenshot routes
 1. `/check?sample=clear-rejection`: declined applicant, score vs. threshold, ranked reason codes
