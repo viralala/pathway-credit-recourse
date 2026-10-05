@@ -15,7 +15,7 @@ export function ErrorContent({ lang, digest, onRetry }: { lang: Lang; digest?: s
     <div lang={lang} className="page-container py-16 sm:py-24">
       <div
         role="alert"
-        className="mx-auto flex max-w-xl flex-col items-center rounded-2xl bg-card px-6 py-10 text-center ring-1 ring-foreground/10 sm:px-10"
+        className="mx-auto flex max-w-xl flex-col items-center rounded-xl bg-card px-6 py-10 text-center border border-border sm:px-10"
       >
         <TangledPathIllustration />
         <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-balance text-foreground sm:text-3xl">{s.title}</h1>

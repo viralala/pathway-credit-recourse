@@ -4,10 +4,11 @@ import { useId } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { money, type UIStrings } from "@/lib/i18n";
+import type { Lang, UIStrings } from "@/lib/i18n";
+import { inr, inrShort } from "@/lib/money";
 import { NumberField } from "./NumberField";
 
-export const LOAN_LIMITS = { min: 1000, max: 50000, step: 500 } as const;
+export const LOAN_LIMITS = { min: 50_000, max: 25_00_000, step: 10_000 } as const;
 export const TERM_OPTIONS = [12, 24, 36, 48, 60] as const;
 
 /**
@@ -16,12 +17,14 @@ export const TERM_OPTIONS = [12, 24, 36, 48, 60] as const;
  */
 export function LoanControls({
   ui,
+  lang,
   amount,
   term,
   onAmount,
   onTerm,
 }: {
   ui: UIStrings;
+  lang: Lang;
   amount: number;
   term: number;
   onAmount: (v: number) => void;
@@ -37,7 +40,7 @@ export function LoanControls({
       <div className="grid content-start gap-3">
         <Label id={amountLabelId} htmlFor={amountId} className="text-sm font-semibold text-foreground">
           {s.amount}
-          <span className="sr-only"> ($)</span>
+          <span className="sr-only"> (₹)</span>
         </Label>
         <NumberField
           id={amountId}
@@ -45,7 +48,7 @@ export function LoanControls({
           min={LOAN_LIMITS.min}
           max={LOAN_LIMITS.max}
           step={LOAN_LIMITS.step}
-          prefix="$"
+          prefix="₹"
           onValue={(v) => onAmount(Math.round(v))}
           inputClassName="text-lg"
         />
@@ -59,13 +62,13 @@ export function LoanControls({
           trackClassName="data-horizontal:h-2"
           thumbProps={{
             "aria-labelledby": amountLabelId,
-            "aria-valuetext": money(amount),
+            "aria-valuetext": inr(amount),
             className: "size-5 border-2 border-primary bg-card shadow-sm hover:ring-4 focus-visible:ring-4 active:ring-4",
           }}
         />
         <div aria-hidden className="flex justify-between text-[11px] text-muted-foreground tabular-nums">
-          <span>{money(LOAN_LIMITS.min)}</span>
-          <span>{money(LOAN_LIMITS.max)}</span>
+          <span>{inrShort(LOAN_LIMITS.min, lang)}</span>
+          <span>{inrShort(LOAN_LIMITS.max, lang)}</span>
         </div>
       </div>
 

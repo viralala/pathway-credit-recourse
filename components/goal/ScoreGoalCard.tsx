@@ -30,7 +30,7 @@ const ZONE_STYLE: Record<ZoneId, string> = {
   declined: "bg-danger-soft text-danger-foreground",
   fair: "bg-pastel-butter text-deep-butter",
   good: "bg-pastel-sky text-deep-sky",
-  "very-good": "bg-pastel-lavender text-deep-lavender",
+  "very-good": "bg-pastel-stone text-deep-stone",
   excellent: "bg-pastel-mint text-deep-mint",
 };
 
@@ -61,7 +61,7 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const goalZone: ZoneId = gp.targetTier.id;
 
   return (
-    <section aria-labelledby="goal-score-heading" className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-7">
+    <section aria-labelledby="goal-score-heading" className="rounded-xl bg-card p-5 border border-border sm:p-7">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="min-w-0">
           <h2 id="goal-score-heading" className="text-xl font-bold tracking-tight">
@@ -85,7 +85,7 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
             </div>
             <span
               className={cn(
-                "mb-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold",
+                "mb-2 inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-semibold",
                 gp.meetsToday ? "bg-success-soft text-success-foreground" : "bg-pastel-peach text-deep-peach",
               )}
             >
@@ -102,7 +102,7 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
           >
             <span
               className={cn(
-                "absolute top-0 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-primary-foreground",
+                "absolute top-0 rounded-md bg-primary px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-primary-foreground",
                 goalLabel.className,
               )}
               style={goalLabel.style}
@@ -131,7 +131,7 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
             />
             <span
               className={cn(
-                "absolute bottom-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-foreground",
+                "absolute bottom-0 rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-foreground",
                 todayLabel.className,
               )}
               style={todayLabel.style}
@@ -173,10 +173,10 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
                   {(isGoal || isToday) && (
                     <span className="col-span-3 col-start-1 flex flex-wrap gap-1.5 pl-6">
                       {isToday && (
-                        <span className="rounded-full bg-pastel-butter px-2 py-0.5 text-[11px] font-semibold text-deep-butter">{s.card.youToday}</span>
+                        <span className="rounded-md bg-pastel-butter px-2 py-0.5 text-[11px] font-semibold text-deep-butter">{s.card.youToday}</span>
                       )}
                       {isGoal && (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{s.card.yourGoal}</span>
+                        <span className="rounded-md bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{s.card.yourGoal}</span>
                       )}
                     </span>
                   )}

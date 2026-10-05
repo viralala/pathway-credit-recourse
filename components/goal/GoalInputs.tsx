@@ -13,7 +13,7 @@ import { RangeField } from "./RangeField";
 
 type Unit = "money" | "pct" | "count";
 const PROFILE: { key: FeatureKey; unit: Unit; min?: number; max: number }[] = [
-  { key: "monthlyIncome", unit: "money", max: 100000 },
+  { key: "monthlyIncome", unit: "money", max: 20_00_000 },
   { key: "utilization", unit: "pct", max: 150 },
   { key: "debtRatio", unit: "pct", max: 300 },
   { key: "age", unit: "count", min: 18, max: 100 },
@@ -59,12 +59,12 @@ export function GoalInputs({
   const L = GOAL_LIMITS;
 
   return (
-    <div className="grid gap-6 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+    <div className="grid gap-6 rounded-xl bg-card p-5 border border-border sm:p-6">
       <h2 className="text-lg font-bold tracking-tight">{s.inputs.heading}</h2>
 
       <fieldset className="grid gap-5">
         {/* Floated so the legend becomes a normal grid row instead of sitting on the fieldset border. */}
-        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-periwinkle uppercase">
+        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-teal uppercase">
           {s.inputs.goalLegend}
         </legend>
         <NumberField
@@ -73,7 +73,7 @@ export function GoalInputs({
           min={L.amount.min}
           max={L.amount.max}
           step={L.amount.step}
-          prefix="$"
+          prefix="₹"
           hint={s.inputs.amountHint}
           onChange={(v) => onGoal({ amount: v })}
         />
@@ -95,14 +95,14 @@ export function GoalInputs({
           step={L.maxApr.step * 100}
           onChange={(v) => onGoal({ maxApr: v / 100 })}
         >
-          <p className="rounded-xl bg-pastel-periwinkle/60 px-3 py-2 text-[13px] leading-snug text-deep-periwinkle" aria-live="polite">
+          <p className="rounded-xl bg-pastel-teal/60 px-3 py-2 text-[13px] leading-snug text-deep-teal" aria-live="polite">
             {aprImplication(goal.maxApr, lang)}
           </p>
         </RangeField>
       </fieldset>
 
       <fieldset className="grid gap-4 border-t border-border pt-5">
-        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-periwinkle uppercase">
+        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-teal uppercase">
           {s.inputs.profileLegend}
         </legend>
         <p className="-mt-2 text-[13px] text-muted-foreground">{s.inputs.profileSub}</p>
@@ -114,9 +114,9 @@ export function GoalInputs({
               value={applicant[f.key]}
               min={f.min}
               max={f.max}
-              step={f.unit === "money" ? 100 : 1}
+              step={f.unit === "money" ? 1000 : 1}
               scale={f.unit === "pct" ? 100 : 1}
-              prefix={f.unit === "money" ? "$" : undefined}
+              prefix={f.unit === "money" ? "₹" : undefined}
               suffix={f.unit === "pct" ? "%" : undefined}
               onChange={(v) => onField(f.key, v)}
             />
@@ -144,7 +144,7 @@ export function GoalInputs({
                   aria-hidden
                   className={cn(
                     "grid size-8 shrink-0 place-items-center rounded-full",
-                    active ? "bg-primary text-primary-foreground" : "bg-pastel-lavender text-deep-lavender",
+                    active ? "bg-primary text-primary-foreground" : "bg-pastel-stone text-deep-stone",
                   )}
                 >
                   <UserRound className="size-4" />

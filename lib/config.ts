@@ -112,11 +112,11 @@ export function describeAssumptions(a: Assumptions = ASSUMPTIONS): { label: stri
   const pct = (v: number, d = 0) => `${(v * 100).toFixed(d)}%`;
   return [
     { label: "Plan horizon", value: `${a.horizonMonths} months maximum` },
-    { label: "Card paydown pace", value: `up to ${pct(a.utilizationPaydownPerMonth)} points of utilization per month` },
-    { label: "Debt payment reduction", value: `${pct(a.debtPaymentCutPerMonth)} of today's payments per month, ${pct(a.maxDebtPaymentCut)} max` },
+    { label: "Card paydown pace", value: `up to ${pct(a.utilizationPaydownPerMonth)} points of card utilisation per month` },
+    { label: "EMI reduction", value: `${pct(a.debtPaymentCutPerMonth)} of today's EMIs per month, ${pct(a.maxDebtPaymentCut)} max` },
     { label: "Income growth", value: `${pct(a.incomeGrowthPerMonth, 1)} per month, capped at +${pct(a.maxIncomeGrowth)} in total` },
-    { label: "Open credit lines", value: `change by at most ${a.maxOpenLineChange}, effective after ${a.openLineLagMonths} month` },
+    { label: "Active loans and cards", value: `change by at most ${a.maxOpenLineChange}, effective after ${a.openLineLagMonths} month` },
     { label: "Late payments", value: `counted over ${a.delinquencyWindowMonths} months, assumed evenly spread, age out if every future payment is on time` },
-    { label: "Never changed", value: "age, dependents, real-estate loans" },
+    { label: "Never changed", value: "age, dependants, home loans" },
   ];
 }

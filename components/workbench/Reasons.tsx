@@ -23,7 +23,7 @@ export function Reasons({ ui, lang, reasons }: { ui: UIStrings; lang: Lang; reas
           <ol className="grid gap-3">
             {reasons.map((x, i) => (
               <li key={x.key}>
-                <StaggerItem className="grid gap-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:grid-cols-[3rem_1fr_15rem] sm:items-center">
+                <StaggerItem className="grid gap-4 rounded-xl bg-card p-5 border border-border sm:grid-cols-[3rem_1fr_15rem] sm:items-center">
                   <span
                     aria-hidden
                     className={cn(

@@ -36,11 +36,11 @@ export function HowWeCalculate({ s }: { s: OfferStrings }) {
   ];
 
   return (
-    <Accordion type="single" collapsible className="rounded-2xl bg-card px-5 ring-1 ring-foreground/10 sm:px-7">
+    <Accordion type="single" collapsible className="rounded-xl bg-card px-5 border border-border sm:px-7">
       <AccordionItem value="how">
         <AccordionTrigger className="items-center py-5 text-base font-semibold hover:no-underline">
           <span className="flex items-center gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-pastel-lavender text-deep-lavender">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-pastel-stone text-deep-stone">
               <Calculator aria-hidden className="size-4.5" />
             </span>
             {s.howTitle}

@@ -9,11 +9,11 @@ import { SAMPLES } from "@/lib/samples";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { paramsFor } from "@/lib/url";
 import { ApplicantForm } from "./workbench/ApplicantForm";
-import { HeroBackdrop, HeroIntro } from "./workbench/Hero";
+import { HeroIntro } from "./workbench/Hero";
 import { MoneySaved } from "./workbench/MoneySaved";
-import { MoreTools } from "./workbench/MoreTools";
 import { Plan } from "./workbench/Plan";
 import { Reasons } from "./workbench/Reasons";
+import { SavePlan } from "./workbench/SavePlan";
 import { ScorePanel } from "./workbench/ScoreCard";
 import { Summary } from "./workbench/Summary";
 import { TimelineSection } from "./workbench/TimelineSection";
@@ -21,7 +21,7 @@ import { TimelineSection } from "./workbench/TimelineSection";
 const DEFAULT_NAME = "Applicant";
 
 /**
- * The applicant workbench (home page): edit a profile or pick a demo applicant, and see the score,
+ * The applicant workbench (/check): edit a profile or pick a demo applicant, and see the score,
  * the reasons, the plan, what it is worth in money and the month-by-month timeline. State lives
  * here; every section below is a presentational component in components/workbench/.
  */
@@ -30,11 +30,14 @@ export function Workbench({
   initialName,
   initialSampleId,
   lang,
+  planId,
 }: {
   initialApplicant: Applicant;
   initialName: string;
   initialSampleId: string | null;
   lang: Lang;
+  /** A saved plan being updated (from "My plans"), or null. */
+  planId: string | null;
 }) {
   const [applicant, setApplicant] = useState(initialApplicant);
   const [name, setName] = useState(initialName);
@@ -49,7 +52,8 @@ export function Workbench({
   const { assessment: a, plan, timeline } = r;
 
   const sync = (next: Applicant, nextSample: string | null, nextName: string) => {
-    const q = paramsFor(next, { sampleId: nextSample, lang, name: nextName === DEFAULT_NAME ? undefined : nextName });
+    const q = new URLSearchParams(paramsFor(next, { sampleId: nextSample, lang, name: nextName === DEFAULT_NAME ? undefined : nextName }));
+    if (planId) q.set("plan", planId);
     window.history.replaceState(null, "", `${window.location.pathname}?${q}${window.location.hash}`);
   };
   const setField = (key: FeatureKey, v: number) => {
@@ -89,8 +93,9 @@ export function Workbench({
   const langQuery = lang !== "en" ? `?lang=${lang}` : "";
   const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name })}`;
   const fairnessHref = `/fairness${langQuery}`;
-  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name })}`;
-  const offerHref = `/offer-check${langQuery}`;
+  const checkQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name }));
+  if (planId) checkQuery.set("plan", planId);
+  const returnTo = `/check?${checkQuery}`;
 
   async function rewrite() {
     const key = summary;
@@ -115,8 +120,7 @@ export function Workbench({
 
   return (
     <div lang={lang}>
-      <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
-        <HeroBackdrop />
+      <section aria-labelledby="hero-title" className="ledger border-b border-border">
         <div className="page-container pt-8 pb-12 sm:pt-12 lg:pb-16">
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
             <div className="lg:col-span-7">
@@ -136,7 +140,7 @@ export function Workbench({
             </div>
             <div className="lg:col-span-7">
               <ApplicantForm ui={ui} applicant={applicant} onField={setField} />
-              <Button asChild size="lg" className="mt-6 h-12 rounded-xl px-6 text-[15px] font-bold">
+              <Button asChild size="lg" className="mt-6 h-12 px-6 text-[15px] font-bold">
                 <a href="#why">
                   {ui.assess}
                   <ArrowDown aria-hidden />
@@ -147,7 +151,16 @@ export function Workbench({
         </div>
       </section>
 
-      <div className="page-container">
+      <div className="page-container grid gap-4 pt-10">
+        <SavePlan
+          key={JSON.stringify(applicant)}
+          ui={ui}
+          lang={lang}
+          applicant={applicant}
+          name={name === DEFAULT_NAME ? "" : name}
+          planId={planId}
+          returnTo={returnTo}
+        />
         <Summary
           ui={ui}
           text={current?.text ?? summary}
@@ -169,7 +182,6 @@ export function Workbench({
         thresholdScore={r.thresholdScore}
         horizon={r.horizon}
       />
-      <MoreTools ui={ui} goalHref={goalHref} offerHref={offerHref} fairnessHref={fairnessHref} />
     </div>
   );
 }

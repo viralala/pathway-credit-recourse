@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const CLASS_STYLE: Record<FeatureClass, string> = {
-  immutable: "bg-pastel-lavender text-deep-lavender",
+  immutable: "bg-pastel-stone text-deep-stone",
   actionable: "bg-pastel-mint text-deep-mint",
   "slow-moving": "bg-pastel-butter text-deep-butter",
 };
@@ -64,7 +64,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
 
   const steps = [
     { t: "Train offline", d: "ml/train.py fits logistic regression in Python on Give Me Some Credit, or a synthetic equivalent." },
-    { t: "Export", d: "Coefficients, scaler, intercept and threshold go to lib/model.json. No Python runs in production." },
+    { t: "Export", d: "Coefficients, scaler, intercept and threshold go to lib/model.json. No Python runs in production. Rupee incomes are divided by 20, close to India's purchasing-power parity, on the way into the model." },
     { t: "Recourse engine", d: "TypeScript searches every feasible change set and scores each one exactly with the linear model." },
     { t: "Timeline", d: "A month-by-month simulator moves each change at a capped pace and finds the approval month." },
   ];
@@ -94,12 +94,12 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
       <div lang={lang} className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Breadcrumbs items={[{ label: s.crumbs.method }]} homeHref={L("/")} homeLabel={s.crumbs.home} />
         {lang !== "en" ? (
-          <p className="no-print rounded-full bg-pastel-sky px-3 py-1 text-xs font-semibold text-deep-sky">{s.method.englishOnly}</p>
+          <p className="no-print rounded-md bg-pastel-sky px-3 py-1 text-xs font-semibold text-deep-sky">{s.method.englishOnly}</p>
         ) : null}
       </div>
 
       <div lang="en" className="mt-5">
-        <PageHero eyebrow="How it works" title="An interpretable model, so every reason and every plan is exact." tone="lavender">
+        <PageHero eyebrow="How it works" title="An interpretable model, so every reason and every plan is exact." tone="stone">
           <p>
             Pathway pairs a logistic regression credit model with a search over realistic changes, a month-by-month simulator,
             illustrative risk-based pricing and a Monte Carlo certainty band. Everything below is read from the same code and
@@ -114,7 +114,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <li key={x.id}>
                   <a
                     href={`#${x.id}`}
-                    className="inline-flex rounded-full bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground ring-1 ring-foreground/10 transition-colors hover:bg-secondary"
+                    className="inline-flex rounded-md bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground border border-border transition-colors hover:bg-secondary"
                   >
                     {x.label}
                   </a>
@@ -129,7 +129,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="results-title" eyebrow="Results" title="Headline metrics" />
           <Stagger className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             <StaggerItem>
-              <StatTile tone="periwinkle" label="Model AUC" value={metrics.auc} decimals={3} />
+              <StatTile tone="teal" label="Model AUC" value={metrics.auc} decimals={3} />
             </StaggerItem>
             <StaggerItem>
               <StatTile tone="mint" label="Plans that flip the decision" value={metrics.planSuccessRate * 100} suffix="%" />
@@ -153,7 +153,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <Stagger className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((x, i) => (
               <StaggerItem key={x.t} className="h-full">
-                <div className="h-full rounded-2xl bg-card p-6 ring-1 ring-foreground/10">
+                <div className="h-full rounded-xl bg-card p-6 border border-border">
                   <span
                     aria-hidden
                     className="grid size-10 place-items-center rounded-full bg-pastel-peach font-extrabold text-deep-peach"
@@ -176,7 +176,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="features-title" eyebrow="Model" title="Features, coefficients and assumptions" />
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Reveal className="h-full">
-              <div className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+              <div className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
                 <h3 className="text-lg font-bold text-foreground">Features and what a plan may do with them</h3>
                 <Table className="mt-4 text-xs sm:text-sm">
                   <TableCaption className="sr-only">
@@ -194,7 +194,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                       <TableRow key={f.key}>
                         <TableCell className="whitespace-normal font-semibold">{f.label}</TableCell>
                         <TableCell>
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[FEATURE_CLASS[f.key]]}`}>
+                          <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[FEATURE_CLASS[f.key]]}`}>
                             {FEATURE_CLASS[f.key]}
                           </span>
                         </TableCell>
@@ -213,7 +213,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
               </div>
             </Reveal>
             <Reveal className="h-full" delay={0.08}>
-              <div className="h-full rounded-2xl bg-pastel-lavender p-5 text-deep-lavender sm:p-6">
+              <div className="h-full rounded-2xl bg-pastel-stone p-5 text-deep-stone sm:p-6">
                 <h3 className="text-lg font-bold">Assumptions (lib/config.ts)</h3>
                 <ConfigList items={describeAssumptions()} className="mt-4 space-y-3 text-sm" />
                 <p className="mt-6 text-sm text-foreground/80">
@@ -243,7 +243,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           </SectionHeading>
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <Reveal className="h-full">
-              <div className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+              <div className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
                 <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                   <PiggyBank aria-hidden className="size-5 text-deep-mint" />
                   Tiers on the default loan
@@ -285,7 +285,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             </Reveal>
             <div className="grid grid-cols-1 content-start gap-4">
               <Reveal delay={0.06}>
-                <div className="rounded-2xl bg-pastel-periwinkle p-5 text-deep-periwinkle sm:p-6">
+                <div className="rounded-2xl bg-pastel-teal p-5 text-deep-teal sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.18em]">Formula</p>
                   <p className="mt-3 font-mono text-lg font-semibold text-foreground sm:text-xl">
                     <span className="sr-only">EMI equals P times r, divided by 1 minus (1 plus r) to the power of minus n.</span>
@@ -294,7 +294,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                     </span>
                   </p>
                   <p className="mt-3 text-sm text-foreground/80">
-                    P is the amount borrowed, r the monthly rate (APR ÷ 12) and n the number of monthly payments. Interest saved is
+                    P is the amount borrowed, r the monthly rate (yearly rate ÷ 12) and n the number of monthly payments. Interest saved is
                     total interest at today&apos;s rate minus total interest at the after-plan rate, on the same loan.
                   </p>
                 </div>
@@ -303,8 +303,8 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <div className="rounded-2xl bg-money-soft p-5 text-money-foreground ring-1 ring-money/25 sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.18em]">Worked example</p>
                   <p className="mt-2 text-sm">
-                    Crossing the approval line, from declined ({aprText(crossing.todayApr)} APR from a high-cost alternative) to the{" "}
-                    {entryTier ? en.tiers[entryTier.id] : "entry"} tier ({aprText(crossing.planApr)} APR), cuts projected interest on
+                    Crossing the approval line, from declined ({aprText(crossing.todayApr)} a year from a high-cost lender) to the{" "}
+                    {entryTier ? en.tiers[entryTier.id] : "entry"} tier ({aprText(crossing.planApr)} a year), cuts projected interest on
                     the default loan from {money(crossing.todayInterest)} to {money(crossing.planInterest)}:
                   </p>
                   <p className="mt-2 text-3xl font-extrabold tracking-tight tabular-nums">{money(crossing.saved)} saved</p>
@@ -320,7 +320,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="mc-title" eyebrow="Uncertainty" title="How sure is the timeline? Monte Carlo" tag="Simulation" />
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <Reveal className="h-full">
-              <div className="h-full space-y-3 rounded-2xl bg-card p-5 leading-relaxed text-muted-foreground ring-1 ring-foreground/10 sm:p-6">
+              <div className="h-full space-y-3 rounded-xl bg-card p-5 leading-relaxed text-muted-foreground border border-border sm:p-6">
                 <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                   <Dices aria-hidden className="size-5 text-deep-sky" />
                   Many futures, not one
@@ -362,7 +362,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             <section
               id="goal"
               aria-labelledby="goal-title"
-              className="h-full scroll-mt-24 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
+              className="h-full scroll-mt-24 rounded-xl bg-card p-5 border border-border sm:p-6"
             >
               <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-pastel-mint text-deep-mint">
                 <Target className="size-5" />
@@ -373,16 +373,16 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
               <div className="mt-3 space-y-3 leading-relaxed text-muted-foreground">
                 <p>
                   Instead of asking “what gets me approved?”, the goal planner starts from the rate you would like. It works backwards
-                  from a target APR to the lowest Pathway score whose tier is priced at or below it, then runs the same lowest-effort
+                  from a target yearly interest rate to the lowest Pathway score whose tier is priced at or below it, then runs the same lowest-effort
                   search the approval plan uses, aimed at that score instead of the cut-off.
                 </p>
                 <p>
-                  For example, a target of {aprText(goalTier.apr)} APR needs a score of at least {goalScore ?? goalTier.minScore}, the{" "}
+                  For example, a target of {aprText(goalTier.apr)} a year needs a score of at least {goalScore ?? goalTier.minScore}, the{" "}
                   {en.tiers[goalTier.id]} tier in the illustrative pricing above.
                 </p>
                 <p>
                   It also applies an affordability rule: all monthly instalments together, including the new loan, should stay within{" "}
-                  {aprText(PRICING.maxEmiToIncome)} of monthly income (PRICING.maxEmiToIncome), a common lender rule of thumb. When the
+                  {aprText(PRICING.maxEmiToIncome)} of monthly income (PRICING.maxEmiToIncome). Indian lenders call this the FOIR limit. When the
                   payment does not fit, the planner also works out the largest amount, or the shortest longer term, that would.
                 </p>
               </div>
@@ -398,7 +398,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             <section
               id="offer-check"
               aria-labelledby="offer-title"
-              className="h-full scroll-mt-24 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
+              className="h-full scroll-mt-24 rounded-xl bg-card p-5 border border-border sm:p-6"
             >
               <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-pastel-peach text-deep-peach">
                 <ReceiptText className="size-5" />
@@ -433,7 +433,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
         </div>
 
         <Reveal className="mt-14">
-          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-pastel-periwinkle p-6 sm:flex-row sm:items-center sm:p-8">
+          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-pastel-teal p-6 sm:flex-row sm:items-center sm:p-8">
             <div>
               <p className="text-xl font-extrabold tracking-tight text-foreground">At the same risk, who has to work harder?</p>
               <p className="mt-1 text-sm text-foreground/80">

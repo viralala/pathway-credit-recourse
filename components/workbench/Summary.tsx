@@ -26,7 +26,7 @@ export function Summary({
     <Reveal>
       <section
         aria-labelledby="summary-title"
-        className="grid gap-6 rounded-2xl bg-card p-6 ring-1 ring-foreground/10 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center"
+        className="grid gap-6 rounded-xl bg-card p-6 border border-border sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center"
       >
         <div className="flex gap-4">
           <span aria-hidden className="hidden size-11 shrink-0 place-items-center rounded-xl bg-pastel-butter text-deep-butter sm:grid">
@@ -38,7 +38,7 @@ export function Summary({
                 {ui.explanation}
               </h2>
               {source === "ai" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-pastel-lavender px-2 py-0.5 text-[11px] font-semibold text-deep-lavender">
+                <span className="inline-flex items-center gap-1 rounded-md bg-pastel-stone px-2 py-0.5 text-[11px] font-semibold text-deep-stone">
                   <Sparkles aria-hidden className="size-3" />
                   {ui.aiBadge}
                 </span>

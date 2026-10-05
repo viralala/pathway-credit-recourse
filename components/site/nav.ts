@@ -1,8 +1,8 @@
-import { t, type Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
 import { shell } from "@/lib/strings/shell";
 
-/** Site navigation: one list shared by the header, the mobile menu and the footer. */
-export type NavKey = "home" | "goal" | "offerCheck" | "fairness" | "report" | "method";
+/** Site navigation: the header shows the main tools; the footer adds the background pages. */
+export type NavKey = "check" | "goal" | "offerCheck" | "partners" | "method" | "fairness" | "report";
 export interface NavItem {
   key: NavKey;
   href: string;
@@ -10,15 +10,22 @@ export interface NavItem {
 }
 
 export function primaryNav(lang: Lang): NavItem[] {
-  const ui = t(lang);
-  const s = shell(lang);
+  const n = shell(lang).nav;
   return [
-    { key: "home", href: "/", label: s.nav.home },
-    { key: "goal", href: "/goal", label: s.nav.goal },
-    { key: "offerCheck", href: "/offer-check", label: s.nav.offerCheck },
-    { key: "fairness", href: "/fairness", label: ui.fairness },
-    { key: "report", href: "/report", label: ui.report },
-    { key: "method", href: "/method", label: ui.method },
+    { key: "check", href: "/check", label: n.check },
+    { key: "goal", href: "/goal", label: n.goal },
+    { key: "offerCheck", href: "/offer-check", label: n.offerCheck },
+    { key: "partners", href: "/partners", label: n.partners },
+  ];
+}
+
+/** Pages that explain and audit the model, listed in the footer. */
+export function backgroundNav(lang: Lang): NavItem[] {
+  const n = shell(lang).nav;
+  return [
+    { key: "method", href: "/method", label: n.method },
+    { key: "fairness", href: "/fairness", label: n.fairness },
+    { key: "report", href: "/report", label: n.report },
   ];
 }
 

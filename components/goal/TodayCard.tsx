@@ -17,7 +17,7 @@ export function TodayCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const sameRate = today.effectiveApr <= gp.targetApr + 1e-12;
 
   return (
-    <section aria-labelledby="goal-today-heading" className="flex flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+    <section aria-labelledby="goal-today-heading" className="flex flex-col rounded-xl bg-card p-5 border border-border sm:p-6">
       <h2 id="goal-today-heading" className="text-lg font-bold tracking-tight">
         {s.heading}
       </h2>

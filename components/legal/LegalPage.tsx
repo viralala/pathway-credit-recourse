@@ -32,13 +32,13 @@ export function LegalPage({
     <div lang="en" className="page-container py-8 sm:py-12 print:py-0">
       <Breadcrumbs items={[{ label: title }]} homeHref={hrefWithLang("/", lang)} homeLabel="Home" />
 
-      <header className="relative mt-6 overflow-hidden rounded-2xl bg-pastel-periwinkle/60 p-6 ring-1 ring-foreground/10 sm:p-10 print:mt-0 print:overflow-visible print:bg-transparent print:p-0 print:ring-0">
+      <header className="relative mt-6 overflow-hidden rounded-2xl bg-pastel-teal/60 p-6 ring-1 ring-foreground/10 sm:p-10 print:mt-0 print:overflow-visible print:bg-transparent print:p-0 print:ring-0">
         <LegalArt className="pointer-events-none absolute -right-8 -bottom-10 hidden h-52 w-52 opacity-90 lg:block print:hidden" />
         <div className="relative max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-deep-periwinkle print:text-black">Legal</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-deep-teal print:text-black">Legal</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">{title}</h1>
           <p className="mt-3 text-[15px] leading-7 text-foreground/80 print:text-black">{summary}</p>
-          <p className="mt-5 inline-flex flex-wrap items-baseline gap-x-1.5 rounded-full bg-card/80 px-3 py-1 text-sm text-muted-foreground ring-1 ring-foreground/10 print:px-0 print:ring-0">
+          <p className="mt-5 inline-flex flex-wrap items-baseline gap-x-1.5 rounded-md bg-card px-3 py-1 text-sm text-muted-foreground border border-border print:px-0 print:ring-0">
             Last updated
             <time dateTime={LEGAL_UPDATED.iso} className="font-semibold text-foreground">
               {LEGAL_UPDATED.label}
@@ -62,7 +62,7 @@ export function LegalPage({
                 <li key={p.href}>
                   <Link
                     href={hrefWithLang(p.href, lang)}
-                    className="inline-flex min-h-10 items-center rounded-full bg-card px-4 text-sm font-medium text-foreground ring-1 ring-foreground/10 transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                    className="inline-flex min-h-10 items-center rounded-md bg-card px-4 text-sm font-medium text-foreground border border-border transition-colors hover:bg-secondary hover:text-secondary-foreground"
                   >
                     {p.label}
                   </Link>
@@ -71,7 +71,7 @@ export function LegalPage({
               <li>
                 <Link
                   href={hrefWithLang("/", lang)}
-                  className="inline-flex min-h-10 items-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  className="inline-flex min-h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   Back to Pathway
                 </Link>

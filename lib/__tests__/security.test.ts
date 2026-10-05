@@ -8,7 +8,6 @@ import {
   BUILD_SOFTWARE,
   BUNDLED_SOFTWARE,
   CONSENT_COOKIE,
-  CURSOR_STORAGE_KEY,
   MIT_LICENSE_TEXT,
   RUNTIME_SOFTWARE,
   STORAGE_ITEMS,
@@ -406,9 +405,9 @@ describe("legal facts stay true", () => {
     expect(MIT_LICENSE_TEXT.trim()).toBe(license);
   });
 
-  it("documents exactly the cookie and storage keys the app uses", () => {
-    expect(STORAGE_ITEMS.map((s) => s.name)).toEqual([CONSENT_COOKIE, CURSOR_STORAGE_KEY]);
-    expect([CONSENT_COOKIE, CURSOR_STORAGE_KEY]).toEqual(["pathway_consent", "pathway_cursor"]);
+  it("documents exactly the cookies the app and Supabase Auth use", () => {
+    expect(STORAGE_ITEMS.map((s) => s.name)).toEqual([CONSENT_COOKIE, "sb-<project>-auth-token", "sb-<project>-auth-token-code-verifier"]);
+    expect(CONSENT_COOKIE).toBe("pathway_consent");
   });
 
   it("keeps ?lang= on internal links, before any #fragment", () => {
@@ -429,7 +428,7 @@ describe("SEO files", () => {
 
   it("keeps crawlers out of the API and points them at the sitemap", () => {
     const r = robots();
-    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/", disallow: "/api/" });
+    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/", disallow: ["/api/", "/account", "/auth/"] });
     expect(r.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
   });
 

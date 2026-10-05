@@ -46,7 +46,7 @@ export function GoalTimelineCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const Icon = gp.status === "met-today" ? CircleCheck : gp.status === "plan" ? CalendarCheck : TriangleAlert;
 
   return (
-    <section aria-labelledby="goal-timeline-heading" className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-7">
+    <section aria-labelledby="goal-timeline-heading" className="rounded-xl bg-card p-5 border border-border sm:p-7">
       <div className="flex items-start gap-4">
         <span
           aria-hidden

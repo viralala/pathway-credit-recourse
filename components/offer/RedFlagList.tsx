@@ -75,7 +75,7 @@ export function RedFlagList({
                     <Icon aria-hidden className={cn("mt-0.5 size-5 shrink-0", st.iconClass)} />
                     <div className="min-w-0">
                       <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", st.badge)}>{s.severity[f.severity]}</span>
+                        <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-semibold", st.badge)}>{s.severity[f.severity]}</span>
                         <span className="text-sm font-semibold">{copy.title}</span>
                       </p>
                       <p className="mt-1 text-sm leading-snug text-muted-foreground">{copy.body}</p>

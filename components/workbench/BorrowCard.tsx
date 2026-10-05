@@ -39,7 +39,7 @@ export function BorrowCard({
   const s = ui.savings;
   const Icon = ICON[tone];
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+    <article className="flex h-full flex-col overflow-hidden rounded-xl bg-card border border-border">
       <header className={cn("flex items-center justify-between gap-3 px-5 py-3", HEADER[tone])}>
         <h3 className="text-sm font-bold">{title}</h3>
         <Icon aria-hidden className="size-4 shrink-0" />

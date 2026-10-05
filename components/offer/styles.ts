@@ -58,12 +58,12 @@ export const SEGMENT_STYLE: Record<SegmentKind, { className: string; style?: CSS
 
 /** Pastel tiles used for the "What you can do" icons, in display order (cycled). */
 export const TILE_STYLES = [
-  "bg-pastel-periwinkle text-deep-periwinkle",
+  "bg-pastel-teal text-deep-teal",
   "bg-pastel-mint text-deep-mint",
   "bg-pastel-peach text-deep-peach",
   "bg-pastel-blush text-deep-blush",
   "bg-pastel-butter text-deep-butter",
-  "bg-pastel-lavender text-deep-lavender",
+  "bg-pastel-stone text-deep-stone",
   "bg-pastel-sky text-deep-sky",
 ] as const;
 

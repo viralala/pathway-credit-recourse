@@ -19,7 +19,7 @@ export default function GlobalError({ error, retry }: { error: Error & { digest?
         <title>Something went wrong · Pathway</title>
         <main
           role="alert"
-          className="w-full max-w-md rounded-2xl bg-card px-6 py-10 text-center ring-1 ring-foreground/10"
+          className="w-full max-w-md rounded-xl bg-card px-6 py-10 text-center border border-border"
         >
           <h1 className="text-2xl font-extrabold tracking-tight">Something went wrong</h1>
           <p className="mt-3 leading-relaxed text-muted-foreground">

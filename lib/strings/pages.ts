@@ -152,11 +152,11 @@ export const PAGES: Record<Lang, PagesStrings> = {
         seriesName: "Risk-adjusted mean",
         value: "{v} effort (n={n})",
       },
-      groups: { under: "Under {a}/mo", range: "{a}–{b}/mo", plus: "{a}+/mo" },
+      groups: { under: "Under {a} a month", range: "{a} to {b} a month", plus: "{a} or more a month" },
       explain: {
         effortTitle: "What “effort” means",
         effortBody:
-          "The weighted size of the lowest-effort plan: {util} point per 10 points of card utilization paid down, {debt} per 10% cut in debt payments, {lines} per open credit line changed, {income} per 5% income growth, {wait} per month of waiting. Weights live in lib/config.ts.",
+          "The weighted size of the lowest-effort plan: {util} point per 10 points of card utilisation paid down, {debt} per 10% cut in EMIs, {lines} per active loan or card changed, {income} per 5% income growth, {wait} per month of waiting. Weights live in lib/config.ts.",
         compareTitle: "How groups are compared",
         compareBody:
           "Risk bands by Pathway score: {bands}. Each group's mean effort is re-weighted to the overall risk mix, so a gap is not just “this group is riskier”.",
@@ -168,7 +168,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
     },
     report: {
       title: "Statement of reasons for credit decision",
-      sub: "Adverse-action style report (simulated)",
+      sub: "Reasons in writing, as RBI's Fair Practices Code asks of lenders (simulated)",
       applicant: "Applicant data used",
       decision: "Decision",
       reasons: "Principal reasons, ranked",
@@ -180,7 +180,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
         "Logistic regression on {source} data (Give Me Some Credit schema), hold-out AUC {auc}. Reason codes are exact per-feature contributions to the log-odds, relative to the average applicant.",
       rights: "Your rights (illustrative)",
       rightsBody:
-        "You may request a human review of this decision, correct any inaccurate data, and re-apply. This report explains the factors used; the plan never relies on age, dependents or real-estate loans being changed.",
+        "You may request a human review of this decision, correct any inaccurate data, and re-apply. This report explains the factors used; the plan never relies on age, dependants or home loans being changed.",
       print: "Print / save as PDF",
       back: "Back to applicant",
       lender: "Pathway · Demo Lender",
@@ -198,7 +198,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
       declined: "Declined by a prime lender",
       alternative: "High-cost alternative",
       tier: "{tier} tier",
-      apr: "{v} APR",
+      apr: "{v} a year",
       emi: "Monthly payment (EMI)",
       interest: "Total interest",
       perMonth: "{v}/mo",
@@ -206,12 +206,12 @@ export const PAGES: Record<Lang, PagesStrings> = {
       emiDrop: "{v} lower monthly payment",
       noSaving:
         "The closest plan does not reach approval within {n} months, so the projected rate stays at the high-cost alternative.",
-      approvedBody: "Already approved in the {tier} tier at {apr} APR. No plan needed.",
-      nextTier: "The next tier, {tier} at {apr} APR, starts at score {score}.",
+      approvedBody: "Already approved in the {tier} tier at {apr} a year. No plan needed.",
+      nextTier: "The next tier, {tier} at {apr} a year, starts at score {score}.",
       topTier: "This is already the best illustrative tier.",
       note: "Illustrative risk-based pricing, not any lender's actual rates and not an offer of credit. Tiers: {tiers}.",
       declinedNote:
-        "Below score {threshold} a prime lender declines, so the comparison uses a high-cost alternative at {alt} APR.",
+        "Below score {threshold} a prime lender declines, so the comparison uses a high-cost alternative at {alt} a year.",
       tierItem: "score {score}+ {apr}",
     },
     certainty: {
@@ -231,15 +231,15 @@ export const PAGES: Record<Lang, PagesStrings> = {
     },
     assumptions: {
       horizon: { label: "Plan horizon", value: "{n} months maximum" },
-      utilization: { label: "Card paydown pace", value: "up to {v} points of utilization per month" },
-      debt: { label: "Debt payment reduction", value: "{v} of today's payments per month, {max} max" },
+      utilization: { label: "Card paydown pace", value: "up to {v} points of card utilisation per month" },
+      debt: { label: "EMI reduction", value: "{v} of today's EMIs per month, {max} max" },
       income: { label: "Income growth", value: "{v} per month, capped at +{max} in total" },
-      lines: { label: "Open credit lines", value: "change by at most {n}, effective after {lag} month" },
+      lines: { label: "Active loans and cards", value: "change by at most {n}, effective after {lag} month" },
       late: {
         label: "Late payments",
         value: "counted over {n} months, assumed evenly spread, age out if every future payment is on time",
       },
-      never: { label: "Never changed", value: "age, dependents, real-estate loans" },
+      never: { label: "Never changed", value: "age, dependants, home loans" },
     },
     method: { englishOnly: "This page is available in English only." },
   },
@@ -288,11 +288,11 @@ export const PAGES: Record<Lang, PagesStrings> = {
         seriesName: "जोखिम-समायोजित औसत",
         value: "{v} प्रयास (n={n})",
       },
-      groups: { under: "{a}/माह से कम", range: "{a}–{b}/माह", plus: "{a}+/माह" },
+      groups: { under: "{a}/माह से कम", range: "{a} से {b}/माह", plus: "{a} या अधिक/माह" },
       explain: {
         effortTitle: "“प्रयास” का अर्थ",
         effortBody:
-          "सबसे आसान योजना का भारित आकार: कार्ड उपयोग में हर 10 अंक की कमी पर {util} अंक, कर्ज़ किस्तों में हर 10% कटौती पर {debt}, हर सक्रिय क्रेडिट खाते के बदलाव पर {lines}, आय में हर 5% वृद्धि पर {income}, और प्रतीक्षा के हर महीने पर {wait}। ये भार lib/config.ts में हैं।",
+          "सबसे आसान योजना का भारित आकार: कार्ड उपयोग में हर 10 अंक की कमी पर {util} अंक, EMI में हर 10% कटौती पर {debt}, हर सक्रिय ऋण या कार्ड के बदलाव पर {lines}, आय में हर 5% वृद्धि पर {income}, और प्रतीक्षा के हर महीने पर {wait}। ये भार lib/config.ts में हैं।",
         compareTitle: "समूहों की तुलना कैसे होती है",
         compareBody:
           "पाथवे स्कोर के जोखिम-समूह: {bands}। हर समूह के औसत प्रयास को कुल जोखिम-मिश्रण के अनुसार दोबारा तौला जाता है, ताकि अंतर का मतलब सिर्फ़ “यह समूह ज़्यादा जोखिम वाला है” न हो।",
@@ -304,7 +304,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
     },
     report: {
       title: "ऋण निर्णय के कारणों का विवरण",
-      sub: "प्रतिकूल-निर्णय शैली की रिपोर्ट (सिमुलेशन)",
+      sub: "लिखित कारण, जैसा RBI की उचित व्यवहार संहिता ऋणदाताओं से कहती है (सिमुलेशन)",
       applicant: "प्रयुक्त आवेदक डेटा",
       decision: "निर्णय",
       reasons: "मुख्य कारण, क्रम से",
@@ -316,7 +316,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
         "{source} डेटा पर लॉजिस्टिक रिग्रेशन (Give Me Some Credit स्कीमा), होल्ड-आउट AUC {auc}। कारण-कोड औसत आवेदक की तुलना में लॉग-ऑड्स में हर कारक का सटीक योगदान हैं।",
       rights: "आपके अधिकार (उदाहरण)",
       rightsBody:
-        "आप इस निर्णय की मानवीय समीक्षा माँग सकते हैं, गलत डेटा सुधरवा सकते हैं और दोबारा आवेदन कर सकते हैं। यह रिपोर्ट प्रयुक्त कारकों को समझाती है; योजना कभी आयु, आश्रितों या रियल-एस्टेट ऋणों में बदलाव पर निर्भर नहीं करती।",
+        "आप इस निर्णय की मानवीय समीक्षा माँग सकते हैं, गलत डेटा सुधरवा सकते हैं और दोबारा आवेदन कर सकते हैं। यह रिपोर्ट प्रयुक्त कारकों को समझाती है; योजना कभी आयु, आश्रितों या होम लोन में बदलाव पर निर्भर नहीं करती।",
       print: "प्रिंट / PDF सहेजें",
       back: "आवेदक पर वापस",
       lender: "पाथवे · डेमो ऋणदाता",
@@ -334,7 +334,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
       declined: "मुख्य ऋणदाता द्वारा अस्वीकृत",
       alternative: "महँगा वैकल्पिक ऋण",
       tier: "{tier} श्रेणी",
-      apr: "{v} APR",
+      apr: "{v} सालाना",
       emi: "मासिक किस्त (EMI)",
       interest: "कुल ब्याज",
       perMonth: "{v}/माह",
@@ -342,11 +342,11 @@ export const PAGES: Record<Lang, PagesStrings> = {
       emiDrop: "मासिक किस्त {v} कम",
       noSaving:
         "सबसे नज़दीकी योजना {n} महीनों में स्वीकृति तक नहीं पहुँचती, इसलिए अनुमानित दर महँगे विकल्प वाली ही रहती है।",
-      approvedBody: "पहले से ही {tier} श्रेणी में {apr} APR पर स्वीकृत। किसी योजना की ज़रूरत नहीं।",
-      nextTier: "अगली श्रेणी, {tier} ({apr} APR), स्कोर {score} से शुरू होती है।",
+      approvedBody: "पहले से ही {tier} श्रेणी में {apr} सालाना ब्याज पर स्वीकृत। किसी योजना की ज़रूरत नहीं।",
+      nextTier: "अगली श्रेणी, {tier} ({apr} सालाना ब्याज), स्कोर {score} से शुरू होती है।",
       topTier: "यह पहले से ही सबसे अच्छी उदाहरण-श्रेणी है।",
       note: "उदाहरण के लिए जोखिम-आधारित मूल्य निर्धारण: यह किसी ऋणदाता की वास्तविक दरें या ऋण का प्रस्ताव नहीं है। श्रेणियाँ: {tiers}।",
-      declinedNote: "स्कोर {threshold} से नीचे मुख्य ऋणदाता अस्वीकार करता है, इसलिए तुलना {alt} APR वाले महँगे विकल्प से की जाती है।",
+      declinedNote: "स्कोर {threshold} से नीचे मुख्य ऋणदाता अस्वीकार करता है, इसलिए तुलना {alt} सालाना ब्याज वाले महँगे विकल्प से की जाती है।",
       tierItem: "स्कोर {score}+ पर {apr}",
     },
     certainty: {
@@ -367,14 +367,14 @@ export const PAGES: Record<Lang, PagesStrings> = {
     assumptions: {
       horizon: { label: "योजना की अवधि", value: "अधिकतम {n} महीने" },
       utilization: { label: "कार्ड बकाया घटाने की रफ़्तार", value: "हर महीने उपयोग में अधिकतम {v} अंक की कमी" },
-      debt: { label: "कर्ज़ किस्तों में कटौती", value: "हर महीने आज की किस्तों का {v}, अधिकतम {max}" },
+      debt: { label: "EMI में कटौती", value: "हर महीने आज की EMI का {v}, अधिकतम {max}" },
       income: { label: "आय वृद्धि", value: "हर महीने {v}, कुल मिलाकर अधिकतम +{max}" },
-      lines: { label: "सक्रिय क्रेडिट खाते", value: "अधिकतम {n} का बदलाव, {lag} महीने बाद लागू" },
+      lines: { label: "सक्रिय ऋण और कार्ड", value: "अधिकतम {n} का बदलाव, {lag} महीने बाद लागू" },
       late: {
         label: "देर से भुगतान",
         value: "{n} महीनों में गिने जाते हैं, समान रूप से फैले माने जाते हैं, और आगे हर भुगतान समय पर हो तो रिकॉर्ड से हट जाते हैं",
       },
-      never: { label: "कभी नहीं बदला जाता", value: "आयु, आश्रित, रियल-एस्टेट ऋण" },
+      never: { label: "कभी नहीं बदला जाता", value: "आयु, आश्रित, होम लोन" },
     },
     method: { englishOnly: "यह पृष्ठ अभी केवल अंग्रेज़ी में उपलब्ध है।" },
   },
@@ -423,11 +423,11 @@ export const PAGES: Record<Lang, PagesStrings> = {
         seriesName: "जोखीम-समायोजित सरासरी",
         value: "{v} प्रयत्न (n={n})",
       },
-      groups: { under: "{a}/महिन्यापेक्षा कमी", range: "{a}–{b}/महिना", plus: "{a}+/महिना" },
+      groups: { under: "{a}/महिन्यापेक्षा कमी", range: "{a} ते {b}/महिना", plus: "{a} किंवा अधिक/महिना" },
       explain: {
         effortTitle: "“प्रयत्न” म्हणजे काय",
         effortBody:
-          "सर्वात सोप्या योजनेचा भारित आकार: कार्ड वापरात प्रत्येक 10 गुणांच्या घटीसाठी {util} गुण, कर्जाच्या हप्त्यांमध्ये प्रत्येक 10% कपातीसाठी {debt}, प्रत्येक सक्रिय क्रेडिट खात्याच्या बदलासाठी {lines}, उत्पन्नात प्रत्येक 5% वाढीसाठी {income}, आणि प्रतीक्षेच्या प्रत्येक महिन्यासाठी {wait}. हे भार lib/config.ts मध्ये आहेत.",
+          "सर्वात सोप्या योजनेचा भारित आकार: कार्ड वापरात प्रत्येक 10 गुणांच्या घटीसाठी {util} गुण, EMI मध्ये प्रत्येक 10% कपातीसाठी {debt}, प्रत्येक सक्रिय कर्ज किंवा कार्डच्या बदलासाठी {lines}, उत्पन्नात प्रत्येक 5% वाढीसाठी {income}, आणि प्रतीक्षेच्या प्रत्येक महिन्यासाठी {wait}. हे भार lib/config.ts मध्ये आहेत.",
         compareTitle: "गटांची तुलना कशी होते",
         compareBody:
           "पाथवे स्कोअरनुसार जोखीम-गट: {bands}. प्रत्येक गटाचा सरासरी प्रयत्न एकूण जोखीम-मिश्रणानुसार पुन्हा तोलला जातो, जेणेकरून तफावत म्हणजे फक्त “हा गट जास्त जोखमीचा आहे” असे होत नाही.",
@@ -439,7 +439,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
     },
     report: {
       title: "कर्ज निर्णयाच्या कारणांचे विवरण",
-      sub: "प्रतिकूल-निर्णय स्वरूपाचा अहवाल (सिम्युलेशन)",
+      sub: "लेखी कारणे, जशी RBI ची उचित व्यवहार संहिता कर्जदात्यांना सांगते (सिम्युलेशन)",
       applicant: "वापरलेला अर्जदार डेटा",
       decision: "निर्णय",
       reasons: "मुख्य कारणे, क्रमाने",
@@ -451,7 +451,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
         "{source} डेटावर लॉजिस्टिक रिग्रेशन (Give Me Some Credit स्कीमा), होल्ड-आउट AUC {auc}. कारण-कोड हे सरासरी अर्जदाराच्या तुलनेत लॉग-ऑड्समधील प्रत्येक घटकाचे अचूक योगदान आहेत.",
       rights: "तुमचे अधिकार (उदाहरणार्थ)",
       rightsBody:
-        "तुम्ही या निर्णयाचे मानवी पुनरावलोकन मागू शकता, चुकीचा डेटा दुरुस्त करू शकता आणि पुन्हा अर्ज करू शकता. हा अहवाल वापरलेले घटक स्पष्ट करतो; योजना कधीही वय, अवलंबित किंवा स्थावर मालमत्ता कर्जांतील बदलावर अवलंबून नाही.",
+        "तुम्ही या निर्णयाचे मानवी पुनरावलोकन मागू शकता, चुकीचा डेटा दुरुस्त करू शकता आणि पुन्हा अर्ज करू शकता. हा अहवाल वापरलेले घटक स्पष्ट करतो; योजना कधीही वय, अवलंबित किंवा गृहकर्जांतील बदलावर अवलंबून नाही.",
       print: "प्रिंट / PDF जतन करा",
       back: "अर्जदाराकडे परत",
       lender: "पाथवे · डेमो कर्जदाता",
@@ -469,7 +469,7 @@ export const PAGES: Record<Lang, PagesStrings> = {
       declined: "मुख्य कर्जदात्याकडून नामंजूर",
       alternative: "महागडा पर्यायी कर्जदाता",
       tier: "{tier} श्रेणी",
-      apr: "{v} APR",
+      apr: "{v} वार्षिक",
       emi: "मासिक हप्ता (EMI)",
       interest: "एकूण व्याज",
       perMonth: "{v}/महिना",
@@ -477,11 +477,11 @@ export const PAGES: Record<Lang, PagesStrings> = {
       emiDrop: "मासिक हप्ता {v} ने कमी",
       noSaving:
         "सर्वात जवळची योजना {n} महिन्यांत मंजुरीपर्यंत पोहोचत नाही, म्हणून अंदाजित दर महागड्या पर्यायाचाच राहतो.",
-      approvedBody: "आधीच {tier} श्रेणीत {apr} APR वर मंजूर. कोणत्याही योजनेची गरज नाही.",
-      nextTier: "पुढील श्रेणी, {tier} ({apr} APR), स्कोअर {score} पासून सुरू होते.",
+      approvedBody: "आधीच {tier} श्रेणीत {apr} वार्षिक व्याज वर मंजूर. कोणत्याही योजनेची गरज नाही.",
+      nextTier: "पुढील श्रेणी, {tier} ({apr} वार्षिक व्याज), स्कोअर {score} पासून सुरू होते.",
       topTier: "ही आधीच सर्वोत्तम उदाहरण-श्रेणी आहे.",
       note: "उदाहरणादाखल जोखीम-आधारित किंमत: हे कोणत्याही कर्जदात्याचे प्रत्यक्ष दर किंवा कर्जाचा प्रस्ताव नाही. श्रेण्या: {tiers}.",
-      declinedNote: "स्कोअर {threshold} खाली मुख्य कर्जदाता नामंजूर करतो, म्हणून तुलना {alt} APR असलेल्या महागड्या पर्यायाशी केली जाते.",
+      declinedNote: "स्कोअर {threshold} खाली मुख्य कर्जदाता नामंजूर करतो, म्हणून तुलना {alt} वार्षिक व्याज असलेल्या महागड्या पर्यायाशी केली जाते.",
       tierItem: "स्कोअर {score}+ वर {apr}",
     },
     certainty: {
@@ -502,14 +502,14 @@ export const PAGES: Record<Lang, PagesStrings> = {
     assumptions: {
       horizon: { label: "योजनेचा कालावधी", value: "जास्तीत जास्त {n} महिने" },
       utilization: { label: "कार्ड थकबाकी कमी करण्याची गती", value: "दरमहा वापरात जास्तीत जास्त {v} गुणांची घट" },
-      debt: { label: "कर्जाच्या हप्त्यांतील कपात", value: "दरमहा आजच्या हप्त्यांच्या {v}, जास्तीत जास्त {max}" },
+      debt: { label: "EMI मधील कपात", value: "दरमहा आजच्या EMI च्या {v}, जास्तीत जास्त {max}" },
       income: { label: "उत्पन्नवाढ", value: "दरमहा {v}, एकूण जास्तीत जास्त +{max}" },
-      lines: { label: "सक्रिय क्रेडिट खाती", value: "जास्तीत जास्त {n} ने बदल, {lag} महिन्यानंतर लागू" },
+      lines: { label: "सक्रिय कर्जे आणि कार्ड", value: "जास्तीत जास्त {n} ने बदल, {lag} महिन्यानंतर लागू" },
       late: {
         label: "उशिराचे हप्ते",
         value: "{n} महिन्यांत मोजले जातात, समान विखुरलेले मानले जातात, आणि पुढील प्रत्येक हप्ता वेळेवर भरल्यास नोंदीतून हटतात",
       },
-      never: { label: "कधीही बदलले जात नाही", value: "वय, अवलंबित, स्थावर मालमत्ता कर्जे" },
+      never: { label: "कधीही बदलले जात नाही", value: "वय, अवलंबित, गृहकर्जे" },
     },
     method: { englishOnly: "हे पान सध्या फक्त इंग्रजीत उपलब्ध आहे." },
   },
@@ -529,15 +529,20 @@ export function hrefWithLang(href: string, lang: Lang): string {
 /** Narrows metrics.json's `dataSource` string. */
 export const asDataSource = (v: string): DataSource => (v === "kaggle" ? "kaggle" : "synthetic");
 
-/** Localizes the income band labels written by the evaluator ("Under $3,000/mo", "$3,000–6,000/mo", "$6,000+/mo"). */
+/**
+ * Localizes the income band labels written by the evaluator (lib/evaluate.ts INCOME_BANDS):
+ * "Under ₹60,000/mo", "₹60,000 to ₹1.2 lakh/mo", "₹1.2 lakh+/mo". Amounts keep their digits; "lakh"
+ * is translated.
+ */
 export function groupLabel(lang: Lang, label: string): string {
   const g = PAGES[lang].fairness.groups;
-  let m = /^Under (\$[\d,]+)\/mo$/.exec(label);
-  if (m) return tf(g.under, { a: m[1] });
-  m = /^(\$[\d,]+)–([\d,]+)\/mo$/.exec(label);
-  if (m) return tf(g.range, { a: m[1], b: m[2] });
-  m = /^(\$[\d,]+)\+\/mo$/.exec(label);
-  if (m) return tf(g.plus, { a: m[1] });
+  const amount = (a: string) => a.replace(/ lakh$/, lang === "en" ? " lakh" : " लाख");
+  let m = /^Under (₹[\d.,]+(?: lakh)?)\/mo$/.exec(label);
+  if (m) return tf(g.under, { a: amount(m[1]) });
+  m = /^(₹[\d.,]+(?: lakh)?) to (₹[\d.,]+(?: lakh)?)\/mo$/.exec(label);
+  if (m) return tf(g.range, { a: amount(m[1]), b: amount(m[2]) });
+  m = /^(₹[\d.,]+(?: lakh)?)\+\/mo$/.exec(label);
+  if (m) return tf(g.plus, { a: amount(m[1]) });
   return label;
 }
 

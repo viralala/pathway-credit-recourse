@@ -14,7 +14,7 @@ export function HeroArt({ className }: { className?: string }) {
 
   return (
     <svg viewBox="0 0 320 260" className={className} aria-hidden focusable="false">
-      <rect x="8" y="18" width="304" height="226" rx="36" fill="var(--pastel-lavender)" />
+      <rect x="8" y="18" width="304" height="226" rx="36" fill="var(--pastel-stone)" />
       <circle cx="268" cy="58" r="22" fill="var(--pastel-peach)" />
       <circle cx="42" cy="70" r="12" fill="var(--pastel-sky)" />
 
@@ -35,12 +35,12 @@ export function HeroArt({ className }: { className?: string }) {
       <rect x="114" y="158" width="78" height="4" rx="2" fill="var(--border)" />
       <rect x="114" y="168" width="88" height="4" rx="2" fill="var(--border)" />
       <rect x="114" y="178" width="70" height="4" rx="2" fill="var(--border)" />
-      <rect x="114" y="206" width="94" height="26" rx="13" fill="var(--pastel-periwinkle)" />
+      <rect x="114" y="206" width="94" height="26" rx="13" fill="var(--pastel-teal)" />
 
       {/* magnifier revealing the real rate */}
       <motion.g {...float}>
-        <line x1="226" y1="190" x2="256" y2="220" stroke="var(--deep-periwinkle)" strokeWidth="11" strokeLinecap="round" />
-        <circle cx="204" cy="166" r="34" fill="var(--card)" fillOpacity="0.92" stroke="var(--deep-periwinkle)" strokeWidth="6" />
+        <line x1="226" y1="190" x2="256" y2="220" stroke="var(--deep-teal)" strokeWidth="11" strokeLinecap="round" />
+        <circle cx="204" cy="166" r="34" fill="var(--card)" fillOpacity="0.92" stroke="var(--deep-teal)" strokeWidth="6" />
         <circle cx="193" cy="155" r="6.5" fill="none" stroke="var(--deep-blush)" strokeWidth="3.5" />
         <circle cx="215" cy="177" r="6.5" fill="none" stroke="var(--deep-blush)" strokeWidth="3.5" />
         <line x1="217" y1="151" x2="191" y2="181" stroke="var(--deep-blush)" strokeWidth="3.5" strokeLinecap="round" />

@@ -13,7 +13,7 @@ const DOT: Record<Milestone["kind"], string> = {
   utilization: "bg-pastel-peach",
   debt: "bg-pastel-peach",
   lines: "bg-pastel-peach",
-  income: "bg-pastel-lavender",
+  income: "bg-pastel-stone",
   late: "bg-pastel-sky",
   approval: "bg-pastel-butter",
   tier: "bg-pastel-butter",
@@ -31,7 +31,7 @@ export function MilestoneChecklist({ milestones, lang }: { milestones: Milestone
   const count = milestones.filter((m) => done[m.key]).length;
 
   return (
-    <section aria-labelledby={`${id}-heading`} className="flex flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+    <section aria-labelledby={`${id}-heading`} className="flex flex-col rounded-xl bg-card p-5 border border-border sm:p-6">
       <h2 id={`${id}-heading`} className="text-lg font-bold tracking-tight">
         {s.milestones.heading}
       </h2>

@@ -6,10 +6,10 @@ import { HeroArt } from "./HeroArt";
 /** Page hero: the question, a short explainer and the privacy promise. */
 export function OfferHero({ s }: { s: OfferStrings }) {
   return (
-    <Reveal as="section" className="relative overflow-hidden rounded-3xl bg-card p-6 ring-1 ring-foreground/10 sm:p-10">
+    <Reveal as="section" className="relative overflow-hidden rounded-xl bg-card p-6 border border-border sm:p-10">
       <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
         <div>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-pastel-peach px-3 py-1 text-xs font-semibold text-deep-peach">
+          <p className="inline-flex items-center gap-1.5 rounded-md bg-pastel-peach px-3 py-1 text-xs font-semibold text-deep-peach">
             <ScanSearch aria-hidden className="size-3.5" />
             {s.eyebrow}
           </p>

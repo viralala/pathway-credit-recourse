@@ -76,11 +76,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
         </div>
 
         <Reveal className="print:transform-none! print:opacity-100!">
-          <article className="print-sheet overflow-hidden rounded-2xl bg-card p-5 ring-1 ring-foreground/10 [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-10">
-            <div aria-hidden className="-mx-5 -mt-5 mb-6 h-1.5 bg-linear-to-r from-pastel-periwinkle via-pastel-lavender to-pastel-peach sm:-mx-10 sm:-mt-10" />
+          <article className="print-sheet overflow-hidden rounded-xl bg-card p-5 border border-border [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-10">
+            <div aria-hidden className="-mx-5 -mt-5 mb-6 h-1.5 bg-linear-to-r from-pastel-teal via-pastel-stone to-pastel-peach sm:-mx-10 sm:-mt-10" />
             <header className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
               <div className="min-w-0">
-                <p className={cn("text-xs font-bold text-deep-lavender", TRACKED)}>{h.sub}</p>
+                <p className={cn("text-xs font-bold text-deep-stone", TRACKED)}>{h.sub}</p>
                 <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-balance text-foreground sm:text-3xl">{h.title}</h1>
               </div>
               <div className="text-xs text-muted-foreground sm:text-right">
@@ -123,7 +123,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                 <ol className="mt-2 divide-y divide-border border-y border-border">
                   {a.reasons.map((x, i) => (
                     <li key={x.key} className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-start gap-3 py-3">
-                      <span className="mt-0.5 w-fit rounded-md bg-pastel-periwinkle px-1.5 py-0.5 text-xs font-extrabold text-deep-periwinkle">
+                      <span className="mt-0.5 w-fit rounded-md bg-pastel-teal px-1.5 py-0.5 text-xs font-extrabold text-deep-teal">
                         R{i + 1}
                       </span>
                       <span className="min-w-0">

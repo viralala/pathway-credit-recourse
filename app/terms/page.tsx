@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ANTHROPIC_PRIVACY_URL, VERCEL_PRIVACY_URL } from "@/components/legal/data";
+import { ANTHROPIC_PRIVACY_URL, GOOGLE_PRIVACY_URL, SUPABASE_PRIVACY_URL, VERCEL_PRIVACY_URL } from "@/components/legal/data";
 import { LegalPage } from "@/components/legal/LegalPage";
 import { hrefWithLang, langFromParams, type LegalSearchParams } from "@/components/legal/links";
 import { ExternalLink, InternalLink, Item, LegalSection, List, P } from "@/components/legal/prose";
@@ -7,7 +7,7 @@ import type { TocItem } from "@/components/legal/TableOfContents";
 import { ISSUES_URL, REPO_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms of use",
+  title: "Terms and conditions",
   description:
     "The terms for using Pathway, a free educational simulation that explains loan rejections. It does not lend, give financial advice or guarantee any outcome.",
   alternates: { canonical: "/terms" },
@@ -18,6 +18,7 @@ const TOC: TocItem[] = [
   { id: "about", label: "What Pathway is and is not" },
   { id: "no-advice", label: "No advice, no guarantee, no lender relationship" },
   { id: "eligibility", label: "Who may use Pathway" },
+  { id: "accounts", label: "Accounts" },
   { id: "acceptable-use", label: "Acceptable use" },
   { id: "intellectual-property", label: "Intellectual property" },
   { id: "third-party-services", label: "Third-party services" },
@@ -36,15 +37,15 @@ export default async function TermsPage({ searchParams }: { searchParams: Promis
   return (
     <LegalPage
       current="/terms"
-      title="Terms of use"
+      title="Terms and conditions"
       summary="The rules for using Pathway, a free educational simulation. In short: Pathway explains and simulates. It does not lend, advise or guarantee anything."
       toc={TOC}
       lang={lang}
     >
       <LegalSection id="acceptance" title="Accepting these terms">
         <P>
-          These terms of use (&ldquo;Terms&rdquo;) apply to the Pathway website and everything on it, including the applicant
-          workbench, the plan and timeline, the offer check, the goal planner, the fairness audit, the lender report and the
+          These terms and conditions (&ldquo;Terms&rdquo;) apply to the Pathway website and everything on it, including the loan
+          check, optional accounts and saved plans, the partner enquiry form, the plan and timeline, the offer check, the goal planner, the fairness audit, the lender report and the
           optional AI rewrite (together, the &ldquo;Service&rdquo;). The Service is made available by the Pathway contributors
           (&ldquo;we&rdquo;, &ldquo;us&rdquo;), the people who build the open-source Pathway project.
         </P>
@@ -112,6 +113,22 @@ export default async function TermsPage({ searchParams }: { searchParams: Promis
         </P>
       </LegalSection>
 
+      <LegalSection id="accounts" title="Accounts">
+        <P>
+          Every tool works without an account. If you sign in with Google, you can save plans and record your figures over time.
+          You are responsible for activity under your account and for keeping your Google account secure.
+        </P>
+        <P>
+          Accounts are free. We may limit how much one account can store (currently 50 plans and 120 updates per plan) to keep
+          the Service available for everyone. You can download your data or delete your account at any time from &ldquo;My
+          plans&rdquo;; deletion is immediate and permanent. We may suspend or delete an account that breaks these Terms.
+        </P>
+        <P>
+          Saved scores and projections are the simulation&rsquo;s output for the figures you entered on that date. They are not a
+          record from any credit bureau or lender.
+        </P>
+      </LegalSection>
+
       <LegalSection id="acceptable-use" title="Acceptable use">
         <P>You agree not to:</P>
         <List>
@@ -169,6 +186,11 @@ export default async function TermsPage({ searchParams }: { searchParams: Promis
           <Item>
             <strong className="font-semibold text-foreground">Hosting.</strong> The Service is hosted on Vercel. See{" "}
             <ExternalLink href={VERCEL_PRIVACY_URL}>Vercel&rsquo;s privacy policy</ExternalLink>.
+          </Item>
+          <Item>
+            <strong className="font-semibold text-foreground">Accounts.</strong> Sign-in and saved data are handled by Supabase (
+            <ExternalLink href={SUPABASE_PRIVACY_URL}>privacy policy</ExternalLink>), and sign-in uses your Google account (
+            <ExternalLink href={GOOGLE_PRIVACY_URL}>Google&rsquo;s privacy policy</ExternalLink>).
           </Item>
           <Item>
             <strong className="font-semibold text-foreground">Optional AI rewrite.</strong> When the site has an Anthropic API key

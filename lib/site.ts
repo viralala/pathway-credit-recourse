@@ -7,20 +7,23 @@ export const REPO_URL = "https://github.com/viralala/pathway-credit-recourse";
 /** Public contact and grievance channel (no personal email is published). */
 export const ISSUES_URL = `${REPO_URL}/issues`;
 
-export const SITE_TITLE = "Pathway: explainable loan rejection and path to approval";
-export const SITE_TAGLINE = "A rejection should be a roadmap.";
+export const SITE_TITLE = "Pathway: why your loan was declined and how to get approved";
+export const SITE_TAGLINE = "Loan declined? See why, what to change and when to apply again.";
 export const SITE_DESCRIPTION =
-  "Pathway explains a loan rejection in plain language and finds a feasible, lowest-effort plan to approval, with a month-by-month timeline, illustrative money-saved estimates, a fairness audit and a printable lender report, in English, Hindi and Marathi. An educational simulation on synthetic data.";
+  "Find out why a loan was declined, the smallest realistic plan to approval, the month you could apply again and the interest you save in rupees, in English, Hindi and Marathi. Free for borrowers. An educational simulation on synthetic data.";
 
 /** Brand colours used outside CSS (manifest, browser UI, generated images). Mirrors app/globals.css. */
 export const BRAND = {
-  background: "#faf7f2",
-  foreground: "#2a2838",
-  muted: "#646072",
-  primary: "#4f5d95",
-  periwinkle: "#dde3fa",
-  peach: "#e3a07c",
-  mint: "#6aae8c",
+  background: "#f5f1e7",
+  foreground: "#0c1418",
+  muted: "#4f5d62",
+  primary: "#12656f",
+  /** Soft teal behind the mark. */
+  tile: "#d9ecea",
+  peach: "#fde3d4",
+  peachDeep: "#84401e",
+  mint: "#d7f0e3",
+  mintDeep: "#2b6249",
 } as const;
 
 /**
@@ -42,7 +45,10 @@ export const siteMetadata: Metadata = {
     "loan rejection",
     "credit decision explanation",
     "explainable AI",
-    "adverse action reasons",
+    "loan rejection reasons India",
+    "credit score improvement India",
+    "FOIR",
+    "personal loan EMI",
     "credit recourse",
     "path to loan approval",
     "fairness audit",

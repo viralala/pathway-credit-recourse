@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const KIND_STYLE: Record<PlanAction["kind"], string> = {
   actionable: "bg-pastel-peach text-deep-peach",
-  "slow-moving": "bg-pastel-lavender text-deep-lavender",
+  "slow-moving": "bg-pastel-stone text-deep-stone",
   time: "bg-pastel-sky text-deep-sky",
   immutable: "bg-muted text-muted-foreground",
 };
@@ -22,13 +22,13 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const plan = gp.plan;
 
   return (
-    <section aria-labelledby="goal-plan-heading" className="flex flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
+    <section aria-labelledby="goal-plan-heading" className="flex flex-col rounded-xl bg-card p-5 border border-border sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="goal-plan-heading" className="text-lg font-bold tracking-tight">
           {s.plan.heading}
         </h2>
         {gp.status === "infeasible" && (
-          <span className="rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-warning-foreground">{s.plan.closest}</span>
+          <span className="rounded-md bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-warning-foreground">{s.plan.closest}</span>
         )}
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{tf(s.plan.sub, { score: gp.targetScore })}</p>
@@ -52,7 +52,7 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="sr-only">{tf(s.plan.step, { n: i + 1 })}: </span>
-                    <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", KIND_STYLE[act.kind])}>{ui.kinds[act.kind]}</span>
+                    <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-semibold", KIND_STYLE[act.kind])}>{ui.kinds[act.kind]}</span>
                     <span className="text-xs text-muted-foreground tabular-nums">
                       {tf(s.plan.doneBy, { n: act.months })} · {tf(s.plan.effort, { n: act.effort.toFixed(1) })}
                     </span>

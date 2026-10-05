@@ -23,16 +23,24 @@ export function groupIN(v: number): string {
   return Math.round(Number.isFinite(v) ? v : 0).toLocaleString("en-IN");
 }
 
+/** "lakh" and "crore" in the page language. */
+export const UNIT_WORDS = {
+  en: { lakh: "lakh", crore: "crore" },
+  hi: { lakh: "लाख", crore: "करोड़" },
+  mr: { lakh: "लाख", crore: "कोटी" },
+} as const;
+
 /**
  * Short rupee labels in lakh and crore, for axes, slider ends and headings:
  * 50000 → "₹50,000", 250000 → "₹2.5 lakh", 10000000 → "₹1 crore".
  */
-export function inrShort(v: number): string {
+export function inrShort(v: number, lang: keyof typeof UNIT_WORDS = "en"): string {
+  const w = UNIT_WORDS[lang];
   const n = Math.round(Number.isFinite(v) ? v : 0);
   const abs = Math.abs(n);
   const sign = n < 0 ? "-" : "";
   const trim = (x: number) => x.toFixed(2).replace(/\.?0+$/, "");
-  if (abs >= 1_00_00_000) return `${sign}₹${trim(abs / 1_00_00_000)} crore`;
-  if (abs >= 1_00_000) return `${sign}₹${trim(abs / 1_00_000)} lakh`;
+  if (abs >= 1_00_00_000) return `${sign}₹${trim(abs / 1_00_00_000)} ${w.crore}`;
+  if (abs >= 1_00_000) return `${sign}₹${trim(abs / 1_00_000)} ${w.lakh}`;
   return `${sign}₹${abs.toLocaleString("en-IN")}`;
 }

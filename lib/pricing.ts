@@ -2,7 +2,7 @@ import { MODEL } from "./model";
 import { inr } from "./money";
 
 /**
- * Risk-based pricing: the Pathway score decides the APR a prime lender would offer.
+ * Risk-based pricing: the Pathway score decides the yearly interest rate a prime lender would offer.
  * Below the approval cut-off the prime lender declines, and the borrower's realistic
  * alternative is a high-cost lender, priced at `declinedAlternativeApr`.
  *
@@ -131,9 +131,9 @@ export function moneySaved(
 export function describePricing(p: typeof PRICING = PRICING): { label: string; value: string }[] {
   const pct = (v: number) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
   return [
-    ...p.tiers.map((t) => ({ label: `Score ${t.minScore}+`, value: `${pct(t.apr)} APR` })),
-    { label: `Below ${MODEL.thresholdScore} (declined)`, value: `${pct(p.declinedAlternativeApr)} APR from a high-cost alternative lender` },
+    ...p.tiers.map((t) => ({ label: `Score ${t.minScore}+`, value: `${pct(t.apr)} a year` })),
+    { label: `Below ${MODEL.thresholdScore} (declined)`, value: `${pct(p.declinedAlternativeApr)} a year from a high-cost lender` },
     { label: "Default loan", value: `${inr(p.defaultLoan.amount)} over ${p.defaultLoan.termMonths} months` },
-    { label: "Affordability", value: `all EMIs at most ${pct(p.maxEmiToIncome)} of monthly income` },
+    { label: "Affordability", value: `FOIR: all EMIs at most ${pct(p.maxEmiToIncome)} of monthly income` },
   ];
 }

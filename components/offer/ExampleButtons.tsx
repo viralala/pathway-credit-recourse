@@ -36,7 +36,7 @@ export function ExampleButtons({
               variant="outline"
               aria-pressed={pressed}
               onClick={() => onPick(e.id)}
-              className="h-auto min-h-9 rounded-full px-3.5 py-1.5 text-left whitespace-normal aria-pressed:border-primary/40 aria-pressed:bg-secondary aria-pressed:text-secondary-foreground"
+              className="h-auto min-h-9 rounded-md px-3.5 py-1.5 text-left whitespace-normal aria-pressed:border-primary/40 aria-pressed:bg-secondary aria-pressed:text-secondary-foreground"
             >
               <Icon aria-hidden />
               {s.examples[e.id]}
