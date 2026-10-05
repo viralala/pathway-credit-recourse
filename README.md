@@ -87,7 +87,7 @@ Every assumption lives in `lib/config.ts` and `lib/pricing.ts`, and the UI shows
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
 | UI | Tailwind CSS 4 design tokens, shadcn/ui (Radix), Lucide icons, Recharts |
-| Motion | Motion (page transitions, scroll reveals, count-ups, money cursor), reduced-motion aware |
+| Motion | Motion (short fade-ins and count-ups), reduced-motion aware |
 | Model | Python + scikit-learn (training) → JSON coefficients → TypeScript inference |
 | Quality | Vitest (unit and property tests), ESLint |
 | Platform | Vercel, security headers + CSP, rate-limited API |

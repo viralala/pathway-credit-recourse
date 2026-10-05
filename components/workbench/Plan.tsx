@@ -75,7 +75,7 @@ export function Plan({
                 </li>
                 {plan.actions.map((act, i) => (
                   <li key={act.key}>
-                    <StaggerItem className="flex h-full flex-col rounded-xl bg-card p-5 border border-border">
+                    <StaggerItem className="flex h-full flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className={cn(KICKER, "text-muted-foreground")}>
                           {ui.step} {i + 1}
@@ -111,14 +111,14 @@ export function Plan({
               </ol>
             </Stagger>
             <Reveal className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-card/70 p-4 border border-border">
+              <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card/70 p-4 ring-1 ring-foreground/10">
                 <span className="inline-flex items-center gap-1.5 rounded-md bg-pastel-stone px-2.5 py-0.5 text-xs font-bold text-deep-stone">
                   <Lock aria-hidden className="size-3" />
                   {ui.never}
                 </span>
                 <span className="text-sm text-muted-foreground">{ui.neverList}</span>
               </div>
-              <div className="rounded-xl bg-card/70 p-4 text-sm text-muted-foreground border border-border">
+              <div className="rounded-2xl bg-card/70 p-4 text-sm text-muted-foreground ring-1 ring-foreground/10">
                 {ui.total} {ui.effort}: <strong className="text-foreground tabular-nums">{plan.effort.toFixed(1)}</strong> · *{ui.projected}
               </div>
             </Reveal>

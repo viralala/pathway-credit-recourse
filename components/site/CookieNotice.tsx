@@ -20,11 +20,11 @@ export function CookieNotice() {
     <section
       aria-label={s.regionLabel}
       lang={lang}
-      className="no-print fixed inset-x-4 bottom-4 z-50 max-w-md rounded-xl border border-border bg-card p-4 shadow-[0_18px_40px_-24px_rgb(12_20_24/0.45)] sm:inset-x-auto sm:left-4"
+      className="no-print fixed inset-x-4 bottom-4 z-50 max-w-md rounded-2xl bg-card p-4 shadow-[0_18px_40px_-24px_rgb(42_40_56/0.45)] ring-1 ring-foreground/10 sm:inset-x-auto sm:left-4"
     >
       <p className="text-sm leading-relaxed text-foreground">{s.body}</p>
       <div className="mt-3 flex items-center gap-4">
-        <Button size="sm" className="h-8 px-4" onClick={() => dismissNotice()}>
+        <Button size="sm" className="h-8 rounded-lg px-4" onClick={() => dismissNotice()}>
           {s.ok}
         </Button>
         <Link href={withLang("/privacy#cookies", lang)} className="text-sm font-semibold text-primary underline underline-offset-4">

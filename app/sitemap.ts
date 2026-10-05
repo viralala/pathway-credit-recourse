@@ -7,7 +7,6 @@ const CONTENT_UPDATED = new Date("2026-10-05T00:00:00.000Z");
 /** Pages available in English, Hindi and Marathi via ?lang=. */
 const LOCALIZED: { path: string; priority: number; changeFrequency: "weekly" | "monthly" }[] = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
-  { path: "/check", priority: 0.9, changeFrequency: "weekly" },
   { path: "/partners", priority: 0.7, changeFrequency: "monthly" },
   { path: "/goal", priority: 0.8, changeFrequency: "monthly" },
   { path: "/offer-check", priority: 0.8, changeFrequency: "monthly" },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { backgroundNav, isActivePath, primaryNav, switchLangHref, withLang } from "@/components/site/nav";
+import { isActivePath, primaryNav, switchLangHref, withLang } from "@/components/site/nav";
 import { LANGS } from "../i18n";
 import { SHELL } from "../strings/shell";
 
@@ -26,10 +26,10 @@ describe("shell strings", () => {
     }
   });
 
-  it("builds the header and footer nav in every language", () => {
+  it("builds the six primary nav items in every language", () => {
     for (const { id } of LANGS) {
-      const nav = [...primaryNav(id), ...backgroundNav(id)];
-      expect(nav.map((n) => n.href)).toEqual(["/check", "/goal", "/offer-check", "/partners", "/method", "/fairness", "/report"]);
+      const nav = primaryNav(id);
+      expect(nav.map((n) => n.href)).toEqual(["/", "/goal", "/offer-check", "/fairness", "/report", "/method"]);
       for (const n of nav) expect(n.label.length).toBeGreaterThan(0);
     }
   });

@@ -57,7 +57,7 @@ function AssetList({ items }: { items: AssetCredit[] }) {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {items.map((a) => (
-        <li key={a.name} className="rounded-xl bg-card p-5 border border-border print:p-0 print:ring-0">
+        <li key={a.name} className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 print:p-0 print:ring-0">
           <p className="font-semibold text-foreground">{a.name}</p>
           <p className="mt-0.5 text-sm text-muted-foreground">{a.license}</p>
           <p className="mt-2 text-sm leading-6 text-foreground/85 print:text-black">{a.note}</p>

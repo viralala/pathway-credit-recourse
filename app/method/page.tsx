@@ -114,7 +114,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <li key={x.id}>
                   <a
                     href={`#${x.id}`}
-                    className="inline-flex rounded-md bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground border border-border transition-colors hover:bg-secondary"
+                    className="inline-flex rounded-md bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground ring-1 ring-foreground/10 transition-colors hover:bg-secondary"
                   >
                     {x.label}
                   </a>
@@ -129,7 +129,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="results-title" eyebrow="Results" title="Headline metrics" />
           <Stagger className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             <StaggerItem>
-              <StatTile tone="teal" label="Model AUC" value={metrics.auc} decimals={3} />
+              <StatTile tone="periwinkle" label="Model AUC" value={metrics.auc} decimals={3} />
             </StaggerItem>
             <StaggerItem>
               <StatTile tone="mint" label="Plans that flip the decision" value={metrics.planSuccessRate * 100} suffix="%" />
@@ -153,7 +153,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <Stagger className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((x, i) => (
               <StaggerItem key={x.t} className="h-full">
-                <div className="h-full rounded-xl bg-card p-6 border border-border">
+                <div className="h-full rounded-2xl bg-card p-6 ring-1 ring-foreground/10">
                   <span
                     aria-hidden
                     className="grid size-10 place-items-center rounded-full bg-pastel-peach font-extrabold text-deep-peach"
@@ -176,7 +176,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="features-title" eyebrow="Model" title="Features, coefficients and assumptions" />
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Reveal className="h-full">
-              <div className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
+              <div className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
                 <h3 className="text-lg font-bold text-foreground">Features and what a plan may do with them</h3>
                 <Table className="mt-4 text-xs sm:text-sm">
                   <TableCaption className="sr-only">
@@ -243,7 +243,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           </SectionHeading>
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <Reveal className="h-full">
-              <div className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
+              <div className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
                 <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                   <PiggyBank aria-hidden className="size-5 text-deep-mint" />
                   Tiers on the default loan
@@ -285,7 +285,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             </Reveal>
             <div className="grid grid-cols-1 content-start gap-4">
               <Reveal delay={0.06}>
-                <div className="rounded-2xl bg-pastel-teal p-5 text-deep-teal sm:p-6">
+                <div className="rounded-2xl bg-pastel-periwinkle p-5 text-deep-periwinkle sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.18em]">Formula</p>
                   <p className="mt-3 font-mono text-lg font-semibold text-foreground sm:text-xl">
                     <span className="sr-only">EMI equals P times r, divided by 1 minus (1 plus r) to the power of minus n.</span>
@@ -320,7 +320,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
           <SectionHeading id="mc-title" eyebrow="Uncertainty" title="How sure is the timeline? Monte Carlo" tag="Simulation" />
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <Reveal className="h-full">
-              <div className="h-full space-y-3 rounded-xl bg-card p-5 leading-relaxed text-muted-foreground border border-border sm:p-6">
+              <div className="h-full space-y-3 rounded-2xl bg-card p-5 leading-relaxed text-muted-foreground ring-1 ring-foreground/10 sm:p-6">
                 <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                   <Dices aria-hidden className="size-5 text-deep-sky" />
                   Many futures, not one
@@ -362,7 +362,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             <section
               id="goal"
               aria-labelledby="goal-title"
-              className="h-full scroll-mt-24 rounded-xl bg-card p-5 border border-border sm:p-6"
+              className="h-full scroll-mt-24 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
             >
               <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-pastel-mint text-deep-mint">
                 <Target className="size-5" />
@@ -398,7 +398,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
             <section
               id="offer-check"
               aria-labelledby="offer-title"
-              className="h-full scroll-mt-24 rounded-xl bg-card p-5 border border-border sm:p-6"
+              className="h-full scroll-mt-24 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
             >
               <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-pastel-peach text-deep-peach">
                 <ReceiptText className="size-5" />
@@ -433,7 +433,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
         </div>
 
         <Reveal className="mt-14">
-          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-pastel-teal p-6 sm:flex-row sm:items-center sm:p-8">
+          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-pastel-periwinkle p-6 sm:flex-row sm:items-center sm:p-8">
             <div>
               <p className="text-xl font-extrabold tracking-tight text-foreground">At the same risk, who has to work harder?</p>
               <p className="mt-1 text-sm text-foreground/80">

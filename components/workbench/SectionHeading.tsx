@@ -1,11 +1,11 @@
 import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
 
-export type Tone = "teal" | "mint" | "peach" | "blush" | "butter" | "stone" | "sky";
+export type Tone = "periwinkle" | "mint" | "peach" | "blush" | "butter" | "stone" | "sky";
 
 /** Pastel fill + matching readable text for each decorative tone. */
 export const TONE: Record<Tone, string> = {
-  teal: "bg-pastel-teal text-deep-teal",
+  periwinkle: "bg-pastel-periwinkle text-deep-periwinkle",
   mint: "bg-pastel-mint text-deep-mint",
   peach: "bg-pastel-peach text-deep-peach",
   blush: "bg-pastel-blush text-deep-blush",
@@ -24,7 +24,7 @@ export function SectionHeading({
   kicker,
   title,
   sub,
-  tone = "teal",
+  tone = "periwinkle",
   className,
 }: {
   id: string;

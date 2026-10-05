@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const TONE = {
   declined: "bg-pastel-blush text-deep-blush",
-  today: "bg-pastel-teal text-deep-teal",
+  today: "bg-pastel-periwinkle text-deep-periwinkle",
   after: "bg-pastel-mint text-deep-mint",
 } as const;
 

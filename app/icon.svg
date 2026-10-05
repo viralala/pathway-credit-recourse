@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pathway">
   <title>Pathway</title>
-  <rect width="64" height="64" rx="14" fill="#d9ecea"/>
-  <path d="M16 47c8.4 0 10-13 18-13s8.8-12.4 14.4-15.2" fill="none" stroke="#12656f" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="16" cy="47" r="6" fill="#fde3d4" stroke="#84401e" stroke-width="2.8"/>
-  <circle cx="48.8" cy="18.4" r="7.2" fill="#d7f0e3" stroke="#2b6249" stroke-width="2.8"/>
-  <path d="M45.8 18.6l2 2 3.8-4" fill="none" stroke="#2b6249" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="16" fill="#dde3fa"/>
+  <path d="M10 54 A22 22 0 0 1 32 32 L32 54 Z" fill="#e3a07c"/>
+  <path d="M32 54 A22 22 0 0 1 54 32 L54 54 Z" fill="#6aae8c"/>
+  <circle cx="42.3" cy="21.7" r="6.6" fill="#4f5d95"/>
 </svg>

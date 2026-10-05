@@ -4,14 +4,14 @@ import { CalendarClock, Shuffle, Target } from "lucide-react";
 import { CountUp } from "@/components/motion/CountUp";
 import { Reveal } from "@/components/motion/Reveal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { UNCERTAINTY } from "@/lib/config";
+import { describeAssumptions, UNCERTAINTY } from "@/lib/config";
 import { likelyText, monthsText, splitAt, tf, uncertaintyRows, type Lang, type UIStrings } from "@/lib/i18n";
 import type { UncertaintyBand } from "@/lib/montecarlo";
 import type { Timeline } from "@/lib/timeline";
-import { assumptionItems } from "@/lib/strings/pages";
+import { cn } from "@/lib/utils";
 import { TIMELINE_COLORS, TimelineChart } from "../TimelineChart";
 import { RowList } from "./RowList";
-import { SectionHeading } from "./SectionHeading";
+import { KICKER, SectionHeading } from "./SectionHeading";
 
 /** Legend swatches drawn to match the chart's series. */
 function Swatch({ kind }: { kind: "plan" | "baseline" | "band" | "threshold" | "approval" }) {
@@ -77,11 +77,11 @@ export function TimelineSection({
     <section id="timeline" aria-labelledby="timeline-title" className="page-container scroll-mt-24 py-16 sm:py-20">
       <SectionHeading id="timeline-title" n={4} kicker={ui.when} title={ui.whenTitle} sub={ui.whenSub} tone="sky" />
 
-      <div className="grid gap-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
         <Reveal>
-          <div className="rounded-xl border border-border bg-card p-5 sm:p-7">
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-7">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-xl bg-pastel-teal text-deep-teal">
+              <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-xl bg-pastel-periwinkle text-deep-periwinkle">
                 <CalendarClock className="size-5" />
               </span>
               <div className="min-w-0">
@@ -133,15 +133,18 @@ export function TimelineSection({
                   <RowList rows={uncertaintyRows(lang)} className="mt-4 sm:grid-cols-2" />
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="assumptions">
-                <AccordionTrigger className="py-4 text-sm font-bold">{ui.assumptions}</AccordionTrigger>
-                <AccordionContent className="pb-2">
-                  <RowList rows={assumptionItems(lang)} className="sm:grid-cols-2" />
-                  <p className="mt-4 text-xs text-muted-foreground">{ui.incomeUnits}</p>
-                </AccordionContent>
-              </AccordionItem>
             </Accordion>
           </div>
+        </Reveal>
+
+        <Reveal as="div" delay={0.1}>
+          <aside aria-labelledby="assumptions-title" className="rounded-2xl bg-muted/70 p-6 ring-1 ring-foreground/5">
+            <h3 id="assumptions-title" className={cn(KICKER, "text-muted-foreground")}>
+              {ui.assumptions}
+            </h3>
+            <RowList rows={describeAssumptions()} lang="en" className="mt-4" />
+            <p className="mt-5 text-xs text-muted-foreground">{ui.incomeUnits}</p>
+          </aside>
         </Reveal>
       </div>
     </section>

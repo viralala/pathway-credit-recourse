@@ -55,7 +55,7 @@ export function SavePlan({
   }
 
   return (
-    <section aria-labelledby="save-title" className="flex flex-col gap-4 rounded-xl border border-primary/30 bg-secondary p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+    <section aria-labelledby="save-title" className="flex flex-col gap-4 rounded-2xl bg-secondary p-5 ring-1 ring-primary/20 sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div className="flex gap-3">
         <Bookmark aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
         <div>

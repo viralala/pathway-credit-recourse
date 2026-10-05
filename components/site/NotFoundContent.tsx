@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Compass, ListChecks, Target } from "lucide-react";
+import { ArrowRight, Compass, House, Target } from "lucide-react";
 import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 import { shell } from "@/lib/strings/shell";
@@ -12,7 +12,7 @@ export function NotFoundContent({ lang }: { lang: Lang }) {
   const s = shell(lang);
   const n = s.notFound;
   const links = [
-    { href: "/check", label: s.nav.check, hint: n.checkHint, Icon: ListChecks, tone: "bg-pastel-teal text-deep-teal" },
+    { href: "/", label: s.nav.home, hint: n.homeHint, Icon: House, tone: "bg-pastel-periwinkle text-deep-periwinkle" },
     { href: "/goal", label: s.nav.goal, hint: n.goalHint, Icon: Target, tone: "bg-pastel-mint text-deep-mint" },
     { href: "/offer-check", label: s.nav.offerCheck, hint: n.offerHint, Icon: Compass, tone: "bg-pastel-peach text-deep-peach" },
   ];
@@ -39,7 +39,7 @@ export function NotFoundContent({ lang }: { lang: Lang }) {
             <li key={href}>
               <Link
                 href={withLang(href, lang)}
-                className="group flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors outline-none hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/60"
+                className="group flex h-full flex-col gap-3 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 transition-[box-shadow,transform] outline-none hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-16px_rgb(42_40_56/0.3)] focus-visible:ring-3 focus-visible:ring-ring/60"
               >
                 <span aria-hidden="true" className={`grid size-9 place-items-center rounded-xl ${tone}`}>
                   <Icon className="size-4" />

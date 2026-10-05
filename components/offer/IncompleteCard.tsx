@@ -12,7 +12,7 @@ export function IncompleteCard({ s, errors }: { s: OfferStrings; errors: OfferEr
   return (
     <Card className={CARD}>
       <CardContent className="flex flex-col items-start gap-4 py-4 sm:flex-row">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-pastel-teal text-deep-teal">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-pastel-periwinkle text-deep-periwinkle">
           <Calculator aria-hidden className="size-6" />
         </span>
         <div className="min-w-0">

@@ -95,7 +95,7 @@ export function AffordabilityCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
     gp.status !== "met-today" &&
     (Math.abs(afterPlan.existingPayments - today.existingPayments) >= 1 || Math.abs(afterPlan.monthlyIncome - today.monthlyIncome) >= 1);
   return (
-    <section aria-labelledby="goal-afford-heading" className="flex flex-col rounded-xl bg-card p-5 border border-border sm:p-6">
+    <section aria-labelledby="goal-afford-heading" className="flex flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
       <h2 id="goal-afford-heading" className="text-lg font-bold tracking-tight">
         {s.heading}
       </h2>

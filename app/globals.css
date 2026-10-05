@@ -8,22 +8,22 @@
  * DESIGN TOKENS
  * -------------
  * Every colour in the app comes from this block, so a full re-skin is a change here only.
- * Look: a warm cream ground, ink that leans teal rather than grey, one deep teal brand colour, and
- * soft pastels kept for data and status. No purple, no neon, no gradients on surfaces. Text colours
- * keep WCAG AA contrast on the surfaces they sit on (the "deep-*" shades exist for text placed on a
- * pastel fill).
+ * Palette: light, pastel, low-saturation. No neon. Text colours keep WCAG AA contrast on the
+ * surfaces they sit on (the "deep-*" shades exist for text placed on a pastel fill).
  *
  * Use, in order of preference:
  *   1. shadcn semantic tokens: background, foreground, card, primary, secondary, muted, accent,
  *      destructive, border, input, ring  (e.g. bg-card, text-muted-foreground)
  *   2. status tokens: success, warning, danger, money (+ -soft fill and -foreground text)
- *   3. pastel families for decoration: pastel-{teal,mint,peach,blush,butter,stone,sky}
- *      with matching deep-{...} text shades
- *   4. chart-1 ... chart-5 for data series
+ *   3. pastel families for decoration: pastel-{periwinkle,mint,peach,blush,butter,stone,sky}
+ *      with matching deep-{…} text shades
+ *   4. chart-1 … chart-5 for data series
+ * The pre-pastel Bauhaus colour names (cream, indigo, rose, red, orange, plum, brown, paper, ink)
+ * have been removed; use the tokens above instead.
  */
 :root {
   /* pastel families: fills */
-  --pastel-teal: #d9ecea;
+  --pastel-periwinkle: #dde3fa;
   --pastel-mint: #d7f0e3;
   --pastel-peach: #fde3d4;
   --pastel-blush: #f9dde2;
@@ -31,7 +31,7 @@
   --pastel-stone: #ebe5d6;
   --pastel-sky: #daeef7;
   /* pastel families: text on a matching fill (AA on the fill and on white) */
-  --deep-teal: #0b4b53;
+  --deep-periwinkle: #3e4a7e;
   --deep-mint: #2b6249;
   --deep-peach: #84401e;
   --deep-blush: #8c2f3e;
@@ -40,24 +40,24 @@
   --deep-sky: #255669;
 
   /* shadcn semantic tokens */
-  --background: #f5f1e7;
-  --foreground: #0c1418;
+  --background: #faf7f2;
+  --foreground: #2a2838;
   --card: #ffffff;
-  --card-foreground: #0c1418;
+  --card-foreground: #2a2838;
   --popover: #ffffff;
-  --popover-foreground: #0c1418;
-  --primary: #12656f;
+  --popover-foreground: #2a2838;
+  --primary: #4f5d95;
   --primary-foreground: #ffffff;
-  --secondary: #e3efee;
-  --secondary-foreground: #093c44;
-  --muted: #ebe5d6;
-  --muted-foreground: #4f5d62;
-  --accent: #fde3d4;
+  --secondary: #e9ecfa;
+  --secondary-foreground: #35406e;
+  --muted: #f2eee8;
+  --muted-foreground: #646072;
+  --accent: #fde9dd;
   --accent-foreground: #7a3e1d;
-  --destructive: #b3141f;
-  --border: #e0d8c7;
-  --input: #cfc4ad;
-  --ring: #2aa7b6;
+  --destructive: #a8495a;
+  --border: #e6e0d6;
+  --input: #ddd5c9;
+  --ring: #8e9bd0;
 
   /* status */
   --success: #2b6249;
@@ -74,40 +74,36 @@
   --money-foreground: #5f4a12;
 
   /* data series */
-  --chart-1: #17808c;
+  --chart-1: #6c7bc4;
   --chart-2: #e3a07c;
   --chart-3: #6aae8c;
-  --chart-4: #c99a3e;
+  --chart-4: #ad95d6;
   --chart-5: #df96a3;
 
-  --radius: 0.625rem;
+  --radius: 0.875rem;
 
   --sidebar: #ffffff;
-  --sidebar-foreground: #0c1418;
-  --sidebar-primary: #12656f;
+  --sidebar-foreground: #2a2838;
+  --sidebar-primary: #4f5d95;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e3efee;
-  --sidebar-accent-foreground: #093c44;
-  --sidebar-border: #e0d8c7;
-  --sidebar-ring: #2aa7b6;
+  --sidebar-accent: #e9ecfa;
+  --sidebar-accent-foreground: #35406e;
+  --sidebar-border: #e6e0d6;
+  --sidebar-ring: #8e9bd0;
 }
 
 @theme inline {
-  --font-sans: var(--font-archivo), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-archivo), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
-  /* Tall condensed display face for big headlines (Latin only; Devanagari falls back). */
-  --font-display: var(--font-anton), var(--font-deva), Impact, ui-sans-serif, sans-serif;
-  /* Italic serif for short asides beside section headings. */
-  --font-serif: var(--font-playfair), var(--font-deva), Georgia, serif;
+  --font-sans: var(--font-manrope), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
 
-  --color-pastel-teal: var(--pastel-teal);
+  --color-pastel-periwinkle: var(--pastel-periwinkle);
   --color-pastel-mint: var(--pastel-mint);
   --color-pastel-peach: var(--pastel-peach);
   --color-pastel-blush: var(--pastel-blush);
   --color-pastel-butter: var(--pastel-butter);
   --color-pastel-stone: var(--pastel-stone);
   --color-pastel-sky: var(--pastel-sky);
-  --color-deep-teal: var(--deep-teal);
+  --color-deep-periwinkle: var(--deep-periwinkle);
   --color-deep-mint: var(--deep-mint);
   --color-deep-peach: var(--deep-peach);
   --color-deep-blush: var(--deep-blush);
@@ -228,46 +224,6 @@
 .dot-grid {
   background-image: radial-gradient(color-mix(in srgb, var(--muted-foreground) 18%, transparent) 1px, transparent 1px);
   background-size: 18px 18px;
-}
-
-/* Ruled ledger paper: faint horizontal lines, for hero bands. */
-.ledger {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 31px,
-    color-mix(in srgb, var(--foreground) 6%, transparent) 31px,
-    color-mix(in srgb, var(--foreground) 6%, transparent) 32px
-  );
-}
-
-/* Eyebrow label above a heading: small, uppercase, wide-tracked (no tracking for Devanagari). */
-.eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--primary);
-}
-.eyebrow:lang(hi),
-.eyebrow:lang(mr) {
-  letter-spacing: normal;
-}
-
-/* Big condensed display headline. Devanagari has no capitals and needs taller lines. */
-.display {
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 0.95;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
-}
-.display:lang(hi),
-.display:lang(mr) {
-  font-family: var(--font-deva), var(--font-archivo), sans-serif;
-  font-weight: 700;
-  line-height: 1.3;
-  text-transform: none;
 }
 
 /* Everyone who asks the OS for less motion gets none, whatever a component does. */

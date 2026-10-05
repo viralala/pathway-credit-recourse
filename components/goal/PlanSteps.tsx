@@ -22,7 +22,7 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const plan = gp.plan;
 
   return (
-    <section aria-labelledby="goal-plan-heading" className="flex flex-col rounded-xl bg-card p-5 border border-border sm:p-6">
+    <section aria-labelledby="goal-plan-heading" className="flex flex-col rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="goal-plan-heading" className="text-lg font-bold tracking-tight">
           {s.plan.heading}

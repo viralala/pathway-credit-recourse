@@ -4,7 +4,7 @@ import { TRACKED } from "@/components/pages/typography";
 import { cn } from "@/lib/utils";
 
 const TONES = {
-  teal: { box: "bg-pastel-teal", eyebrow: "text-deep-teal", art: "var(--deep-teal)" },
+  periwinkle: { box: "bg-pastel-periwinkle", eyebrow: "text-deep-periwinkle", art: "var(--deep-periwinkle)" },
   stone: { box: "bg-pastel-stone", eyebrow: "text-deep-stone", art: "var(--deep-stone)" },
   mint: { box: "bg-pastel-mint", eyebrow: "text-deep-mint", art: "var(--deep-mint)" },
   sky: { box: "bg-pastel-sky", eyebrow: "text-deep-sky", art: "var(--deep-sky)" },
@@ -46,7 +46,7 @@ export function PageHero({
   eyebrow,
   title,
   children,
-  tone = "teal",
+  tone = "periwinkle",
   className,
 }: {
   eyebrow: string;

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Pathway mark: a soft path rising from a starting point (peach, "today") to a destination
- * (mint, "approved") on a soft teal tile. Decorative; the visible wordmark carries the name.
+ * (mint, "approved") on a periwinkle tile. Decorative; the visible wordmark carries the name.
  */
 export function LogoMark({ className, size = 32 }: { className?: string; size?: number }) {
   return (
@@ -14,7 +14,7 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
       focusable="false"
       className={cn("shrink-0", className)}
     >
-      <rect width="32" height="32" rx="7" style={{ fill: "var(--pastel-teal)" }} />
+      <rect width="32" height="32" rx="10" style={{ fill: "var(--pastel-periwinkle)" }} />
       <path
         d="M8 23.5c4.2 0 5-6.5 9-6.5s4.4-6.2 7.2-7.6"
         fill="none"

@@ -81,7 +81,7 @@ export function ApplicantForm({
   return (
     <section
       aria-labelledby="profile-title"
-      className="rounded-xl bg-card p-5 border border-border sm:p-7"
+      className="rounded-2xl bg-card/90 p-5 ring-1 ring-foreground/10 backdrop-blur-sm sm:p-7"
     >
       <h2 id="profile-title" className="text-xl font-extrabold tracking-tight">
         {ui.profileTitle}

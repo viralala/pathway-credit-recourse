@@ -61,7 +61,7 @@ export function ScoreGoalCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
   const goalZone: ZoneId = gp.targetTier.id;
 
   return (
-    <section aria-labelledby="goal-score-heading" className="rounded-xl bg-card p-5 border border-border sm:p-7">
+    <section aria-labelledby="goal-score-heading" className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-7">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="min-w-0">
           <h2 id="goal-score-heading" className="text-xl font-bold tracking-tight">

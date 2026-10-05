@@ -13,7 +13,7 @@ export function LegalArt({ className }: { className?: string }) {
       <path
         d="M58 160 C 80 140, 90 130, 104 118 S 130 92, 142 78 S 160 50, 170 38"
         fill="none"
-        stroke="var(--deep-teal)"
+        stroke="var(--deep-periwinkle)"
         strokeOpacity="0.45"
         strokeWidth="3"
         strokeLinecap="round"

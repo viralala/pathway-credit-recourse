@@ -18,7 +18,7 @@ const ICONS: Record<GuidanceId, LucideIcon> = {
 /** "What you can do": general, non-legal guidance for borrowers in India, with official links. */
 export function GuidancePanel({ s }: { s: OfferStrings }) {
   return (
-    <section aria-labelledby="offer-guidance-title" className="rounded-xl bg-card p-5 border border-border sm:p-7">
+    <section aria-labelledby="offer-guidance-title" className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-7">
       <div className="flex items-start gap-3">
         <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-pastel-mint text-deep-mint">
           <LifeBuoy aria-hidden className="size-5" />

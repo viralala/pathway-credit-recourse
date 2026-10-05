@@ -12,7 +12,7 @@ type RowId = RateTier["id"] | "declined";
 const ROW_TONE: Record<RowId, { fill: string; bar: string }> = {
   excellent: { fill: "bg-pastel-mint", bar: "bg-deep-mint/70" },
   "very-good": { fill: "bg-pastel-sky", bar: "bg-deep-sky/70" },
-  good: { fill: "bg-pastel-teal", bar: "bg-deep-teal/70" },
+  good: { fill: "bg-pastel-periwinkle", bar: "bg-deep-periwinkle/70" },
   fair: { fill: "bg-pastel-butter", bar: "bg-deep-butter/70" },
   declined: { fill: "bg-pastel-blush", bar: "bg-deep-blush/70" },
 };

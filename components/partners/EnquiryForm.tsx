@@ -29,7 +29,7 @@ export function EnquiryForm({ lang }: { lang: Lang }) {
 
   if (state.status === "sent") {
     return (
-      <p role="status" className="rounded-md border border-success/30 bg-success-soft px-4 py-4 text-success-foreground">
+      <p role="status" className="rounded-xl bg-success-soft px-4 py-4 text-success-foreground">
         {s.sent}
       </p>
     );

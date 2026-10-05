@@ -12,17 +12,17 @@ export function GoalHero({ lang }: { lang: Lang }) {
     { icon: Wallet, text: s.step3, chip: "bg-pastel-stone text-deep-stone" },
   ];
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-pastel-teal/70 px-5 py-9 ring-1 ring-foreground/5 sm:px-10 sm:py-12">
+    <section className="relative overflow-hidden rounded-3xl bg-pastel-periwinkle/70 px-5 py-9 ring-1 ring-foreground/5 sm:px-10 sm:py-12">
       <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-pastel-mint/70 blur-2xl" />
       <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 size-48 rounded-full bg-pastel-peach/60 blur-2xl" />
       <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <Reveal>
-          <p className="inline-flex items-center gap-2 rounded-md bg-card/80 px-3 py-1 text-xs font-semibold tracking-wide text-deep-teal ring-1 ring-foreground/5">
+          <p className="inline-flex items-center gap-2 rounded-md bg-card/80 px-3 py-1 text-xs font-semibold tracking-wide text-deep-periwinkle ring-1 ring-foreground/5">
             <CalendarCheck aria-hidden className="size-3.5" />
             {s.eyebrow}
           </p>
           <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-balance text-foreground sm:text-5xl">{s.title}</h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-pretty text-deep-teal">{s.body}</p>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-pretty text-deep-periwinkle">{s.body}</p>
         </Reveal>
         <Reveal delay={0.1}>
           <ol aria-label={s.stepsLabel} className="grid gap-3">

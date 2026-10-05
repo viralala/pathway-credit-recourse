@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { TRACKED } from "@/components/pages/typography";
 import { withLang } from "@/components/site/nav";
 import { Button } from "@/components/ui/button";
 import { asLang } from "@/lib/i18n";
@@ -40,14 +41,14 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const googleHref = `/auth/google${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
   return (
-    <div lang={lang} className="ledger border-b border-border">
-      <div className="page-container py-16 sm:py-24">
-        <div className="mx-auto max-w-lg rounded-xl border border-border bg-card p-6 sm:p-10">
-          <p className="eyebrow">{s.eyebrow}</p>
+    <div lang={lang} className="page-container py-16 sm:py-24">
+      <div>
+        <div className="mx-auto max-w-lg rounded-3xl bg-card p-6 ring-1 ring-foreground/10 sm:p-10">
+          <p className={`text-xs font-bold text-deep-periwinkle ${TRACKED}`}>{s.eyebrow}</p>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-balance">{s.title}</h1>
 
           {error ? (
-            <p role="alert" className="mt-5 rounded-md border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
+            <p role="alert" className="mt-5 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
               {s.errors[error]}
             </p>
           ) : null}
@@ -55,7 +56,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           {ACCOUNTS_ENABLED ? (
             <>
               <p className="mt-4 leading-relaxed text-muted-foreground">{s.body}</p>
-              <Button asChild size="lg" className="mt-8 h-12 w-full text-[15px] font-bold">
+              <Button asChild size="lg" className="mt-8 h-12 w-full rounded-xl text-[15px] font-bold">
                 {/* A plain link, not next/link: starting a sign-in must never be prefetched. */}
                 <a href={googleHref} rel="nofollow">
                   {s.google}
@@ -75,8 +76,8 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           ) : (
             <>
               <p className="mt-4 leading-relaxed text-muted-foreground">{s.off}</p>
-              <Button asChild size="lg" className="mt-8 h-12 px-6 text-[15px] font-bold">
-                <Link href={withLang("/check", lang)}>{s.offCta}</Link>
+              <Button asChild size="lg" className="mt-8 h-12 rounded-xl px-6 text-[15px] font-bold">
+                <Link href={withLang("/", lang)}>{s.offCta}</Link>
               </Button>
             </>
           )}

@@ -59,12 +59,12 @@ export function GoalInputs({
   const L = GOAL_LIMITS;
 
   return (
-    <div className="grid gap-6 rounded-xl bg-card p-5 border border-border sm:p-6">
+    <div className="grid gap-6 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
       <h2 className="text-lg font-bold tracking-tight">{s.inputs.heading}</h2>
 
       <fieldset className="grid gap-5">
         {/* Floated so the legend becomes a normal grid row instead of sitting on the fieldset border. */}
-        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-teal uppercase">
+        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-periwinkle uppercase">
           {s.inputs.goalLegend}
         </legend>
         <NumberField
@@ -95,14 +95,14 @@ export function GoalInputs({
           step={L.maxApr.step * 100}
           onChange={(v) => onGoal({ maxApr: v / 100 })}
         >
-          <p className="rounded-xl bg-pastel-teal/60 px-3 py-2 text-[13px] leading-snug text-deep-teal" aria-live="polite">
+          <p className="rounded-xl bg-pastel-periwinkle/60 px-3 py-2 text-[13px] leading-snug text-deep-periwinkle" aria-live="polite">
             {aprImplication(goal.maxApr, lang)}
           </p>
         </RangeField>
       </fieldset>
 
       <fieldset className="grid gap-4 border-t border-border pt-5">
-        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-teal uppercase">
+        <legend className="float-left w-full text-xs font-semibold tracking-[0.14em] text-deep-periwinkle uppercase">
           {s.inputs.profileLegend}
         </legend>
         <p className="-mt-2 text-[13px] text-muted-foreground">{s.inputs.profileSub}</p>

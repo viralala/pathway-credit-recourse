@@ -45,7 +45,7 @@ export function FairnessPanel({
   const headingId = `${id}-title`;
 
   return (
-    <section aria-labelledby={headingId} className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
+    <section aria-labelledby={headingId} className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id={headingId} className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
           {title}

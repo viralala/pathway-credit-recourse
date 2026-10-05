@@ -65,7 +65,7 @@ export function TableOfContents({ items, label = "On this page" }: { items: TocI
 
   return (
     <nav aria-label={label}>
-      <details className="group rounded-xl bg-card border border-border lg:hidden">
+      <details className="group rounded-2xl bg-card ring-1 ring-foreground/10 lg:hidden">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
           <span>
             {label}
@@ -76,7 +76,7 @@ export function TableOfContents({ items, label = "On this page" }: { items: TocI
         <div className="px-2 pb-3">{list}</div>
       </details>
 
-      <div className="hidden rounded-xl bg-card p-5 border border-border lg:block">
+      <div className="hidden rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:block">
         <p className="px-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
         <div className="mt-3">{list}</div>
       </div>

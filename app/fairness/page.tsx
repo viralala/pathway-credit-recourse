@@ -32,7 +32,7 @@ export default async function FairnessPage({ searchParams }: { searchParams: Pro
     {
       key: "effort",
       icon: Sigma,
-      tone: "bg-pastel-teal text-deep-teal",
+      tone: "bg-pastel-periwinkle text-deep-periwinkle",
       title: fs.explain.effortTitle,
       body: tf(fs.explain.effortBody, {
         util: e.per10ppUtilization,
@@ -63,7 +63,7 @@ export default async function FairnessPage({ searchParams }: { searchParams: Pro
       <Breadcrumbs items={[{ label: s.crumbs.fairness }]} homeHref={hrefWithLang("/", lang)} homeLabel={s.crumbs.home} />
 
       <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-6">
-        <PageHero eyebrow={fs.eyebrow} title={fs.title} tone="teal">
+        <PageHero eyebrow={fs.eyebrow} title={fs.title} tone="periwinkle">
           <p>{fs.methodBody}</p>
         </PageHero>
         <Stagger className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
@@ -115,7 +115,7 @@ export default async function FairnessPage({ searchParams }: { searchParams: Pro
       <Stagger className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         {explain.map((x) => (
           <StaggerItem key={x.key} className="h-full">
-            <div className="h-full rounded-xl bg-card p-5 border border-border sm:p-6">
+            <div className="h-full rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
               <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${x.tone}`}>
                 <x.icon className="size-5" />
               </span>

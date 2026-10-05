@@ -6,10 +6,11 @@ import { CountUp } from "@/components/motion/CountUp";
 import { pct, type UIStrings } from "@/lib/i18n";
 import type { Assessment } from "@/lib/model";
 import { cn } from "@/lib/utils";
+import { BauhausArt, Scribble } from "../BauhausArt";
 
 const pos = (s: number) => `${Math.min(100, Math.max(0, ((s - 300) / 600) * 100))}%`;
 
-/** Score, decision and projected approval. */
+/** Score, decision and projected approval, floating on the pastel tile wall. */
 export function ScorePanel({
   ui,
   assessment,
@@ -27,9 +28,12 @@ export function ScorePanel({
 }) {
   const a = assessment;
   return (
-    <div className={cn("rounded-xl border-t-4 bg-card shadow-[0_18px_40px_-28px_rgb(9_60_68/0.55)]", a.approved ? "border-t-chart-3" : "border-t-chart-2")}>
-      <div>
-        <div className="rounded-b-xl border border-t-0 border-border p-6 sm:p-7">
+    <div className="relative isolate overflow-hidden rounded-3xl bg-pastel-butter ring-1 ring-foreground/5">
+      <div className="absolute inset-0 -z-10">
+        <BauhausArt approved={a.approved} />
+      </div>
+      <div className="p-4 pt-24 sm:p-6 sm:pt-32">
+        <div className="rounded-2xl bg-card/95 p-6 shadow-sm ring-1 ring-foreground/10 backdrop-blur-sm sm:p-7">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-muted-foreground">{ui.score}</p>
             <span
@@ -44,9 +48,10 @@ export function ScorePanel({
             </span>
           </div>
 
-          <p className="display mt-2 text-7xl tabular-nums">
+          <p className="mt-2 text-6xl font-extrabold tracking-tight tabular-nums">
             <CountUp value={Math.round(a.score)} />
           </p>
+          <Scribble color={a.approved ? "var(--chart-3)" : "var(--chart-2)"} />
 
           <div className="relative mt-5" aria-hidden>
             <div className="h-2.5 overflow-hidden rounded-full bg-muted">

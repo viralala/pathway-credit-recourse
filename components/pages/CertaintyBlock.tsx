@@ -44,8 +44,8 @@ function MonthRange({
           {start !== null ? (
             <div
               className={cn(
-                "absolute top-1/2 h-4 -translate-y-1/2 rounded-full bg-pastel-teal ring-1 ring-deep-teal/30",
-                open && "rounded-r-none border-r-2 border-dashed border-deep-teal",
+                "absolute top-1/2 h-4 -translate-y-1/2 rounded-full bg-pastel-periwinkle ring-1 ring-deep-periwinkle/30",
+                open && "rounded-r-none border-r-2 border-dashed border-deep-periwinkle",
               )}
               style={{ left: `${start}%`, width: `${Math.max(end - start, 1.5)}%` }}
             />
@@ -69,7 +69,7 @@ function MonthRange({
         <span>{axisLabel}</span>
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="inline-block h-2.5 w-5 rounded-full bg-pastel-teal ring-1 ring-deep-teal/30" />
+            <span aria-hidden className="inline-block h-2.5 w-5 rounded-full bg-pastel-periwinkle ring-1 ring-deep-periwinkle/30" />
             {legendRange}
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -111,7 +111,7 @@ export function CertaintyBlock({ lang, band, horizon }: { lang: Lang; band: Unce
             key={it.key}
             className={cn(
               "rounded-xl p-3",
-              it.strong ? "bg-pastel-teal text-deep-teal" : "bg-muted text-foreground",
+              it.strong ? "bg-pastel-periwinkle text-deep-periwinkle" : "bg-muted text-foreground",
             )}
           >
             <dt className={cn("text-xs font-semibold", !it.strong && "text-muted-foreground")}>{it.label}</dt>

@@ -5,7 +5,7 @@ import { safeNextPath } from "@/lib/security/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * GET /auth/google?next=/check → Google's sign-in screen.
+ * GET /auth/google?next=/account → Google's sign-in screen.
  *
  * Supabase writes the PKCE code verifier into a cookie here (the route handler can set cookies)
  * and returns Google's address. Google sends the person back to /auth/callback, which trades the

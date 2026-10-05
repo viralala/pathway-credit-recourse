@@ -41,7 +41,7 @@ export function LegalTable<T>({
         </p>
         <ul aria-labelledby={captionId} className="mt-3 space-y-3">
           {rows.map((row) => (
-            <li key={rowKey(row)} className="rounded-xl bg-card p-4 border border-border">
+            <li key={rowKey(row)} className="rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
               <div className="font-semibold text-foreground wrap-anywhere">{titleColumn.cell(row)}</div>
               <dl className="mt-3 space-y-2.5 text-sm">
                 {detailColumns.map((c) => (
@@ -57,7 +57,7 @@ export function LegalTable<T>({
       </div>
 
       {/* Tablet, desktop and print: table */}
-      <div className="hidden max-w-full overflow-x-auto rounded-xl bg-card border border-border sm:block print:block print:overflow-visible print:ring-0">
+      <div className="hidden max-w-full overflow-x-auto rounded-2xl bg-card ring-1 ring-foreground/10 sm:block print:block print:overflow-visible print:ring-0">
         <table className="w-full border-collapse text-left text-sm">
           <caption className="px-5 pt-4 pb-2 text-left text-sm font-semibold text-foreground print:px-0">{caption}</caption>
           <thead>

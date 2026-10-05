@@ -64,7 +64,7 @@ export function MoneySaved({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
         <div className="grid content-start gap-6">
           <Reveal>
-            <div className="overflow-hidden rounded-xl bg-card border border-border">
+            <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
               <div className="flex gap-4 bg-money-soft p-6 text-money-foreground sm:p-8">
                 <span aria-hidden className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-card/70 sm:grid">
                   <PiggyBank className="size-6" />
@@ -147,10 +147,10 @@ export function MoneySaved({
         </div>
 
         <Reveal as="div" delay={0.1} className="grid content-start gap-4">
-          <div className="rounded-xl bg-card p-5 border border-border sm:p-6">
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6">
             <TierLadder ui={ui} markers={markers} />
           </div>
-          <div className="rounded-xl bg-card px-5 border border-border sm:px-6">
+          <div className="rounded-2xl bg-card px-5 ring-1 ring-foreground/10 sm:px-6">
             <Accordion type="single" collapsible>
               <AccordionItem value="pricing">
                 <AccordionTrigger className="py-4 text-sm font-bold">{s.assumptions}</AccordionTrigger>

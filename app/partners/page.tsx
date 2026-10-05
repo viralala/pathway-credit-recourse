@@ -2,6 +2,8 @@ import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BusinessModel } from "@/components/home/BusinessModel";
+import { PageHero } from "@/components/pages/PageHero";
+import { TRACKED } from "@/components/pages/typography";
 import { EnquiryForm } from "@/components/partners/EnquiryForm";
 import { withLang } from "@/components/site/nav";
 import { asLang } from "@/lib/i18n";
@@ -25,18 +27,16 @@ export default async function PartnersPage({ searchParams }: { searchParams: Pro
 
   return (
     <div lang={lang}>
-      <section aria-labelledby="partners-title" className="ledger border-b border-border">
-        <div className="page-container grid gap-10 py-12 sm:py-16 lg:grid-cols-12">
+      <section className="page-container pt-6 pb-12 sm:pt-10 sm:pb-16">
+        <div className="grid gap-4 lg:grid-cols-12 lg:gap-6">
           <div className="lg:col-span-7">
-            <p className="eyebrow">{s.eyebrow}</p>
-            <h1 id="partners-title" className="display mt-4 text-4xl text-balance sm:text-5xl lg:text-6xl">
-              {s.title}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">{s.body}</p>
+            <PageHero eyebrow={s.eyebrow} title={s.title} tone="sky" className="h-full">
+              <p>{s.body}</p>
+            </PageHero>
           </div>
           <div className="lg:col-span-5">
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h2 className="eyebrow">{s.pilotTitle}</h2>
+            <div className="h-full rounded-3xl bg-card p-6 ring-1 ring-foreground/10 sm:p-8">
+              <h2 className={`text-xs font-bold text-muted-foreground ${TRACKED}`}>{s.pilotTitle}</h2>
               <ul className="mt-4 grid gap-4">
                 {s.pilot.map((p) => (
                   <li key={p.href} className="border-b border-border pb-4 last:border-0 last:pb-0">
@@ -55,10 +55,10 @@ export default async function PartnersPage({ searchParams }: { searchParams: Pro
 
       <BusinessModel lang={lang} />
 
-      <section aria-labelledby="enquiry-title" className="border-t border-border bg-card">
-        <div className="page-container grid gap-8 py-16 sm:py-20 lg:grid-cols-12">
+      <section aria-labelledby="enquiry-title" className="page-container pb-20">
+        <div className="grid gap-8 rounded-3xl bg-card p-6 ring-1 ring-foreground/10 sm:p-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <h2 id="enquiry-title" className="display text-4xl sm:text-5xl">
+            <h2 id="enquiry-title" className="text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
               {s.formTitle}
             </h2>
           </div>

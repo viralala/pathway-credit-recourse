@@ -95,7 +95,7 @@ const EN = {
   } as Record<FeatureKey, string>,
 
   // Workbench
-  kicker: "Loan check",
+  kicker: "Explainable credit, in plain words",
   profileTitle: "Applicant profile",
   profileSub: "Use the figures on your credit report. Everything below updates as you type.",
   historyTitle: "Credit history and household",
@@ -296,7 +296,7 @@ const UI: Record<Lang, UIStrings> = {
       realEstateLoans: "होम लोन",
     } as Record<FeatureKey, string>,
 
-    kicker: "ऋण जाँच",
+    kicker: "समझ में आने वाले ऋण निर्णय, सरल शब्दों में",
     profileTitle: "आवेदक प्रोफ़ाइल",
     profileSub: "अपनी क्रेडिट रिपोर्ट के आँकड़े डालें। टाइप करते ही नीचे सब कुछ अपडेट हो जाता है।",
     historyTitle: "क्रेडिट इतिहास और परिवार",
@@ -492,7 +492,7 @@ const UI: Record<Lang, UIStrings> = {
       realEstateLoans: "गृहकर्जे",
     } as Record<FeatureKey, string>,
 
-    kicker: "कर्ज तपासणी",
+    kicker: "समजण्याजोगे कर्ज निर्णय, सोप्या शब्दांत",
     profileTitle: "अर्जदार प्रोफाइल",
     profileSub: "तुमच्या क्रेडिट रिपोर्टमधील आकडे भरा. टाइप करताच खालील सर्व काही अद्ययावत होते.",
     historyTitle: "पत इतिहास आणि कुटुंब",

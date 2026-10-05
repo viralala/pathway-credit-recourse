@@ -116,7 +116,7 @@ export const ACCOUNT: Record<Lang, AccountStrings> = {
       body: "Pathway turns a scoring model's output into plain-language reasons, a plan the applicant can follow and a printable letter, in English, Hindi and Marathi. Today it runs on a model trained on synthetic data; a pilot would calibrate it on your own decisions.",
       pilotTitle: "What a pilot covers",
       pilot: [
-        { text: "Reasons and a plan to approval for each declined application.", link: "Try it", href: "/check?sample=clear-rejection" },
+        { text: "Reasons and a plan to approval for each declined application.", link: "Try it", href: "/?sample=clear-rejection" },
         { text: "A rejection letter in English, Hindi and Marathi.", link: "See a sample letter", href: "/report?sample=clear-rejection" },
         { text: "A fairness audit of how much effort approval takes across age and income groups.", link: "See the audit", href: "/fairness" },
       ],
@@ -196,7 +196,7 @@ export const ACCOUNT: Record<Lang, AccountStrings> = {
       body: "पाथवे स्कोरिंग मॉडल के नतीजे को सरल भाषा के कारणों, आवेदक के लिए एक योजना और प्रिंट करने योग्य पत्र में बदलता है, अंग्रेज़ी, हिंदी और मराठी में। आज यह कृत्रिम डेटा पर प्रशिक्षित मॉडल पर चलता है; पायलट में इसे आपके अपने निर्णयों पर कैलिब्रेट किया जाएगा।",
       pilotTitle: "पायलट में क्या शामिल है",
       pilot: [
-        { text: "हर अस्वीकृत आवेदन के लिए कारण और स्वीकृति तक की योजना।", link: "आज़माएँ", href: "/check?sample=clear-rejection" },
+        { text: "हर अस्वीकृत आवेदन के लिए कारण और स्वीकृति तक की योजना।", link: "आज़माएँ", href: "/?sample=clear-rejection" },
         { text: "अंग्रेज़ी, हिंदी और मराठी में अस्वीकृति पत्र।", link: "नमूना पत्र देखें", href: "/report?sample=clear-rejection" },
         { text: "आयु और आय समूहों में स्वीकृति के लिए लगने वाले प्रयास की निष्पक्षता जाँच।", link: "जाँच देखें", href: "/fairness" },
       ],
@@ -276,7 +276,7 @@ export const ACCOUNT: Record<Lang, AccountStrings> = {
       body: "पाथवे स्कोअरिंग मॉडेलच्या निकालाचे सोप्या भाषेतील कारणे, अर्जदाराला पाळता येईल अशी योजना आणि छापता येणारे पत्र यांत रूपांतर करतो, इंग्रजी, हिंदी आणि मराठीत. आज तो कृत्रिम डेटावर प्रशिक्षित मॉडेलवर चालतो; पायलटमध्ये तो तुमच्या स्वतःच्या निर्णयांवर कॅलिब्रेट केला जाईल.",
       pilotTitle: "पायलटमध्ये काय असते",
       pilot: [
-        { text: "प्रत्येक नाकारलेल्या अर्जासाठी कारणे आणि मंजुरीपर्यंतची योजना.", link: "वापरून पाहा", href: "/check?sample=clear-rejection" },
+        { text: "प्रत्येक नाकारलेल्या अर्जासाठी कारणे आणि मंजुरीपर्यंतची योजना.", link: "वापरून पाहा", href: "/?sample=clear-rejection" },
         { text: "इंग्रजी, हिंदी आणि मराठीत नकार पत्र.", link: "नमुना पत्र पाहा", href: "/report?sample=clear-rejection" },
         { text: "वय आणि उत्पन्न गटांमध्ये मंजुरीसाठी लागणाऱ्या प्रयत्नांची निष्पक्षता तपासणी.", link: "तपासणी पाहा", href: "/fairness" },
       ],

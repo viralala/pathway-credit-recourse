@@ -113,22 +113,10 @@ export interface AssetCredit {
 
 export const FONT_CREDITS: AssetCredit[] = [
   {
-    name: "Archivo",
+    name: "Manrope",
     license: "SIL Open Font License 1.1",
-    homepage: "https://fonts.google.com/specimen/Archivo",
+    homepage: "https://fonts.google.com/specimen/Manrope",
     note: "Main typeface. Downloaded at build time by next/font and served from our own domain, so your browser makes no request to Google.",
-  },
-  {
-    name: "Anton",
-    license: "SIL Open Font License 1.1",
-    homepage: "https://fonts.google.com/specimen/Anton",
-    note: "Large headlines. Self-hosted the same way.",
-  },
-  {
-    name: "Playfair Display",
-    license: "SIL Open Font License 1.1",
-    homepage: "https://fonts.google.com/specimen/Playfair+Display",
-    note: "Short italic asides. Self-hosted the same way.",
   },
   {
     name: "Noto Sans Devanagari",

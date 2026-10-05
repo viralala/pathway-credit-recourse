@@ -2,6 +2,8 @@ import { Download, LogOut, Trash2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageHero } from "@/components/pages/PageHero";
+import { TRACKED } from "@/components/pages/typography";
 import { withLang } from "@/components/site/nav";
 import { Button } from "@/components/ui/button";
 import { ASSUMPTIONS } from "@/lib/config";
@@ -48,30 +50,28 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
   return (
     <div lang={lang}>
-      <section className="ledger border-b border-border">
-        <div className="page-container py-12 sm:py-16">
-          <p className="eyebrow">{s.eyebrow}</p>
-          <h1 className="display mt-3 text-5xl sm:text-6xl">{s.title}</h1>
-          {viewer.email ? <p className="mt-4 text-sm text-muted-foreground">{tf(s.signedInAs, { email: viewer.email })}</p> : null}
+      <div className="page-container pt-6 sm:pt-10">
+        <PageHero eyebrow={s.eyebrow} title={s.title} tone="mint">
+          {viewer.email ? <p className="text-sm">{tf(s.signedInAs, { email: viewer.email })}</p> : null}
           {first(sp.error) === "delete-failed" ? (
-            <p role="alert" className="mt-4 max-w-xl rounded-md border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
+            <p role="alert" className="mt-4 max-w-xl rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
               {s.deleteError}
             </p>
           ) : null}
-        </div>
-      </section>
+        </PageHero>
+      </div>
 
-      <div className="page-container grid gap-10 py-12 lg:grid-cols-12">
+      <div className="page-container grid gap-10 py-10 lg:grid-cols-12">
         <section aria-label={s.title} className="lg:col-span-8">
           {failed ? (
-            <p role="alert" className="rounded-md border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
+            <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger-foreground">
               {s.loadError}
             </p>
           ) : plans.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-input bg-card p-8 text-center">
+            <div className="rounded-2xl border border-dashed border-input bg-card p-8 text-center">
               <p className="text-muted-foreground">{s.empty}</p>
               <Button asChild className="mt-5 h-10 px-5">
-                <Link href={withLang("/check", lang)}>{s.emptyCta}</Link>
+                <Link href={withLang("/", lang)}>{s.emptyCta}</Link>
               </Button>
             </div>
           ) : (
@@ -94,7 +94,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                 const q = latestApplicant ? new URLSearchParams(paramsFor(latestApplicant, { lang, name: plan.name })) : new URLSearchParams();
                 q.set("plan", plan.id);
                 return (
-                  <li key={plan.id} className="rounded-xl border border-border bg-card p-5 sm:p-6">
+                  <li key={plan.id} className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <h2 className="text-xl font-extrabold">{plan.name}</h2>
@@ -106,11 +106,11 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                     <dl className="mt-5 grid grid-cols-3 gap-4 border-y border-border py-4">
                       <div>
                         <dt className="text-xs font-semibold text-muted-foreground">{s.started}</dt>
-                        <dd className="display mt-1 text-3xl tabular-nums">{firstScore ?? "–"}</dd>
+                        <dd className="mt-1 text-3xl font-extrabold tracking-tight tabular-nums">{firstScore ?? "–"}</dd>
                       </div>
                       <div>
                         <dt className="text-xs font-semibold text-muted-foreground">{s.latest}</dt>
-                        <dd className={`display mt-1 text-3xl tabular-nums ${last && last.score >= MODEL.thresholdScore ? "text-success" : ""}`}>
+                        <dd className={`mt-1 text-3xl font-extrabold tracking-tight tabular-nums ${last && last.score >= MODEL.thresholdScore ? "text-success" : ""}`}>
                           {last?.score ?? "–"}
                         </dd>
                       </div>
@@ -131,8 +131,8 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                     ) : null}
 
                     <div className="mt-5 flex flex-wrap items-center gap-3">
-                      <Button asChild className="h-10 px-4">
-                        <Link href={`/check?${q}`}>{s.update}</Link>
+                      <Button asChild className="h-10 rounded-lg px-4">
+                        <Link href={`/?${q}`}>{s.update}</Link>
                       </Button>
                       <details className="group">
                         <summary className="inline-flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-destructive hover:bg-danger-soft [&::-webkit-details-marker]:hidden">
@@ -156,8 +156,8 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         </section>
 
         <aside className="grid content-start gap-5 lg:col-span-4">
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="eyebrow">{s.data}</h2>
+          <div className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5">
+            <h2 className={`text-xs font-bold text-muted-foreground ${TRACKED}`}>{s.data}</h2>
             <div className="mt-4 grid gap-2">
               <Button asChild variant="outline" className="h-10 justify-start px-3">
                 <a href="/api/account/export" download>
@@ -174,7 +174,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
             </div>
           </div>
 
-          <div className="rounded-xl border border-danger/30 bg-card p-5">
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-danger/30">
             <h2 className="font-bold text-danger">{s.deleteTitle}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{s.deleteBody}</p>
             <form action={deleteAccount} className="mt-4 grid gap-3">
