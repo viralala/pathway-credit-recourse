@@ -1,13 +1,16 @@
 import { z } from "zod";
 
+import { APPLICANT_LIMITS as L } from "@/lib/security/validate";
+
+/** Same limits as validateApplicant (lib/security/validate.ts): one source, so the API and the form cannot drift apart. */
 export const applicantSchema = z.object({
-  monthlyIncome: z.number().min(0).max(20_00_000),
-  utilization: z.number().min(0).max(1.5),
-  debtRatio: z.number().min(0).max(3),
-  openCreditLines: z.number().int().min(0).max(30),
-  late30: z.number().int().min(0).max(10),
-  late60: z.number().int().min(0).max(10),
-  late90: z.number().int().min(0).max(10),
+  monthlyIncome: z.number().finite().min(L.monthlyIncome.min).max(L.monthlyIncome.max),
+  utilization: z.number().finite().min(L.utilization.min).max(L.utilization.max),
+  debtRatio: z.number().finite().min(L.debtRatio.min).max(L.debtRatio.max),
+  openCreditLines: z.number().int().min(L.openCreditLines.min).max(L.openCreditLines.max),
+  late30: z.number().int().min(L.late30.min).max(L.late30.max),
+  late60: z.number().int().min(L.late60.min).max(L.late60.max),
+  late90: z.number().int().min(L.late90.min).max(L.late90.max),
 });
 
 export const createAssessmentSchema = z.object({

@@ -58,8 +58,8 @@
     "trainingRows": 90000,
     "trainingReport": "ml/artifacts/phase6_training.json",
     "cutoffReport": "ml/artifacts/phase8_cutoff.json",
-    "trainingReportSha256": "c1d9f325dbac9d175b50b8b4e36c06d8ecbdb41b27fdcaffa47e1f3503be97c6",
-    "cutoffReportSha256": "128f3a2331a02c6ed5cd80b8f265bd611340f069de917a90afc789aa04258e7b",
+    "trainingReportSha256": "b71b4b5766cd0a3b463db8f2a1937d56c269230fcdba94f82b6f93f139e7bcf5",
+    "cutoffReportSha256": "7e0ca57e14d728065c0597285f62585810dfe7f2cb1b88b1425c3933d2f6fe44",
     "versions": {
       "python": "3.14.3",
       "numpy": "2.4.6",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-05T10:11:10Z",
+  "generatedAt": "2026-10-05T18:18:30Z",
   "dataSource": "kaggle",
   "modelVersion": 2,
   "dataNote": "Kaggle 'Give Me Some Credit' (cs-training.csv, 150,000 rows): 60% training, 20% validation, 20% test, stratified",

@@ -24,6 +24,9 @@ export const APPLICANT_LIMITS: Record<FeatureKey, { min: number; max: number }> 
   late90: { min: 0, max: 10 },
 };
 
+/** Counts of accounts and late payments: whole numbers only. */
+const COUNT_KEYS: ReadonlySet<FeatureKey> = new Set<FeatureKey>(["openCreditLines", "late30", "late60", "late90"]);
+
 export const NAME_MAX_LENGTH = 40;
 export const NAME_FALLBACK = "Applicant";
 const LANG_VALUES: readonly Lang[] = ["en", "hi", "mr"];
@@ -39,7 +42,8 @@ export function validateApplicant(input: unknown): Validation<Applicant> {
   const out = {} as Applicant;
   for (const [key, { min, max }] of Object.entries(APPLICANT_LIMITS) as [FeatureKey, { min: number; max: number }][]) {
     const v = input[key];
-    if (typeof v !== "number" || !Number.isFinite(v) || v < min || v > max) return { ok: false, error: `applicant.${key}` };
+    if (typeof v !== "number" || !Number.isFinite(v) || v < min || v > max || (COUNT_KEYS.has(key) && !Number.isInteger(v)))
+      return { ok: false, error: `applicant.${key}` };
     out[key] = v;
   }
   return { ok: true, value: out };
