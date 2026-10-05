@@ -1,0 +1,1120 @@
+{
+  "phase": 7,
+  "note": "Evaluation of the Phase 6 models from their saved predictions; nothing retrained or recalibrated. Confusion matrices use REFERENCE thresholds for diagnosis only. The approval cut-off is not chosen here.",
+  "inputs": {
+    "trainingReport": "ml/artifacts/phase6_training.json",
+    "predictions": "ml/artifacts/phase6_predictions.npz",
+    "datasetSha256": "1bd46da486a5708c58c7b01a034fae2a13b327f6f7b62ea7ba4fe3b5824b24ac"
+  },
+  "primaryModel": "logisticRegression",
+  "benchmarkModel": "gradientBoosting",
+  "referenceThresholds": {
+    "values": {
+      "conventional_0.50": 0.5,
+      "training_default_rate": 0.06684444444444444
+    },
+    "warning": "Diagnostic only. Not the approval cut-off; that is chosen in Phase 8."
+  },
+  "probabilityBands": [
+    0.0,
+    0.02,
+    0.05,
+    0.1,
+    0.2,
+    0.4,
+    1.0
+  ],
+  "results": {
+    "logisticRegression": {
+      "train": {
+        "rows": 90000,
+        "defaults": 6016,
+        "defaultRate": 0.06684444444444444,
+        "auc": 0.8510672132758696,
+        "ks": 0.5436480998913673,
+        "brier": 0.05023494837203744,
+        "brierOfBaseRate": 0.06237626469135802,
+        "brierSkill": 0.19464641525741622,
+        "calibration": {
+          "meanPredicted": 0.06686664844149887,
+          "observedRate": 0.06684444444444444,
+          "slope": 0.9997247698243275,
+          "intercept": -0.0010569122153163968,
+          "expectedCalibrationError": 0.006840480977235173,
+          "largestDecileGap": 0.01051268612427951,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 35654,
+              "shareOfRows": 0.39615555555555554,
+              "meanPredicted": 0.016357322651544822,
+              "observedRate": 0.009255623492455265,
+              "defaults": 330
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 27790,
+              "shareOfRows": 0.30877777777777776,
+              "meanPredicted": 0.030801560042263164,
+              "observedRate": 0.031270241093918676,
+              "defaults": 869
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 14411,
+              "shareOfRows": 0.16012222222222222,
+              "meanPredicted": 0.07465217184725041,
+              "observedRate": 0.08243702727083478,
+              "defaults": 1188
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 6025,
+              "shareOfRows": 0.06694444444444445,
+              "meanPredicted": 0.13950708455867308,
+              "observedRate": 0.16979253112033196,
+              "defaults": 1023
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 3326,
+              "shareOfRows": 0.036955555555555554,
+              "meanPredicted": 0.2790302802810666,
+              "observedRate": 0.3232110643415514,
+              "defaults": 1075
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 2794,
+              "shareOfRows": 0.031044444444444444,
+              "meanPredicted": 0.6207665279780485,
+              "observedRate": 0.5479599141016464,
+              "defaults": 1531
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 9000,
+              "meanPredicted": 0.014157614478194885,
+              "observedRate": 0.007666666666666666,
+              "defaults": 69
+            },
+            {
+              "decile": 2,
+              "rows": 9000,
+              "meanPredicted": 0.015676646900879086,
+              "observedRate": 0.008666666666666666,
+              "defaults": 78
+            },
+            {
+              "decile": 3,
+              "rows": 9000,
+              "meanPredicted": 0.016953328095011027,
+              "observedRate": 0.008888888888888889,
+              "defaults": 80
+            },
+            {
+              "decile": 4,
+              "rows": 9000,
+              "meanPredicted": 0.01878414820134096,
+              "observedRate": 0.011888888888888888,
+              "defaults": 107
+            },
+            {
+              "decile": 5,
+              "rows": 9000,
+              "meanPredicted": 0.022212438398657153,
+              "observedRate": 0.018222222222222223,
+              "defaults": 164
+            },
+            {
+              "decile": 6,
+              "rows": 9000,
+              "meanPredicted": 0.02919591546403153,
+              "observedRate": 0.027333333333333334,
+              "defaults": 246
+            },
+            {
+              "decile": 7,
+              "rows": 9000,
+              "meanPredicted": 0.04048963946791198,
+              "observedRate": 0.048,
+              "defaults": 432
+            },
+            {
+              "decile": 8,
+              "rows": 9000,
+              "meanPredicted": 0.06293175832016494,
+              "observedRate": 0.07344444444444445,
+              "defaults": 661
+            },
+            {
+              "decile": 9,
+              "rows": 9000,
+              "meanPredicted": 0.09893688841733315,
+              "observedRate": 0.10777777777777778,
+              "defaults": 970
+            },
+            {
+              "decile": 10,
+              "rows": 9000,
+              "meanPredicted": 0.34932810667146397,
+              "observedRate": 0.35655555555555557,
+              "defaults": 3209
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 1194,
+            "falsePositive": 856,
+            "falseNegative": 4822,
+            "trueNegative": 83128,
+            "flaggedShare": 0.02277777777777778,
+            "recall": 0.19847074468085107,
+            "precision": 0.5824390243902439,
+            "falsePositiveRate": 0.010192417603353019,
+            "accuracy": 0.9369111111111111
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 4423,
+            "falsePositive": 16761,
+            "falseNegative": 1593,
+            "trueNegative": 67223,
+            "flaggedShare": 0.23537777777777777,
+            "recall": 0.7352061170212766,
+            "precision": 0.20878965256797583,
+            "falsePositiveRate": 0.19957372832920556,
+            "accuracy": 0.7960666666666667
+          }
+        }
+      },
+      "validation": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "auc": 0.8567619440414859,
+        "ks": 0.5519269338708952,
+        "brier": 0.050762725113644075,
+        "brierOfBaseRate": 0.06236663888888889,
+        "brierSkill": 0.18605963030841066,
+        "calibration": {
+          "meanPredicted": 0.06673219049138243,
+          "observedRate": 0.06683333333333333,
+          "slope": 0.9914591939011551,
+          "intercept": -0.01639489902451675,
+          "expectedCalibrationError": 0.00841105297997473,
+          "largestDecileGap": 0.02064277053545127,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 11707,
+              "shareOfRows": 0.3902333333333333,
+              "meanPredicted": 0.016354252851564992,
+              "observedRate": 0.006662680447595455,
+              "defaults": 78
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 9458,
+              "shareOfRows": 0.31526666666666664,
+              "meanPredicted": 0.030690072463392375,
+              "observedRate": 0.032353563121167266,
+              "defaults": 306
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 4816,
+              "shareOfRows": 0.16053333333333333,
+              "meanPredicted": 0.07472414577581579,
+              "observedRate": 0.08783222591362126,
+              "defaults": 423
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 2004,
+              "shareOfRows": 0.0668,
+              "meanPredicted": 0.13905696622614255,
+              "observedRate": 0.17465069860279442,
+              "defaults": 350
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 1109,
+              "shareOfRows": 0.03696666666666667,
+              "meanPredicted": 0.28073335065540433,
+              "observedRate": 0.31830477908025245,
+              "defaults": 353
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 906,
+              "shareOfRows": 0.0302,
+              "meanPredicted": 0.6295417648996409,
+              "observedRate": 0.5463576158940397,
+              "defaults": 495
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 3000,
+              "meanPredicted": 0.014152755870415642,
+              "observedRate": 0.006333333333333333,
+              "defaults": 19
+            },
+            {
+              "decile": 2,
+              "rows": 3000,
+              "meanPredicted": 0.015701639205571293,
+              "observedRate": 0.0036666666666666666,
+              "defaults": 11
+            },
+            {
+              "decile": 3,
+              "rows": 3000,
+              "meanPredicted": 0.017014948541193738,
+              "observedRate": 0.006666666666666667,
+              "defaults": 20
+            },
+            {
+              "decile": 4,
+              "rows": 3000,
+              "meanPredicted": 0.018918950479168677,
+              "observedRate": 0.011666666666666667,
+              "defaults": 35
+            },
+            {
+              "decile": 5,
+              "rows": 3000,
+              "meanPredicted": 0.022430988225552236,
+              "observedRate": 0.019666666666666666,
+              "defaults": 59
+            },
+            {
+              "decile": 6,
+              "rows": 3000,
+              "meanPredicted": 0.029330268368217588,
+              "observedRate": 0.028,
+              "defaults": 84
+            },
+            {
+              "decile": 7,
+              "rows": 3000,
+              "meanPredicted": 0.040308019050755046,
+              "observedRate": 0.049666666666666665,
+              "defaults": 149
+            },
+            {
+              "decile": 8,
+              "rows": 3000,
+              "meanPredicted": 0.06269056279788206,
+              "observedRate": 0.08333333333333333,
+              "defaults": 250
+            },
+            {
+              "decile": 9,
+              "rows": 3000,
+              "meanPredicted": 0.09852178595942576,
+              "observedRate": 0.10733333333333334,
+              "defaults": 322
+            },
+            {
+              "decile": 10,
+              "rows": 3000,
+              "meanPredicted": 0.3482519864156423,
+              "observedRate": 0.352,
+              "defaults": 1056
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 394,
+            "falsePositive": 293,
+            "falseNegative": 1611,
+            "trueNegative": 27702,
+            "flaggedShare": 0.0229,
+            "recall": 0.19650872817955112,
+            "precision": 0.5735080058224163,
+            "falsePositiveRate": 0.01046615467047687,
+            "accuracy": 0.9365333333333333
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 1472,
+            "falsePositive": 5554,
+            "falseNegative": 533,
+            "trueNegative": 22441,
+            "flaggedShare": 0.2342,
+            "recall": 0.7341645885286783,
+            "precision": 0.20950754341019073,
+            "falsePositiveRate": 0.1983925701018039,
+            "accuracy": 0.7971
+          }
+        }
+      },
+      "test": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "auc": 0.8550177690262646,
+        "ks": 0.559466399192232,
+        "brier": 0.050075229069558934,
+        "brierOfBaseRate": 0.06236663888888889,
+        "brierSkill": 0.19708308862416135,
+        "calibration": {
+          "meanPredicted": 0.06663678973016647,
+          "observedRate": 0.06683333333333333,
+          "slope": 1.019143709601115,
+          "intercept": 0.045059336872715745,
+          "expectedCalibrationError": 0.008012341650690875,
+          "largestDecileGap": 0.014125498439562068,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 11656,
+              "shareOfRows": 0.38853333333333334,
+              "meanPredicted": 0.016361577256369473,
+              "observedRate": 0.008493479752916953,
+              "defaults": 99
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 9423,
+              "shareOfRows": 0.3141,
+              "meanPredicted": 0.030779252848805273,
+              "observedRate": 0.028865541759524566,
+              "defaults": 272
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 4886,
+              "shareOfRows": 0.16286666666666666,
+              "meanPredicted": 0.07436725249939533,
+              "observedRate": 0.0869832173557102,
+              "defaults": 425
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 2003,
+              "shareOfRows": 0.06676666666666667,
+              "meanPredicted": 0.13871663668768094,
+              "observedRate": 0.16674987518721918,
+              "defaults": 334
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 1139,
+              "shareOfRows": 0.03796666666666667,
+              "meanPredicted": 0.27918060459113947,
+              "observedRate": 0.3362598770851624,
+              "defaults": 383
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 893,
+              "shareOfRows": 0.029766666666666667,
+              "meanPredicted": 0.6261654201385012,
+              "observedRate": 0.5509518477043673,
+              "defaults": 492
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 3000,
+              "meanPredicted": 0.014221567554619133,
+              "observedRate": 0.009666666666666667,
+              "defaults": 29
+            },
+            {
+              "decile": 2,
+              "rows": 3000,
+              "meanPredicted": 0.015703848024168812,
+              "observedRate": 0.006666666666666667,
+              "defaults": 20
+            },
+            {
+              "decile": 3,
+              "rows": 3000,
+              "meanPredicted": 0.017005341941363175,
+              "observedRate": 0.008333333333333333,
+              "defaults": 25
+            },
+            {
+              "decile": 4,
+              "rows": 3000,
+              "meanPredicted": 0.01895663108168931,
+              "observedRate": 0.009,
+              "defaults": 27
+            },
+            {
+              "decile": 5,
+              "rows": 3000,
+              "meanPredicted": 0.02261194816184284,
+              "observedRate": 0.019,
+              "defaults": 57
+            },
+            {
+              "decile": 6,
+              "rows": 3000,
+              "meanPredicted": 0.029579653473936852,
+              "observedRate": 0.026333333333333334,
+              "defaults": 79
+            },
+            {
+              "decile": 7,
+              "rows": 3000,
+              "meanPredicted": 0.04086117971450002,
+              "observedRate": 0.043333333333333335,
+              "defaults": 130
+            },
+            {
+              "decile": 8,
+              "rows": 3000,
+              "meanPredicted": 0.06312050182275057,
+              "observedRate": 0.075,
+              "defaults": 225
+            },
+            {
+              "decile": 9,
+              "rows": 3000,
+              "meanPredicted": 0.09843272396635619,
+              "observedRate": 0.111,
+              "defaults": 333
+            },
+            {
+              "decile": 10,
+              "rows": 3000,
+              "meanPredicted": 0.3458745015604379,
+              "observedRate": 0.36,
+              "defaults": 1080
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 397,
+            "falsePositive": 278,
+            "falseNegative": 1608,
+            "trueNegative": 27717,
+            "flaggedShare": 0.0225,
+            "recall": 0.19800498753117207,
+            "precision": 0.5881481481481482,
+            "falsePositiveRate": 0.009930344704411502,
+            "accuracy": 0.9371333333333334
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 1494,
+            "falsePositive": 5543,
+            "falseNegative": 511,
+            "trueNegative": 22452,
+            "flaggedShare": 0.23456666666666667,
+            "recall": 0.7451371571072319,
+            "precision": 0.21230638055989767,
+            "falsePositiveRate": 0.19799964279335597,
+            "accuracy": 0.7982
+          }
+        }
+      }
+    },
+    "gradientBoosting": {
+      "train": {
+        "rows": 90000,
+        "defaults": 6016,
+        "defaultRate": 0.06684444444444444,
+        "auc": 0.8619551926193261,
+        "ks": 0.5660364195510391,
+        "brier": 0.048247535952492746,
+        "brierOfBaseRate": 0.06237626469135802,
+        "brierSkill": 0.22650809260181226,
+        "calibration": {
+          "meanPredicted": 0.06685063162522316,
+          "observedRate": 0.06684444444444444,
+          "slope": 1.0481378429824475,
+          "intercept": 0.09419427338505604,
+          "expectedCalibrationError": 0.0037461563111603393,
+          "largestDecileGap": 0.009585783964402017,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 43363,
+              "shareOfRows": 0.48181111111111113,
+              "meanPredicted": 0.013205356000157518,
+              "observedRate": 0.00993934921476835,
+              "defaults": 431
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 18631,
+              "shareOfRows": 0.20701111111111112,
+              "meanPredicted": 0.03222736290211775,
+              "observedRate": 0.032150716547689334,
+              "defaults": 599
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 15208,
+              "shareOfRows": 0.16897777777777778,
+              "meanPredicted": 0.07191498894490705,
+              "observedRate": 0.07305365597054182,
+              "defaults": 1111
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 5471,
+              "shareOfRows": 0.06078888888888889,
+              "meanPredicted": 0.14196151909715543,
+              "observedRate": 0.15463352220800586,
+              "defaults": 846
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 4052,
+              "shareOfRows": 0.04502222222222222,
+              "meanPredicted": 0.28805837558661934,
+              "observedRate": 0.30231984205330703,
+              "defaults": 1225
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 3275,
+              "shareOfRows": 0.03638888888888889,
+              "meanPredicted": 0.5514314000226666,
+              "observedRate": 0.5508396946564885,
+              "defaults": 1804
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 9000,
+              "meanPredicted": 0.010668209466511301,
+              "observedRate": 0.006666666666666667,
+              "defaults": 60
+            },
+            {
+              "decile": 2,
+              "rows": 9000,
+              "meanPredicted": 0.01133090797225456,
+              "observedRate": 0.007,
+              "defaults": 63
+            },
+            {
+              "decile": 3,
+              "rows": 9000,
+              "meanPredicted": 0.01227512072291474,
+              "observedRate": 0.008333333333333333,
+              "defaults": 75
+            },
+            {
+              "decile": 4,
+              "rows": 9000,
+              "meanPredicted": 0.014572636464396124,
+              "observedRate": 0.013666666666666667,
+              "defaults": 123
+            },
+            {
+              "decile": 5,
+              "rows": 9000,
+              "meanPredicted": 0.01854984140360356,
+              "observedRate": 0.015444444444444445,
+              "defaults": 139
+            },
+            {
+              "decile": 6,
+              "rows": 9000,
+              "meanPredicted": 0.02733559311547957,
+              "observedRate": 0.026111111111111113,
+              "defaults": 235
+            },
+            {
+              "decile": 7,
+              "rows": 9000,
+              "meanPredicted": 0.04141627059308236,
+              "observedRate": 0.042444444444444444,
+              "defaults": 382
+            },
+            {
+              "decile": 8,
+              "rows": 9000,
+              "meanPredicted": 0.06558496387009101,
+              "observedRate": 0.06433333333333334,
+              "defaults": 579
+            },
+            {
+              "decile": 9,
+              "rows": 9000,
+              "meanPredicted": 0.1036918899416338,
+              "observedRate": 0.11177777777777778,
+              "defaults": 1006
+            },
+            {
+              "decile": 10,
+              "rows": 9000,
+              "meanPredicted": 0.36308088270226463,
+              "observedRate": 0.37266666666666665,
+              "defaults": 3354
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 1260,
+            "falsePositive": 745,
+            "falseNegative": 4756,
+            "trueNegative": 83239,
+            "flaggedShare": 0.02227777777777778,
+            "recall": 0.20944148936170212,
+            "precision": 0.628428927680798,
+            "falsePositiveRate": 0.008870737283292055,
+            "accuracy": 0.9388777777777778
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 4655,
+            "falsePositive": 17755,
+            "falseNegative": 1361,
+            "trueNegative": 66229,
+            "flaggedShare": 0.249,
+            "recall": 0.7737699468085106,
+            "precision": 0.20771976796073183,
+            "falsePositiveRate": 0.21140931606020194,
+            "accuracy": 0.7876
+          }
+        }
+      },
+      "validation": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "auc": 0.8608013187249772,
+        "ks": 0.5585936925858241,
+        "brier": 0.05000659511843883,
+        "brierOfBaseRate": 0.06236663888888889,
+        "brierSkill": 0.19818358004622405,
+        "calibration": {
+          "meanPredicted": 0.06636412265129997,
+          "observedRate": 0.06683333333333333,
+          "slope": 1.0069817765176223,
+          "intercept": 0.023536839291829342,
+          "expectedCalibrationError": 0.005541769014178095,
+          "largestDecileGap": 0.01422174029333223,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 14350,
+              "shareOfRows": 0.47833333333333333,
+              "meanPredicted": 0.013240811626821801,
+              "observedRate": 0.008501742160278747,
+              "defaults": 122
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 6418,
+              "shareOfRows": 0.21393333333333334,
+              "meanPredicted": 0.03207473268082073,
+              "observedRate": 0.03443440324088501,
+              "defaults": 221
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 5021,
+              "shareOfRows": 0.16736666666666666,
+              "meanPredicted": 0.07233854882813583,
+              "observedRate": 0.08424616610237004,
+              "defaults": 423
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 1799,
+              "shareOfRows": 0.05996666666666667,
+              "meanPredicted": 0.14170678029200434,
+              "observedRate": 0.1623123957754308,
+              "defaults": 292
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 1321,
+              "shareOfRows": 0.044033333333333334,
+              "meanPredicted": 0.2836924256535189,
+              "observedRate": 0.29295987887963665,
+              "defaults": 387
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 1091,
+              "shareOfRows": 0.036366666666666665,
+              "meanPredicted": 0.5519361619146786,
+              "observedRate": 0.5132905591200734,
+              "defaults": 560
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 3000,
+              "meanPredicted": 0.010667028317220084,
+              "observedRate": 0.004333333333333333,
+              "defaults": 13
+            },
+            {
+              "decile": 2,
+              "rows": 3000,
+              "meanPredicted": 0.011385820341949156,
+              "observedRate": 0.005333333333333333,
+              "defaults": 16
+            },
+            {
+              "decile": 3,
+              "rows": 3000,
+              "meanPredicted": 0.01231689431815334,
+              "observedRate": 0.007333333333333333,
+              "defaults": 22
+            },
+            {
+              "decile": 4,
+              "rows": 3000,
+              "meanPredicted": 0.014744306607712442,
+              "observedRate": 0.009333333333333334,
+              "defaults": 28
+            },
+            {
+              "decile": 5,
+              "rows": 3000,
+              "meanPredicted": 0.018740253306453052,
+              "observedRate": 0.019,
+              "defaults": 57
+            },
+            {
+              "decile": 6,
+              "rows": 3000,
+              "meanPredicted": 0.027396033984185938,
+              "observedRate": 0.032,
+              "defaults": 96
+            },
+            {
+              "decile": 7,
+              "rows": 3000,
+              "meanPredicted": 0.040688860034695976,
+              "observedRate": 0.04566666666666667,
+              "defaults": 137
+            },
+            {
+              "decile": 8,
+              "rows": 3000,
+              "meanPredicted": 0.06534169448693995,
+              "observedRate": 0.07133333333333333,
+              "defaults": 214
+            },
+            {
+              "decile": 9,
+              "rows": 3000,
+              "meanPredicted": 0.10244492637333444,
+              "observedRate": 0.11666666666666667,
+              "defaults": 350
+            },
+            {
+              "decile": 10,
+              "rows": 3000,
+              "meanPredicted": 0.3599154087423553,
+              "observedRate": 0.35733333333333334,
+              "defaults": 1072
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 396,
+            "falsePositive": 279,
+            "falseNegative": 1609,
+            "trueNegative": 27716,
+            "flaggedShare": 0.0225,
+            "recall": 0.1975062344139651,
+            "precision": 0.5866666666666667,
+            "falsePositiveRate": 0.00996606536881586,
+            "accuracy": 0.9370666666666667
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 1528,
+            "falsePositive": 5929,
+            "falseNegative": 477,
+            "trueNegative": 22066,
+            "flaggedShare": 0.24856666666666666,
+            "recall": 0.7620947630922693,
+            "precision": 0.20490814000268204,
+            "falsePositiveRate": 0.21178781925343812,
+            "accuracy": 0.7864666666666666
+          }
+        }
+      },
+      "test": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "auc": 0.8598833778208523,
+        "ks": 0.5661197960626208,
+        "brier": 0.049422726405040585,
+        "brierOfBaseRate": 0.06236663888888889,
+        "brierSkill": 0.20754545562265925,
+        "calibration": {
+          "meanPredicted": 0.06659390258821998,
+          "observedRate": 0.06683333333333333,
+          "slope": 1.024775281016472,
+          "intercept": 0.054115535996195584,
+          "expectedCalibrationError": 0.004270760458405794,
+          "largestDecileGap": 0.01027030508393341,
+          "bands": [
+            {
+              "band": "0.00-0.02",
+              "rows": 14254,
+              "shareOfRows": 0.47513333333333335,
+              "meanPredicted": 0.013227971858123579,
+              "observedRate": 0.009962115897291988,
+              "defaults": 142
+            },
+            {
+              "band": "0.02-0.05",
+              "rows": 6371,
+              "shareOfRows": 0.21236666666666668,
+              "meanPredicted": 0.03210114855618119,
+              "observedRate": 0.0309213624234814,
+              "defaults": 197
+            },
+            {
+              "band": "0.05-0.10",
+              "rows": 5151,
+              "shareOfRows": 0.1717,
+              "meanPredicted": 0.07208766381808879,
+              "observedRate": 0.0755193166375461,
+              "defaults": 389
+            },
+            {
+              "band": "0.10-0.20",
+              "rows": 1819,
+              "shareOfRows": 0.06063333333333333,
+              "meanPredicted": 0.14115468738014084,
+              "observedRate": 0.1720725673446949,
+              "defaults": 313
+            },
+            {
+              "band": "0.20-0.40",
+              "rows": 1348,
+              "shareOfRows": 0.04493333333333333,
+              "meanPredicted": 0.2898107207944871,
+              "observedRate": 0.3026706231454006,
+              "defaults": 408
+            },
+            {
+              "band": "0.40-1.00",
+              "rows": 1057,
+              "shareOfRows": 0.03523333333333333,
+              "meanPredicted": 0.5543995884834961,
+              "observedRate": 0.5260170293282876,
+              "defaults": 556
+            }
+          ],
+          "deciles": [
+            {
+              "decile": 1,
+              "rows": 3000,
+              "meanPredicted": 0.010669014869469681,
+              "observedRate": 0.005666666666666667,
+              "defaults": 17
+            },
+            {
+              "decile": 2,
+              "rows": 3000,
+              "meanPredicted": 0.011315267671467453,
+              "observedRate": 0.008666666666666666,
+              "defaults": 26
+            },
+            {
+              "decile": 3,
+              "rows": 3000,
+              "meanPredicted": 0.012318178284611589,
+              "observedRate": 0.008333333333333333,
+              "defaults": 25
+            },
+            {
+              "decile": 4,
+              "rows": 3000,
+              "meanPredicted": 0.014847659751641505,
+              "observedRate": 0.012,
+              "defaults": 36
+            },
+            {
+              "decile": 5,
+              "rows": 3000,
+              "meanPredicted": 0.01892429986743535,
+              "observedRate": 0.018666666666666668,
+              "defaults": 56
+            },
+            {
+              "decile": 6,
+              "rows": 3000,
+              "meanPredicted": 0.02774889478850331,
+              "observedRate": 0.022333333333333334,
+              "defaults": 67
+            },
+            {
+              "decile": 7,
+              "rows": 3000,
+              "meanPredicted": 0.04172535018502208,
+              "observedRate": 0.043,
+              "defaults": 129
+            },
+            {
+              "decile": 8,
+              "rows": 3000,
+              "meanPredicted": 0.06590011442435484,
+              "observedRate": 0.06966666666666667,
+              "defaults": 209
+            },
+            {
+              "decile": 9,
+              "rows": 3000,
+              "meanPredicted": 0.10239636158273326,
+              "observedRate": 0.11266666666666666,
+              "defaults": 338
+            },
+            {
+              "decile": 10,
+              "rows": 3000,
+              "meanPredicted": 0.3600938844569608,
+              "observedRate": 0.36733333333333335,
+              "defaults": 1102
+            }
+          ]
+        },
+        "confusionAtReferenceThresholds": {
+          "conventional_0.50": {
+            "threshold": 0.5,
+            "truePositive": 385,
+            "falsePositive": 267,
+            "falseNegative": 1620,
+            "trueNegative": 27728,
+            "flaggedShare": 0.021733333333333334,
+            "recall": 0.19201995012468828,
+            "precision": 0.5904907975460123,
+            "falsePositiveRate": 0.009537417395963565,
+            "accuracy": 0.9371
+          },
+          "training_default_rate": {
+            "threshold": 0.06684444444444444,
+            "truePositive": 1551,
+            "falsePositive": 5972,
+            "falseNegative": 454,
+            "trueNegative": 22023,
+            "flaggedShare": 0.2507666666666667,
+            "recall": 0.7735660847880299,
+            "precision": 0.20616775222650538,
+            "falsePositiveRate": 0.2133238078228255,
+            "accuracy": 0.7858
+          }
+        }
+      }
+    }
+  },
+  "boostingVersusLogistic": {
+    "train": {
+      "aucBoostingMinusLogistic": 0.010887979343456422,
+      "ksBoostingMinusLogistic": 0.022388319659671807,
+      "brierLogisticMinusBoosting": 0.0019874124195446916
+    },
+    "validation": {
+      "aucBoostingMinusLogistic": 0.004039374683491359,
+      "ksBoostingMinusLogistic": 0.006666758714928944,
+      "brierLogisticMinusBoosting": 0.0007561299952052458
+    },
+    "test": {
+      "aucBoostingMinusLogistic": 0.00486560879458775,
+      "ksBoostingMinusLogistic": 0.006653396870388795,
+      "brierLogisticMinusBoosting": 0.0006525026645183493
+    }
+  },
+  "stability": {
+    "logisticRegression": {
+      "aucTrainMinusValidation": -0.005694730765616218,
+      "aucTrainMinusTest": -0.003950555750394935,
+      "aucValidationMinusTest": 0.0017441750152212832,
+      "ksValidationMinusTest": -0.007539465321336758,
+      "brierValidationMinusTest": 0.000687496044085141
+    },
+    "gradientBoosting": {
+      "aucTrainMinusValidation": 0.0011538738943488447,
+      "aucTrainMinusTest": 0.0020718147984737367,
+      "aucValidationMinusTest": 0.000917940904124892,
+      "ksValidationMinusTest": -0.007526103476796608,
+      "brierValidationMinusTest": 0.0005838687133982445
+    }
+  },
+  "bootstrap95": {
+    "resamples": 300,
+    "seed": 42,
+    "intervals": {
+      "validation": {
+        "aucLogistic": {
+          "low": 0.8487499341116175,
+          "high": 0.864783530538187
+        },
+        "aucBoosting": {
+          "low": 0.8528910928810158,
+          "high": 0.8692141348332892
+        },
+        "aucGap": {
+          "low": 0.00230702805537073,
+          "high": 0.0058312643770261855
+        },
+        "brierLogistic": {
+          "low": 0.04855763259514193,
+          "high": 0.05263967035488861
+        },
+        "brierBoosting": {
+          "low": 0.04789131710765885,
+          "high": 0.05184004344116244
+        },
+        "brierGap": {
+          "low": 0.0004507653805757036,
+          "high": 0.0011228575117535763
+        }
+      },
+      "test": {
+        "aucLogistic": {
+          "low": 0.8468472474549575,
+          "high": 0.8638080095510897
+        },
+        "aucBoosting": {
+          "low": 0.8520516408453555,
+          "high": 0.8683964851334006
+        },
+        "aucGap": {
+          "low": 0.002907079725260406,
+          "high": 0.007018762956078694
+        },
+        "brierLogistic": {
+          "low": 0.04805624096906521,
+          "high": 0.05197802422111729
+        },
+        "brierBoosting": {
+          "low": 0.04738831650066004,
+          "high": 0.05118933733899522
+        },
+        "brierGap": {
+          "low": 0.00031109522950591753,
+          "high": 0.0010113617361777315
+        }
+      }
+    }
+  }
+}

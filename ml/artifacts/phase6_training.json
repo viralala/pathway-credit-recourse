@@ -1,0 +1,349 @@
+{
+  "phase": 6,
+  "primaryModel": "logisticRegression",
+  "benchmarkModel": "gradientBoosting",
+  "note": "Logistic Regression is the model to be shipped. Gradient Boosting is a benchmark only. No evaluation metrics and no cut-off are computed in this phase.",
+  "dataset": {
+    "file": "data/cs-training.csv",
+    "sha256": "1bd46da486a5708c58c7b01a034fae2a13b327f6f7b62ea7ba4fe3b5824b24ac"
+  },
+  "target": "SeriousDlqin2yrs",
+  "split": {
+    "source": "ml/artifacts/split_manifest.json + split_ids.npz via load_split()",
+    "seed": 42,
+    "parts": {
+      "train": {
+        "rows": 90000,
+        "defaults": 6016,
+        "defaultRate": 0.06684444444444444,
+        "idsSha256": "fc0977811866fe1a8a852456ea521cc3b7d32494a8fc92eb1b4d3e9489173eca"
+      },
+      "validation": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "idsSha256": "a783e8d200507e444e83e42bcd77cc3a653f2fdf0f1836ac9aca0d0c6e18e244"
+      },
+      "test": {
+        "rows": 30000,
+        "defaults": 2005,
+        "defaultRate": 0.06683333333333333,
+        "idsSha256": "d3d52fae1f17382041e22080e107b66570a80d43550786e41d411a1f8ed9d0a9"
+      }
+    }
+  },
+  "features": {
+    "order": [
+      "utilization",
+      "late30",
+      "late60",
+      "late90",
+      "lateSpecialCode",
+      "monthlyIncome",
+      "debtRatio",
+      "openCreditLines",
+      "incomeMissing",
+      "incomePlaceholder"
+    ],
+    "count": 10,
+    "fittedOn": "train",
+    "preparation": {
+      "preprocessor": {
+        "medians": {
+          "monthlyIncome": 5480.0,
+          "debtRatio": 0.291451425,
+          "utilization": 0.1503633295,
+          "dependents": 0.0,
+          "age": 52.0
+        },
+        "thresholds": {
+          "lateSpecialMin": 90,
+          "lateSpecialReplacement": 0.0,
+          "incomePlaceholderMax": 1.0,
+          "utilizationCap": 1.5,
+          "utilizationInvalidAbove": 10.0,
+          "debtRatioCap": 2.0,
+          "minValidAge": 18
+        },
+        "columns": [
+          "utilization",
+          "age",
+          "late30",
+          "debtRatio",
+          "monthlyIncome",
+          "openCreditLines",
+          "late90",
+          "realEstateLoans",
+          "late60",
+          "dependents",
+          "lateSpecialCode",
+          "incomeMissing",
+          "incomePlaceholder",
+          "debtRatioUnreliable",
+          "utilizationInvalid",
+          "dependentsMissing"
+        ]
+      },
+      "features": [
+        {
+          "key": "utilization",
+          "floor": 0.0,
+          "cap": 1.5,
+          "log1p": false,
+          "mean": 0.31993203007662224,
+          "std": 0.3559121690073633
+        },
+        {
+          "key": "late30",
+          "floor": 0.0,
+          "cap": 5.0,
+          "log1p": true,
+          "mean": 0.13897227001411974,
+          "std": 0.34181389941746937
+        },
+        {
+          "key": "late60",
+          "floor": 0.0,
+          "cap": 5.0,
+          "log1p": true,
+          "mean": 0.03995901965661511,
+          "std": 0.18252055180857002
+        },
+        {
+          "key": "late90",
+          "floor": 0.0,
+          "cap": 5.0,
+          "log1p": true,
+          "mean": 0.04871133825011049,
+          "std": 0.21695686036327413
+        },
+        {
+          "key": "lateSpecialCode",
+          "floor": 0.0,
+          "cap": null,
+          "log1p": false,
+          "mean": 0.0018777777777777777,
+          "std": 0.04329262903076067
+        },
+        {
+          "key": "monthlyIncome",
+          "floor": 1000.0,
+          "cap": 25000.0,
+          "log1p": true,
+          "mean": 8.580098871814537,
+          "std": 0.5830212450933641
+        },
+        {
+          "key": "debtRatio",
+          "floor": 0.0,
+          "cap": 2.0,
+          "log1p": false,
+          "mean": 0.3428060740915,
+          "std": 0.29356649433044846
+        },
+        {
+          "key": "openCreditLines",
+          "floor": 0.0,
+          "cap": 5.0,
+          "log1p": false,
+          "mean": 4.487955555555556,
+          "std": 1.1148440041459822
+        },
+        {
+          "key": "incomeMissing",
+          "floor": 0.0,
+          "cap": null,
+          "log1p": false,
+          "mean": 0.19773333333333334,
+          "std": 0.39828992232069116
+        },
+        {
+          "key": "incomePlaceholder",
+          "floor": 0.0,
+          "cap": null,
+          "log1p": false,
+          "mean": 0.015033333333333333,
+          "std": 0.12168538212218519
+        }
+      ]
+    }
+  },
+  "logisticRegression": {
+    "role": "primary / shipped",
+    "estimator": "sklearn.linear_model.LogisticRegression",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "dual": false,
+      "fit_intercept": true,
+      "intercept_scaling": 1,
+      "l1_ratio": 0.0,
+      "max_iter": 1000,
+      "n_jobs": null,
+      "penalty": "deprecated",
+      "random_state": 42,
+      "solver": "lbfgs",
+      "tol": 0.0001,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "iterations": 10,
+    "converged": true,
+    "inputScale": "standardized features: each coefficient is the change in log-odds of default per 1 training standard deviation",
+    "intercept": -3.24875324590256,
+    "coefficients": {
+      "utilization": 0.6350274805606864,
+      "late30": 0.3488147578898018,
+      "late60": 0.20406013150012162,
+      "late90": 0.32652942740290836,
+      "lateSpecialCode": 0.10558507206773121,
+      "monthlyIncome": -0.023889502930451254,
+      "debtRatio": 0.16222830257854773,
+      "openCreditLines": -0.053746348497213464,
+      "incomeMissing": -0.047507850879592146,
+      "incomePlaceholder": -0.07509507609107
+    }
+  },
+  "gradientBoosting": {
+    "role": "benchmark only, never shipped",
+    "estimator": "sklearn.ensemble.GradientBoostingClassifier",
+    "params": {
+      "ccp_alpha": 0.0,
+      "criterion": "deprecated",
+      "init": null,
+      "learning_rate": 0.1,
+      "loss": "log_loss",
+      "max_depth": 3,
+      "max_features": null,
+      "max_leaf_nodes": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "min_weight_fraction_leaf": 0.0,
+      "n_estimators": 100,
+      "n_iter_no_change": null,
+      "random_state": 42,
+      "subsample": 1.0,
+      "tol": 0.0001,
+      "validation_fraction": 0.1,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "trees": 100
+  },
+  "predictedProbability": {
+    "logisticRegression": {
+      "train": {
+        "n": 90000,
+        "min": 0.008814686627965664,
+        "p01": 0.013553960047970097,
+        "p05": 0.014499821984788464,
+        "p25": 0.016924472134411412,
+        "median": 0.024987000356324916,
+        "mean": 0.06686664844149887,
+        "p75": 0.062025973231867634,
+        "p95": 0.2587438652558014,
+        "p99": 0.6884303144521937,
+        "max": 0.9889447422180615,
+        "std": 0.1181313449893074
+      },
+      "validation": {
+        "n": 30000,
+        "min": 0.008814686627965664,
+        "p01": 0.013586845020838196,
+        "p05": 0.014507424890729355,
+        "p25": 0.016999565549174464,
+        "median": 0.025201783589409717,
+        "mean": 0.06673219049138243,
+        "p75": 0.06167561675515401,
+        "p95": 0.2573406233498074,
+        "p99": 0.696920123278831,
+        "max": 0.9781424826941751,
+        "std": 0.11824813021002695
+      },
+      "test": {
+        "n": 30000,
+        "min": 0.008814686627965664,
+        "p01": 0.013677614630033263,
+        "p05": 0.014518747186273589,
+        "p25": 0.016983158833757762,
+        "median": 0.02547593611225405,
+        "mean": 0.06663678973016647,
+        "p75": 0.06225450840283632,
+        "p95": 0.2551676912680917,
+        "p99": 0.6844802938098267,
+        "max": 0.9817942700709157,
+        "std": 0.11724484707541039
+      }
+    },
+    "gradientBoosting": {
+      "train": {
+        "n": 90000,
+        "min": 0.009896489520460471,
+        "p01": 0.01068539509349868,
+        "p05": 0.01068539509349868,
+        "p25": 0.012208278001827,
+        "median": 0.02152003491984753,
+        "mean": 0.06685063162522316,
+        "p75": 0.06652427250345028,
+        "p95": 0.32084298097336905,
+        "p99": 0.6108950007546032,
+        "max": 0.9559115501036067,
+        "std": 0.11584948450058119
+      },
+      "validation": {
+        "n": 30000,
+        "min": 0.009999874903410737,
+        "p01": 0.01068539509349868,
+        "p05": 0.01068539509349868,
+        "p25": 0.012208278001827,
+        "median": 0.02184473262611336,
+        "mean": 0.06636412265129997,
+        "p75": 0.0660098238300216,
+        "p95": 0.3134172527053886,
+        "p99": 0.6069718560974261,
+        "max": 0.9129204675157288,
+        "std": 0.11522439012924272
+      },
+      "test": {
+        "n": 30000,
+        "min": 0.01031647764589583,
+        "p01": 0.01068539509349868,
+        "p05": 0.01068539509349868,
+        "p25": 0.012208278001827,
+        "median": 0.022225852323564693,
+        "mean": 0.06659390258821998,
+        "p75": 0.06706748858665819,
+        "p95": 0.32060092133522383,
+        "p99": 0.6095004474725209,
+        "max": 0.93737447552763,
+        "std": 0.11512570838113761
+      }
+    }
+  },
+  "predictions": {
+    "file": "ml/artifacts/phase6_predictions.npz",
+    "layout": "<part>_ids, <part>_logistic, <part>_boosting for part in train/validation/test; ids are 0-based CSV row positions, values are P(SeriousDlqin2yrs = 1). Labels are not stored: read them from the CSV by row id.",
+    "sha256": {
+      "train": {
+        "logistic": "697599c977046506e64da2db479a14d295752104d1b057215a24e6a9832e4342",
+        "boosting": "17a4df3e245d1c6528df0096805889daec9d2e52c046b1953ee82e8bab411ed0"
+      },
+      "validation": {
+        "logistic": "d8a4644f4e68bcdf3f977e88027e328076c29180bf88c8a3e5965a38a6d13a43",
+        "boosting": "35e6f53f9aba97df66c3da611939965ba6c581393df84371ca32584671e9671d"
+      },
+      "test": {
+        "logistic": "fcf1ee37538ccc206d581697a89dddb46869b09c681919ba668ab13dc492c016",
+        "boosting": "fcd8670b97a70e368143de26ab0deaebb96dd17bb143246afa5f1ef1269dff72"
+      }
+    }
+  },
+  "seed": 42,
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.9.1"
+  }
+}
