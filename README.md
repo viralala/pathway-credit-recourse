@@ -2,7 +2,7 @@
 
 <img src=".github/assets/banner.svg" alt="Pathway: a rejection should be a roadmap. An animated path rises from a declined point to an approved point." width="100%" />
 
-<h3>Find out why a loan was declined, what to change, and when to apply again.</h3>
+<h3>Explainable credit decisions, a realistic path to approval, and the money it saves you.</h3>
 
 <a href="https://pathway-credit-recourse.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/Live%20demo-pathway--credit--recourse.vercel.app-4f5d95?style=for-the-badge" /></a>
 <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-6aae8c?style=for-the-badge" />
@@ -28,7 +28,7 @@
 
 When a loan is declined, most people get a one-line "no" and a list of codes. They don't know **why**, **what to change**, or **when** to try again. Many then turn to instant-loan apps with hidden fees and triple-digit APRs.
 
-Pathway explains the decision in plain English, Hindi or Marathi. It finds the smallest realistic set of changes that flips the decision, projects month by month when you'll get there, and shows what that's worth in rupees. With an optional Google sign-in, borrowers can save a plan and record their numbers each month.
+**Pathway turns a rejection into a roadmap.** It explains the decision in plain English, Hindi or Marathi. It finds the smallest realistic set of changes that flips the decision, projects month by month when you'll get there, and shows what that's worth in rupees and dollars.
 
 > **Disclaimer:** Pathway is an educational simulation built on synthetic data. It is not a credit decision, not financial advice, and not affiliated with any lender.
 
@@ -36,15 +36,15 @@ Pathway explains the decision in plain English, Hindi or Marathi. It finds the s
 
 <table>
 <tr>
-<td width="50%" valign="top"><img src=".github/assets/why.svg" alt="" width="40" align="left" />&nbsp;<b>Why: reason codes</b><br/>&nbsp;Exact per-feature score impact from an interpretable model, ranked and written in plain language (credit utilisation, FOIR, DPD).</td>
+<td width="50%" valign="top"><img src=".github/assets/why.svg" alt="" width="40" align="left" />&nbsp;<b>Why: reason codes</b><br/>&nbsp;Exact per-feature score impact from an interpretable model, ranked and written in plain language.</td>
 <td width="50%" valign="top"><img src=".github/assets/plan.svg" alt="" width="40" align="left" />&nbsp;<b>What: lowest-effort plan</b><br/>&nbsp;An exhaustive search over realistic changes. Age, dependents and other traits you can't change are never touched.</td>
 </tr>
 <tr>
-<td valign="top"><img src=".github/assets/money.svg" alt="" width="40" align="left" />&nbsp;<b>Money saved</b><br/>&nbsp;The same personal loan taken today versus after the plan: interest rate, EMI, total interest in rupees and the next-tier bonus.</td>
+<td valign="top"><img src=".github/assets/money.svg" alt="" width="40" align="left" />&nbsp;<b>Money saved</b><br/>&nbsp;The same loan borrowed today versus after the plan: APR tier, EMI, total interest and the next-tier bonus.</td>
 <td valign="top"><img src=".github/assets/chance.svg" alt="" width="40" align="left" />&nbsp;<b>When, and how sure</b><br/>&nbsp;A Monte Carlo timeline: 400 seeded futures with shocks and slips give a likely, best and worst approval month.</td>
 </tr>
 <tr>
-<td valign="top"><img src=".github/assets/goal.svg" alt="" width="40" align="left" />&nbsp;<b>Goal planner</b><br/>&nbsp;Start from the loan you want ("₹5 lakh over 3 years at 12% a year") and work backwards to the score, plan, milestones and FOIR affordability.</td>
+<td valign="top"><img src=".github/assets/goal.svg" alt="" width="40" align="left" />&nbsp;<b>Goal planner</b><br/>&nbsp;Start from the loan you want ("₹/$X at ≤ A% APR") and work backwards to the score, plan, milestones and affordability.</td>
 <td valign="top"><img src=".github/assets/offer.svg" alt="" width="40" align="left" />&nbsp;<b>Offer check</b><br/>&nbsp;The true APR of any instant-loan offer from its real cash flows, with red flags and guidance relevant in India.</td>
 </tr>
 <tr>
@@ -77,7 +77,7 @@ flowchart LR
 | **Plan** | Every feasible change set is scored exactly; the lowest weighted effort wins, ties broken by time. |
 | **Project** | Each change moves at a capped monthly pace; late payments age out of a 24-month window. |
 | **Stress-test** | 400 seeded simulated futures vary the pace and add income shocks and new late payments. |
-| **Price** | Illustrative interest-rate tiers by score turn the plan into rupees of interest saved. |
+| **Price** | Illustrative APR tiers by score turn the plan into interest saved. |
 
 Every assumption lives in `lib/config.ts` and `lib/pricing.ts`, and the UI shows them next to the numbers they affect.
 
@@ -87,7 +87,7 @@ Every assumption lives in `lib/config.ts` and `lib/pricing.ts`, and the UI shows
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
 | UI | Tailwind CSS 4 design tokens, shadcn/ui (Radix), Lucide icons, Recharts |
-| Motion | Motion (short fade-ins and count-ups), reduced-motion aware |
+| Motion | Motion (page transitions, scroll reveals, count-ups, money cursor), reduced-motion aware |
 | Model | Python + scikit-learn (training) → JSON coefficients → TypeScript inference |
 | Quality | Vitest (unit and property tests), ESLint |
 | Platform | Vercel, security headers + CSP, rate-limited API |
@@ -97,23 +97,18 @@ Every assumption lives in `lib/config.ts` and `lib/pricing.ts`, and the UI shows
 ```
 .
 ├── app/                    # Routes (App Router)
-│   ├── page.tsx            # Home: worked example, tools, business model
-│   ├── check/              # Workbench: score, reasons, plan, money saved, timeline
-│   ├── partners/           # For lenders: business model and enquiry form
-│   ├── signin/ account/    # Google sign-in and My plans (saved plans, progress, export, delete)
-│   ├── auth/               # OAuth start, callback and sign-out route handlers
+│   ├── page.tsx            # Workbench: score, reasons, plan, money saved, timeline
 │   ├── goal/               # Goal planner
 │   ├── offer-check/        # Instant-loan offer checker
 │   ├── fairness/           # Fairness audit
 │   ├── report/             # Printable lender report
 │   ├── method/             # How it works
 │   ├── terms/ privacy/ licenses/
-│   ├── api/                # explain (AI rewrite), session, plans, account export
+│   ├── api/explain/        # Optional plain-language rewrite (validated, rate-limited)
 │   └── sitemap.ts robots.ts manifest.ts opengraph-image.tsx
 ├── components/
 │   ├── workbench/ goal/ offer/ pages/ legal/   # Feature UI
-│   ├── home/ partners/     # Home sections, business model (liquid glass cards), enquiry form
-│   ├── site/               # Header, footer, cookie notice, language switcher
+│   ├── site/               # Header, footer, cookie consent, money cursor
 │   ├── motion/             # Reveal, Stagger, CountUp
 │   └── ui/                 # shadcn/ui primitives
 ├── lib/                    # Pure, tested logic
@@ -135,40 +130,94 @@ npm test           # unit tests
 npm run build      # production build
 ```
 
-Optional: copy `.env.example` to `.env.local`.
+---
 
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` switch on accounts, saved plans and the partner enquiry form. Setup steps: [supabase/README.md](supabase/README.md).
-- `ANTHROPIC_API_KEY` enables the "rewrite in simpler words" button. Without a key, the built-in templates are used.
+## Supabase & Google Authentication Setup
 
-**Money is in rupees.** The model was trained on synthetic data with the columns of a public US dataset, so rupee incomes are divided by 20 (close to India's purchasing-power parity) on the way into the model (`lib/money.ts`). Because income enters the model as a logarithm, this only shifts the scale.
+Pathway integrates Supabase PostgreSQL and Google OAuth for persistent user assessments, recourse plans, simulations, pricing calculations, and ground-truth verified outcomes.
 
-**Retrain the model:** `pip install numpy pandas scikit-learn`, optionally place Kaggle's `cs-training.csv` in `data/`, then `npm run train`.
+### Step 1: Create a Supabase Project
+1. Go to [database.new](https://database.new) and create a new project.
+2. Note your **Project URL**, **Anon (Public) Key**, and **Service Role (Secret) Key** from **Project Settings → API**.
 
-## Results
+### Step 2: Configure Google Cloud OAuth Credentials
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+2. Create an **OAuth 2.0 Client ID** (Web application).
+3. Set **Authorized JavaScript origins** to `http://localhost:3000` (and your production domain).
+4. Set **Authorized redirect URIs** to your Supabase Auth callback:
+   `https://<your-project-id>.supabase.co/auth/v1/callback`
+5. Copy your **Client ID** and **Client Secret**.
 
-| Metric | Value |
-|---|---|
-| Model AUC (hold-out) | **0.856** |
-| Recommended plans that flip the decision | **100%** (608 / 608 rejected hold-out applicants) |
-| Median months to approval | **12** |
-| Recourse-effort gap at equal risk | **31%** (income under ₹60,000 vs ₹1.2 lakh+ a month) |
+### Step 3: Enable Google Provider in Supabase
+1. In the Supabase Dashboard, go to **Authentication → Providers → Google**.
+2. Toggle Google **Enabled**.
+3. Paste your Google **Client ID** and **Client Secret**, then click **Save**.
+4. In **Authentication → URL Configuration**, add `http://localhost:3000/auth/callback` to **Redirect URLs**.
 
-## Security and privacy
+### Step 4: Run Database Migrations
+Run the reproducible SQL migration in `supabase/migrations/20261005000000_init.sql` (or paste `supabase/schema.sql` into the Supabase SQL Editor):
+- Creates `profiles`, `assessments`, `recourse_plans`, `simulations`, `pricing_results`, `outcomes` tables.
+- Establishes performance indexes.
+- Enforces strict Row-Level Security (RLS) policies.
+- Adds the `on_auth_user_created` trigger for automatic profile synchronization.
 
-- A strict security-header set: CSP, HSTS, `X-Frame-Options: DENY`, a restrictive Permissions-Policy, COOP/CORP.
-- The API recomputes every explanation on the server from validated numbers. It is same-origin, JSON-only, size-capped and rate-limited.
-- No tracking cookies. Accounts are optional (Google sign-in through Supabase); session cookies are HttpOnly.
-- Row level security on every table; the app never uses a Supabase service key. Users can export or delete all their data from My plans.
-- Sign-in return addresses are allow-listed, and `next` redirects only ever stay on this site.
+### Step 5: Configure Environment Variables
+Create `.env.local` based on `.env.example`:
 
-## Future scope
+```env
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-- Reminders to log your numbers each month (WhatsApp or SMS)
-- Account Aggregator cash-flow underwriting for thin-file and gig workers
-- Lender dashboard: a second-chance pipeline and rejection letters that meet RBI's Fair Practices Code
-- A public API for fintechs and lending apps
-- Voice-first guidance in more Indian languages
-- Calibration on real bureau data with a partner lender
+# Supabase PostgreSQL & Auth
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Optional: Anthropic API for AI explanation rewrites
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-haiku-4-5
+```
+
+### Step 6: Start the Application
+```bash
+npm run dev
+```
+
+### Step 7: Test Google Login
+1. Open `http://localhost:3000`.
+2. Click **"Continue with Google"** in the top navigation or on the `/login` page.
+3. Authenticate with your Google account. You will be redirected to `/dashboard` with your active session.
+
+### Step 8: Create an Assessment
+1. Go to the home workbench (`/`).
+2. Adjust financial features or select a sample applicant.
+3. Click **"Save to Dashboard"**.
+
+### Step 9: Verify Assessment in Supabase
+1. Open the Supabase Table Editor.
+2. In `assessments`, confirm that the input features, server-calculated `predicted_score`, `pd`, `reasons`, and `model_version` ("v1") are stored.
+
+### Step 10: Verify Recourse Plan & Simulations
+1. In `recourse_plans`, confirm that the computed action list and projected score are saved.
+2. In `simulations` and `pricing_results`, confirm the Monte Carlo bounds and interest savings records are created.
+
+### Step 11: Continuous Learning & Verified Outcomes
+1. Navigate to `/dashboard`.
+2. Submit a real-world outcome in the **"Track Real Outcome"** panel.
+3. Verify that the outcome is saved with `verified = false` (preventing unverified training contamination).
+
+### Step 12: Multi-Account RLS Isolation Test
+1. Log out and sign in with a second Google account.
+2. Confirm that the dashboard shows only the second user's assessments (cross-user data access is strictly blocked by RLS).
+
+---
+
+## Security & Privacy Architecture
+
+- **Server-Side ML Inference:** Credit score prediction, adverse action reasoning, recourse planning, Monte Carlo timeline simulations, and risk-based pricing are computed server-side in TypeScript. Client scores are never trusted.
+- **Row-Level Security (RLS):** Every user-owned table enforces `auth.uid() = user_id` at the database level.
+- **Strict Zod Validation:** All API route handlers strictly validate numeric ranges, display names, and UUIDs.
+- **Privacy & GDPR Compliance:** Users can permanently purge all stored account data and assessments at any time with the one-click deletion feature (`DELETE /api/user/delete`).
+- **Offline ML Retraining Pipeline:** Python training remains strictly offline (`ml/train.py`). Only verified outcomes (`verified = true`) are eligible for future model evaluation and candidate model retraining.
 
 ## License
 

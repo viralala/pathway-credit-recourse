@@ -3,8 +3,11 @@ import { Manrope, Noto_Sans_Devanagari } from "next/font/google";
 import { Suspense } from "react";
 import { FooterContent, SiteFooter } from "@/components/SiteFooter";
 import { HeaderBar, SiteHeader } from "@/components/SiteHeader";
-import { CookieNotice } from "@/components/site/CookieNotice";
+import { CookieConsent } from "@/components/site/CookieConsent";
+import { CursorToggle } from "@/components/site/CursorToggle";
+import { MoneyCursor } from "@/components/site/MoneyCursor";
 import { SkipLink, SkipLinkView } from "@/components/site/SkipLink";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { siteMetadata, siteViewport } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -25,23 +28,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={cn("antialiased", manrope.variable, deva.variable)}>
       <body className="flex min-h-dvh flex-col">
-        <TooltipProvider>
-          <Suspense fallback={<SkipLinkView lang="en" />}>
-            <SkipLink />
-          </Suspense>
-          <Suspense fallback={<HeaderBar lang="en" search="" sample={null} />}>
-            <SiteHeader />
-          </Suspense>
-          <main id="main" tabIndex={-1} className="flex-1 outline-none">
-            {children}
-          </main>
-          <Suspense fallback={<FooterContent lang="en" />}>
-            <SiteFooter />
-          </Suspense>
-          <Suspense fallback={null}>
-            <CookieNotice />
-          </Suspense>
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Suspense fallback={<SkipLinkView lang="en" />}>
+              <SkipLink />
+            </Suspense>
+            <Suspense fallback={null}>
+              <CookieConsent />
+            </Suspense>
+            <Suspense fallback={<HeaderBar lang="en" search="" sample={null} />}>
+              <SiteHeader />
+            </Suspense>
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">
+              {children}
+            </main>
+            <Suspense fallback={<FooterContent lang="en" />}>
+              <SiteFooter />
+            </Suspense>
+            <MoneyCursor />
+            <Suspense fallback={null}>
+              <CursorToggle />
+            </Suspense>
+          </TooltipProvider>
+        </AuthProvider>
       </body>
     </html>
   );

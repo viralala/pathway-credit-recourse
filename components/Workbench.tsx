@@ -1,13 +1,14 @@
 "use client";
 
-import { ArrowDown } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { ArrowDown, BookmarkCheck, Check } from "lucide-react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { analyze } from "@/lib/analyze";
 import { summaryText, t, tf, type Lang } from "@/lib/i18n";
 import { SAMPLES } from "@/lib/samples";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { paramsFor } from "@/lib/url";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { ApplicantForm } from "./workbench/ApplicantForm";
 import { HeroBackdrop, HeroIntro } from "./workbench/Hero";
 import { MoneySaved } from "./workbench/MoneySaved";
@@ -40,11 +41,15 @@ export function Workbench({
   /** A saved plan being updated (from "My plans"), or null. */
   planId: string | null;
 }) {
+  const { user, signInWithGoogle } = useAuth();
   const [applicant, setApplicant] = useState(initialApplicant);
   const [name, setName] = useState(initialName);
   const [sampleId, setSampleId] = useState(initialSampleId);
   const [aiText, setAiText] = useState<{ key: string; text: string; source: "ai" | "template" } | null>(null);
   const [rewriting, setRewriting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const ui = t(lang);
 
   // Inputs stay instant; the (heavier) analysis follows a beat behind while typing.
@@ -119,6 +124,93 @@ export function Workbench({
       setRewriting(false);
     }
   }
+
+  async function saveAssessmentWithData(appData: Applicant, applicantName: string) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      // 1. Save Assessment
+      const res = await fetch("/api/assessments", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ applicant: appData, applicantName }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error?.message || "Failed to save assessment. Ensure Supabase tables are created.");
+      }
+      const assessmentId = json.data?.assessment?.id;
+
+      if (assessmentId) {
+        // 2, 3, 4: Persist Recourse, Simulations, Pricing
+        await Promise.allSettled([
+          fetch("/api/recourse", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ assessmentId }),
+          }),
+          fetch("/api/simulations", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ assessmentId, runs: 500 }),
+          }),
+          fetch("/api/pricing", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ assessmentId }),
+          }),
+        ]);
+
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 5000);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save assessment to Supabase";
+      setSaveError(msg);
+      setTimeout(() => setSaveError(null), 8000);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveAssessment() {
+    if (!user) {
+      try {
+        localStorage.setItem(
+          "pathway_pending_assessment",
+          JSON.stringify({ applicant: analyzed, name })
+        );
+      } catch {
+        // Ignore storage errors
+      }
+      signInWithGoogle("/dashboard");
+      return;
+    }
+
+    await saveAssessmentWithData(analyzed, name);
+  }
+
+  // Check and process any pending assessment saved prior to OAuth redirect
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const pendingRaw = localStorage.getItem("pathway_pending_assessment");
+      if (pendingRaw) {
+        const pending = JSON.parse(pendingRaw);
+        localStorage.removeItem("pathway_pending_assessment");
+        if (pending?.applicant) {
+          const applicantData = pending.applicant;
+          const applicantName = pending.name || DEFAULT_NAME;
+          setTimeout(() => {
+            saveAssessmentWithData(applicantData, applicantName);
+          }, 0);
+        }
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, [user]);
+
   const current = aiText && aiText.key === summary ? aiText : null;
 
   return (
@@ -144,12 +236,46 @@ export function Workbench({
             </div>
             <div className="lg:col-span-7">
               <ApplicantForm ui={ui} applicant={applicant} onField={setField} />
-              <Button asChild size="lg" className="mt-6 h-12 rounded-xl px-6 text-[15px] font-bold">
-                <a href="#why">
-                  {ui.assess}
-                  <ArrowDown aria-hidden />
-                </a>
-              </Button>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">
+                  <a href="#why">
+                    {ui.assess}
+                    <ArrowDown aria-hidden />
+                  </a>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant={savedSuccess ? "outline" : "secondary"}
+                  size="lg"
+                  disabled={saving}
+                  onClick={saveAssessment}
+                  className={`h-12 gap-2 rounded-xl px-5 text-[14px] font-bold transition-all ${
+                    savedSuccess ? "border-emerald-500/40 text-emerald-600 bg-emerald-500/10" : ""
+                  }`}
+                >
+                  {savedSuccess ? (
+                    <>
+                      <Check className="size-4" />
+                      <span>Saved to Account!</span>
+                    </>
+                  ) : saving ? (
+                    <span>Saving to Account...</span>
+                  ) : (
+                    <>
+                      <BookmarkCheck className="size-4" />
+                      <span>{user ? "Save to Dashboard" : "Sign in & Save"}</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {saveError && (
+                <div className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                  <p className="font-semibold">Unable to save assessment:</p>
+                  <p className="mt-0.5">{saveError}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
