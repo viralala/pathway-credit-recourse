@@ -91,7 +91,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                     status = month === null ? tf(s.noPlan, { n: ASSUMPTIONS.horizonMonths }) : tf(s.projected, { n: month });
                   }
                 }
-                const q = latestApplicant ? new URLSearchParams(paramsFor(latestApplicant, { lang, name: plan.name })) : new URLSearchParams();
+                const q = latestApplicant ? new URLSearchParams(paramsFor(latestApplicant, { lang, name: plan.name || undefined })) : new URLSearchParams();
                 q.set("plan", plan.id);
                 return (
                   <li key={plan.id} className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">

@@ -3,13 +3,15 @@
  * wording, and so lib/__tests__/security.test.ts can check the licence table against node_modules.
  */
 
-import { CONSENT_COOKIE, CURSOR_STORAGE_KEY } from "@/lib/storage-keys";
+import { CONSENT_COOKIE } from "@/lib/storage-keys";
 
 export const LEGAL_UPDATED = { iso: "2026-10-04", label: "4 October 2026" } as const;
 
 export const ANTHROPIC_PRIVACY_URL = "https://www.anthropic.com/legal/privacy";
 export const VERCEL_PRIVACY_URL = "https://vercel.com/legal/privacy-policy";
 export const KAGGLE_COMPETITION_URL = "https://www.kaggle.com/c/GiveMeSomeCredit";
+export const GOOGLE_PRIVACY_URL = "https://policies.google.com/privacy";
+export const SUPABASE_PRIVACY_URL = "https://supabase.com/privacy";
 
 /** Everything Pathway stores in the browser. Nothing else is set by Pathway. */
 export interface StorageItem {
@@ -21,7 +23,7 @@ export interface StorageItem {
 }
 
 /** Single source of truth (lib/storage-keys.ts): the names the consent code actually reads and writes. */
-export { CONSENT_COOKIE, CURSOR_STORAGE_KEY };
+export { CONSENT_COOKIE };
 
 export const STORAGE_ITEMS: StorageItem[] = [
   {

@@ -338,12 +338,88 @@ export type Database = {
           }
         ];
       };
+      saved_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          applicant: Json;
+          name: string | null;
+          target_score: number;
+          lang: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          applicant: Json;
+          name?: string | null;
+          target_score?: number;
+          lang?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          applicant?: Json;
+          name?: string | null;
+          target_score?: number;
+          lang?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      plan_checkins: {
+        Row: {
+          id: string;
+          plan_id: string;
+          user_id: string;
+          month: number;
+          score: number;
+          applicant: Json;
+          completed: boolean;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          plan_id: string;
+          user_id?: string;
+          month?: number;
+          score?: number;
+          applicant?: Json;
+          completed?: boolean;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          plan_id?: string;
+          user_id?: string;
+          month?: number;
+          score?: number;
+          applicant?: Json;
+          completed?: boolean;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      submit_partner_enquiry: {
+        Args: Record<string, unknown>;
+        Returns: unknown;
+      };
+      delete_my_account: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -353,3 +429,12 @@ export type Database = {
     };
   };
 };
+
+export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
+export type RecoursePlanRow = Database["public"]["Tables"]["recourse_plans"]["Row"];
+export type SimulationRow = Database["public"]["Tables"]["simulations"]["Row"];
+export type PricingResultRow = Database["public"]["Tables"]["pricing_results"]["Row"];
+export type OutcomeRow = Database["public"]["Tables"]["outcomes"]["Row"];
+export type SavedPlanRow = Database["public"]["Tables"]["saved_plans"]["Row"];
+export type CheckinRow = Database["public"]["Tables"]["plan_checkins"]["Row"];

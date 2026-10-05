@@ -3,9 +3,7 @@ import { Manrope, Noto_Sans_Devanagari } from "next/font/google";
 import { Suspense } from "react";
 import { FooterContent, SiteFooter } from "@/components/SiteFooter";
 import { HeaderBar, SiteHeader } from "@/components/SiteHeader";
-import { CookieConsent } from "@/components/site/CookieConsent";
-import { CursorToggle } from "@/components/site/CursorToggle";
-import { MoneyCursor } from "@/components/site/MoneyCursor";
+import { CookieNotice } from "@/components/site/CookieNotice";
 import { SkipLink, SkipLinkView } from "@/components/site/SkipLink";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SkipLink />
             </Suspense>
             <Suspense fallback={null}>
-              <CookieConsent />
+              <CookieNotice />
             </Suspense>
             <Suspense fallback={<HeaderBar lang="en" search="" sample={null} />}>
               <SiteHeader />
@@ -44,10 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
             <Suspense fallback={<FooterContent lang="en" />}>
               <SiteFooter />
-            </Suspense>
-            <MoneyCursor />
-            <Suspense fallback={null}>
-              <CursorToggle />
             </Suspense>
           </TooltipProvider>
         </AuthProvider>
