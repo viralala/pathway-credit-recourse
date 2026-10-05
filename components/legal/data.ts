@@ -32,11 +32,18 @@ export const STORAGE_ITEMS: StorageItem[] = [
     duration: "180 days",
   },
   {
-    name: CURSOR_STORAGE_KEY,
-    kind: "Local storage, this browser only",
-    purpose: "Remembers whether the money-cursor animation is switched on or off.",
-    category: "Functional, set only with your consent",
-    duration: "Until you clear site data; deleted when you withdraw consent",
+    name: "sb-<project>-auth-token",
+    kind: "First-party cookie / session",
+    purpose: "Stores the encrypted Supabase JWT session when you log in with Google.",
+    category: "Strictly necessary (authenticated only)",
+    duration: "Session / 1 hour with rolling refresh",
+  },
+  {
+    name: "sb-<project>-auth-token-code-verifier",
+    kind: "First-party cookie",
+    purpose: "Temporary PKCE code verifier for secure OAuth 2.0 authentication handshake with Google.",
+    category: "Strictly necessary (during login only)",
+    duration: "Authentication flow only",
   },
 ];
 
@@ -67,6 +74,7 @@ export const RUNTIME_SOFTWARE: SoftwareCredit[] = [
   { name: "@supabase/supabase-js", version: "2.117.2", license: "MIT", homepage: "https://supabase.com", usedFor: "Supabase client SDK for authentication and database queries" },
   { name: "@supabase/ssr", version: "0.12.7", license: "MIT", homepage: "https://supabase.com", usedFor: "Server-side Supabase authentication and session management" },
   { name: "zod", version: "4.6.5", license: "MIT", homepage: "https://zod.dev", usedFor: "Schema declaration and server-side request validation" },
+  { name: "server-only", version: "0.0.1", license: "MIT", homepage: "https://reactjs.org/", usedFor: "Ensures server-only code is never bundled into client components" },
 ];
 
 /** Tools used to build and test the site; they do not ship to visitors. */
