@@ -83,9 +83,46 @@ export function contribution(f: ModelFeature, cleaned: number): number {
   return (f.coef * (featureValue(f, cleaned) - f.mean)) / f.std;
 }
 
+/** A model's features unpacked into flat arrays once, so scoring a state does no property lookups per feature. */
+interface Compiled {
+  features: ModelFeature[];
+  keys: ModelFeatureKey[];
+  coef: Float64Array;
+  mean: Float64Array;
+  std: Float64Array;
+  lo: Float64Array;
+  hi: Float64Array;
+  log1p: Uint8Array;
+}
+const compiledCache = new WeakMap<CreditModel, Compiled>();
+
+function compile(model: CreditModel): Compiled {
+  const features = model.features;
+  const hit = compiledCache.get(model);
+  // Rebuilt if `features` was swapped out, so a modified copy of a model never reads stale numbers.
+  if (hit && hit.features === features) return hit;
+  const c: Compiled = {
+    features,
+    keys: features.map((f) => f.key),
+    coef: Float64Array.from(features, (f) => f.coef),
+    mean: Float64Array.from(features, (f) => f.mean),
+    std: Float64Array.from(features, (f) => f.std),
+    lo: Float64Array.from(features, (f) => f.clip[0]),
+    hi: Float64Array.from(features, (f) => f.clip[1]),
+    log1p: Uint8Array.from(features, (f) => (f.log1p ? 1 : 0)),
+  };
+  compiledCache.set(model, c);
+  return c;
+}
+
+/** Same arithmetic as summing `contribution()` over the features, in the same order. */
 export function logitOfInput(x: ModelInput, model: CreditModel = MODEL): number {
+  const c = compile(model);
   let z = model.intercept;
-  for (const f of model.features) z += contribution(f, x[f.key]);
+  for (let i = 0; i < c.keys.length; i++) {
+    const v = Math.min(c.hi[i], Math.max(c.lo[i], x[c.keys[i]]));
+    z += (c.coef[i] * ((c.log1p[i] ? Math.log1p(v) : v) - c.mean[i])) / c.std[i];
+  }
   return z;
 }
 

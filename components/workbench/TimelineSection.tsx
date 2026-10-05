@@ -9,9 +9,16 @@ import { displayScore, likelyText, monthsText, splitAt, tf, uncertaintyRows, typ
 import type { UncertaintyBand } from "@/lib/montecarlo";
 import type { Timeline } from "@/lib/timeline";
 import { cn } from "@/lib/utils";
-import { TIMELINE_COLORS, TimelineChart } from "../TimelineChart";
+import dynamic from "next/dynamic";
+import { TIMELINE_COLORS } from "../timelineColors";
 import { RowList } from "./RowList";
 import { KICKER, SectionHeading } from "./SectionHeading";
+
+/** The chart (and recharts with it) loads after the page is interactive; the placeholder has the chart's height. */
+const TimelineChart = dynamic(() => import("../TimelineChart").then((m) => m.TimelineChart), {
+  ssr: false,
+  loading: () => <div className="h-72 w-full sm:h-80" />,
+});
 
 /** Legend swatches drawn to match the chart's series. */
 function Swatch({ kind }: { kind: "plan" | "baseline" | "band" | "threshold" | "approval" }) {

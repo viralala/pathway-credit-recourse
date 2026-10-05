@@ -1,5 +1,5 @@
 import { ASSUMPTIONS, UNCERTAINTY, type Assumptions, type Uncertainty } from "./config";
-import { MODEL, approvesLogit, logit, scoreFromLogit } from "./model";
+import { MODEL, approvesLogit, logit, thresholdLogit } from "./model";
 import { agedLateCount, debtRatioAfter, type RecoursePlan } from "./recourse";
 import type { Applicant, CreditModel, FeatureKey } from "./types";
 
@@ -120,6 +120,9 @@ export function simulateUncertainty(
   const lines0 = applicant.openCreditLines;
   const [shockLo, shockHi] = u.shockMonths[0] <= u.shockMonths[1] ? u.shockMonths : [u.shockMonths[1], u.shockMonths[0]];
 
+  // scoreFromLogit() with its two constants worked out once instead of once per state.
+  const ptsPerLogit = model.pointsToDoubleOdds / Math.LN2;
+  const tLogit = thresholdLogit(model);
   const scores = new Float64Array(runs * months);
   const approvalMonths = new Float64Array(runs);
   /** expiring[m] = fresh late payments that drop out of the window at month m. */
@@ -173,7 +176,7 @@ export function simulateUncertainty(
 
       // Equivalent to isApproved(s, model), sharing one logit with the score.
       const z = logit(s, model);
-      scores[row + m] = scoreFromLogit(z, model);
+      scores[row + m] = Math.max(300, Math.min(900, model.thresholdScore + ptsPerLogit * (tLogit - z)));
       if (approvedAt === Number.POSITIVE_INFINITY && approvesLogit(z, model)) approvedAt = m;
     }
     approvalMonths[r] = approvedAt;

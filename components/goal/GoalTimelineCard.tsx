@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { CalendarCheck, CircleCheck, TriangleAlert } from "lucide-react";
 import { CountUp } from "@/components/motion/CountUp";
 import type { GoalPlan } from "@/lib/goal";
@@ -7,7 +8,12 @@ import { displayScore, tf, type Lang } from "@/lib/i18n";
 import { aprText, goalStrings } from "@/lib/strings/goal";
 import { cn } from "@/lib/utils";
 import { fillNode } from "./fillNode";
-import { GoalChart } from "./GoalChart";
+
+/** recharts loads after the page is interactive; the placeholder has the chart's height. */
+const GoalChart = dynamic(() => import("./GoalChart").then((m) => m.GoalChart), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full sm:h-72" />,
+});
 
 /** "Reach your goal in N months": the headline, the score-by-month chart and its legend. */
 export function GoalTimelineCard({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
