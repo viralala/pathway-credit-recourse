@@ -1,12 +1,11 @@
 "use client";
 
-import { ArrowUpRight, Cookie, GitBranch, Info } from "lucide-react";
+import { ArrowUpRight, GitBranch, Info } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/site/Logo";
 import { primaryNav, withLang } from "@/components/site/nav";
 import { useLang } from "@/components/site/use-lang";
-import { openConsentSettings } from "@/lib/consent";
 import type { Lang } from "@/lib/i18n";
 import { REPO_URL } from "@/lib/site";
 import { shell } from "@/lib/strings/shell";
@@ -51,7 +50,6 @@ export function FooterContent({ lang }: { lang: Lang }) {
   const f = s.footer;
   return (
     <footer lang={lang} className="border-t border-border bg-card/60">
-      {/* Bottom padding keeps the fixed money-cursor toggle (bottom-left) clear of footer text. */}
       <div className="page-container pt-12 pb-24 sm:pb-20 print:py-4">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
@@ -80,6 +78,11 @@ export function FooterContent({ lang }: { lang: Lang }) {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href={withLang("/partners", lang)} className={linkClass}>
+                  {s.nav.partners}
+                </Link>
+              </li>
             </Group>
 
             <Group id="footer-legal" title={f.legal} note={f.legalNote || undefined}>
@@ -97,16 +100,6 @@ export function FooterContent({ lang }: { lang: Lang }) {
                 <Link href={withLang("/licenses", lang)} className={linkClass} hrefLang="en">
                   {f.licenses}
                 </Link>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={openConsentSettings}
-                  className={`${linkClass} inline-flex items-center gap-1.5 text-left`}
-                >
-                  <Cookie aria-hidden="true" className="size-3.5" />
-                  {f.cookieSettings}
-                </button>
               </li>
             </Group>
 

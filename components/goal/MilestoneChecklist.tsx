@@ -13,7 +13,7 @@ const DOT: Record<Milestone["kind"], string> = {
   utilization: "bg-pastel-peach",
   debt: "bg-pastel-peach",
   lines: "bg-pastel-peach",
-  income: "bg-pastel-lavender",
+  income: "bg-pastel-stone",
   late: "bg-pastel-sky",
   approval: "bg-pastel-butter",
   tier: "bg-pastel-butter",

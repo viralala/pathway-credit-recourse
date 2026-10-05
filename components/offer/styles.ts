@@ -63,7 +63,7 @@ export const TILE_STYLES = [
   "bg-pastel-peach text-deep-peach",
   "bg-pastel-blush text-deep-blush",
   "bg-pastel-butter text-deep-butter",
-  "bg-pastel-lavender text-deep-lavender",
+  "bg-pastel-stone text-deep-stone",
   "bg-pastel-sky text-deep-sky",
 ] as const;
 

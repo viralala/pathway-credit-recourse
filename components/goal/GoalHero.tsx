@@ -9,7 +9,7 @@ export function GoalHero({ lang }: { lang: Lang }) {
   const steps = [
     { icon: Target, text: s.step1, chip: "bg-pastel-peach text-deep-peach" },
     { icon: Route, text: s.step2, chip: "bg-pastel-mint text-deep-mint" },
-    { icon: Wallet, text: s.step3, chip: "bg-pastel-lavender text-deep-lavender" },
+    { icon: Wallet, text: s.step3, chip: "bg-pastel-stone text-deep-stone" },
   ];
   return (
     <section className="relative overflow-hidden rounded-3xl bg-pastel-periwinkle/70 px-5 py-9 ring-1 ring-foreground/5 sm:px-10 sm:py-12">
@@ -17,7 +17,7 @@ export function GoalHero({ lang }: { lang: Lang }) {
       <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 size-48 rounded-full bg-pastel-peach/60 blur-2xl" />
       <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <Reveal>
-          <p className="inline-flex items-center gap-2 rounded-full bg-card/80 px-3 py-1 text-xs font-semibold tracking-wide text-deep-periwinkle ring-1 ring-foreground/5">
+          <p className="inline-flex items-center gap-2 rounded-md bg-card/80 px-3 py-1 text-xs font-semibold tracking-wide text-deep-periwinkle ring-1 ring-foreground/5">
             <CalendarCheck aria-hidden className="size-3.5" />
             {s.eyebrow}
           </p>

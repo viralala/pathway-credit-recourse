@@ -1,5 +1,6 @@
 import metaJson from "./model.meta.json";
 import modelJson from "./model.json";
+import { INR_PER_MODEL_UNIT } from "./money";
 import type { Applicant, CreditModel, DerivedFeatureKey, FeatureKey, ModelFeature, ModelFeatureKey, ModelInput } from "./types";
 
 export const MODEL = modelJson as CreditModel;
@@ -17,8 +18,8 @@ const notANumber = (v: unknown) => typeof v !== "number" || Number.isNaN(v);
 /** True when a late-payment count is a bureau special code (96/98), not a real count. */
 export const isLateSpecialCode = (count: number) => count >= PREPROCESSING.lateSpecialCodeMin;
 
-/** True when the income cannot be used as an income: not provided, or a 0/1 placeholder. */
-export const isIncomeUnusable = (income: number) => Number.isNaN(income) || income <= PREPROCESSING.incomePlaceholderMax;
+/** True when the income (in rupees) cannot be used as an income: not provided, or a 0/1 placeholder. */
+export const isIncomeUnusable = (income: number) => Number.isNaN(income) || income / INR_PER_MODEL_UNIT <= PREPROCESSING.incomePlaceholderMax;
 
 /** True when the utilization is a data error that the cleaning replaces with the training median. */
 export const isUtilizationInvalid = (utilization: number) => utilization > PREPROCESSING.utilizationInvalidAbove;
@@ -31,9 +32,9 @@ export const isUtilizationInvalid = (utilization: number) => utilization > PREPR
  * is an error and throws rather than being scored as if it were 0.
  */
 export function clean(a: Applicant): ModelInput {
-  const { utilization, late30, late60, late90, monthlyIncome, debtRatio, openCreditLines } = a;
+  const { utilization, late30, late60, late90, debtRatio, openCreditLines } = a;
   if (
-    typeof monthlyIncome !== "number" ||
+    typeof a.monthlyIncome !== "number" ||
     notANumber(utilization) ||
     notANumber(late30) ||
     notANumber(late60) ||
@@ -44,6 +45,8 @@ export function clean(a: Applicant): ModelInput {
     const key = INPUT_KEYS.find((k) => (k === "monthlyIncome" ? typeof a[k] !== "number" : notANumber(a[k])));
     throw new RangeError(`applicant.${key} must be a number, got ${String(a[key!])}`);
   }
+  // Applicant income is in rupees; the model's income feature is in its dataset's units (lib/money.ts).
+  const monthlyIncome = a.monthlyIncome / INR_PER_MODEL_UNIT;
   // Written out field by field (no loops or closures): this runs for every scored state.
   const p = PREPROCESSING;
   const special30 = late30 >= p.lateSpecialCodeMin;
@@ -163,7 +166,7 @@ export function reasons(a: Applicant, model: CreditModel = MODEL, limit = 4): Re
   const out: Reason[] = [];
   for (const f of model.features) {
     const key = f.key;
-    if (isDerived(key) ? x[key] !== 1 : x[key] !== a[key]) continue;
+    if (isDerived(key) ? x[key] !== 1 : x[key] !== (key === "monthlyIncome" ? a[key] / INR_PER_MODEL_UNIT : a[key])) continue;
     const impact = contribution(f, x[key]);
     if (impact > 0.01) out.push({ key, label: f.label, impact, points: impact * ptsPerLogit, value: isDerived(key) ? 1 : a[key] });
   }

@@ -157,7 +157,7 @@ describe("offer engine: behaviour", () => {
     expect(Number.isFinite(a.apr)).toBe(true);
     expect(a.dailyRate).toBeCloseTo(99999, 3);
     expect(a.verdict).toBe("predatory");
-    expect(formatRate(a.effectiveAnnualRate)).toBe("> 1,000,000%");
+    expect(formatRate(a.effectiveAnnualRate)).toBe("> 10,00,000%");
   });
 
   it("returns null when the flows have no sign change", () => {
@@ -297,18 +297,9 @@ describe("offer engine: comparison with Pathway tiers", () => {
 });
 
 describe("offer engine: examples, parsing and formatting", () => {
-  it("ships fictional examples with the intended verdicts in both currencies", () => {
-    const verdicts = Object.fromEntries(
-      OFFER_EXAMPLES.flatMap((e) => (["INR", "USD"] as const).map((c) => [`${e.id}-${c}`, ok(e.byCurrency[c]).verdict])),
-    );
-    expect(verdicts).toEqual({
-      "app7-INR": "predatory",
-      "app7-USD": "predatory",
-      "weekly-INR": "predatory",
-      "weekly-USD": "predatory",
-      "bank-INR": "fair",
-      "bank-USD": "fair",
-    });
+  it("ships fictional rupee examples with the intended verdicts", () => {
+    const verdicts = Object.fromEntries(OFFER_EXAMPLES.map((e) => [e.id, ok(e.byCurrency.INR).verdict]));
+    expect(verdicts).toEqual({ app7: "predatory", weekly: "predatory", bank: "fair" });
   });
 
   it("parses numbers the way people type them", () => {
@@ -328,15 +319,14 @@ describe("offer engine: examples, parsing and formatting", () => {
       const input = e.byCurrency.INR;
       expect(inputFromForm(formFromInput(input, "INR"))).toEqual(input);
     }
-    const blankFees = inputFromForm({ ...formFromInput(bullet(1000, 1100, 10), "USD"), processingFee: "", otherCharges: " ", gstPct: "" });
+    const blankFees = inputFromForm({ ...formFromInput(bullet(1000, 1100, 10), "INR"), processingFee: "", otherCharges: " ", gstPct: "" });
     expect(blankFees).toMatchObject({ processingFee: 0, otherCharges: 0, gstPct: 0 });
-    expect(inputFromForm({ ...formFromInput(bullet(1000, 1100, 10), "USD"), sanctioned: "" }).sanctioned).toBeNaN();
+    expect(inputFromForm({ ...formFromInput(bullet(1000, 1100, 10), "INR"), sanctioned: "" }).sanctioned).toBeNaN();
   });
 
-  it("formats money and rates for each currency", () => {
+  it("formats rupees with Indian grouping, and rates", () => {
     expect(formatMoney(100000, "INR")).toBe("₹1,00,000");
-    expect(formatMoney(100000, "USD")).toBe("$100,000");
-    expect(formatMoney(-1234.4, "USD")).toBe("−$1,234");
+    expect(formatMoney(-1234.4, "INR")).toBe("−₹1,234");
     expect(formatRate(0.123)).toBe("12.3%");
     expect(formatRate(0.18)).toBe("18%");
     expect(formatRate(12.93)).toBe("1,293%");

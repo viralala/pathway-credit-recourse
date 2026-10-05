@@ -18,7 +18,7 @@ const SAMPLE_TONE: Record<Sample["id"], Tone> = {
 export function HeroBackdrop() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-32 -left-24 size-80 rounded-full bg-pastel-lavender opacity-70 blur-3xl" />
+      <div className="absolute -top-32 -left-24 size-80 rounded-full bg-pastel-stone opacity-70 blur-3xl" />
       <div className="absolute top-10 right-[-6rem] size-96 rounded-full bg-pastel-peach opacity-60 blur-3xl" />
       <div className="absolute bottom-[-8rem] left-1/3 size-80 rounded-full bg-pastel-sky opacity-60 blur-3xl" />
       <div className="dot-grid absolute top-0 right-0 hidden h-40 w-72 opacity-60 lg:block" />
@@ -38,7 +38,7 @@ export function HeroIntro({
 }) {
   return (
     <div>
-      <Badge className="h-auto gap-1.5 rounded-full bg-pastel-lavender px-3 py-1 text-xs font-semibold whitespace-normal text-deep-lavender">
+      <Badge className="h-auto gap-1.5 rounded-md bg-pastel-stone px-3 py-1 text-xs font-semibold whitespace-normal text-deep-stone">
         <Sparkles aria-hidden />
         {ui.kicker}
       </Badge>

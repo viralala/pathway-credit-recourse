@@ -10,7 +10,7 @@ import { ISSUES_URL, REPO_URL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy policy",
   description:
-    "How Pathway handles what you enter: no accounts, no database, no tracking. Your numbers are kept in the page address, so share result links with care.",
+    "How Pathway handles your data: Google authentication, Supabase PostgreSQL storage with Row-Level Security, and one-click data deletion.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -18,13 +18,14 @@ const TOC: TocItem[] = [
   { id: "summary", label: "Summary" },
   { id: "who-we-are", label: "Who we are" },
   { id: "what-we-process", label: "What we process and why" },
+  { id: "accounts-and-auth", label: "Accounts and Google Authentication" },
+  { id: "database-storage", label: "Database storage and Row-Level Security" },
   { id: "legal-basis", label: "Legal basis and consent" },
   { id: "cookies", label: "Cookies and browser storage" },
   { id: "retention", label: "How long data is kept" },
   { id: "sharing", label: "Who data is shared with" },
-  { id: "international-transfers", label: "International transfers" },
   { id: "security", label: "Security" },
-  { id: "your-rights", label: "Your rights" },
+  { id: "your-rights", label: "Your rights & data deletion" },
   { id: "children", label: "Children" },
   { id: "changes", label: "Changes to this policy" },
   { id: "contact", label: "Contact and grievances" },
@@ -56,26 +57,24 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
     <LegalPage
       current="/privacy"
       title="Privacy policy"
-      summary="How Pathway handles what you enter. In short: no accounts, no database and no tracking. Your numbers live in the page address, so treat links to your results with care."
+      summary="How Pathway handles your credit assessment inputs and account. When logged in via Google OAuth, your assessments and recourse plans are securely persisted in Supabase PostgreSQL under strict Row-Level Security."
       toc={TOC}
       lang={lang}
     >
       <LegalSection id="summary" title="Summary">
         <Callout title="Key points" tone="calm">
           <List>
-            <Item>No accounts, no database, no analytics, no advertising and no tracking cookies.</Item>
             <Item>
-              The numbers you enter, and an optional display name, are processed in your browser and by our server only to show
-              you the page. We do not store them.
+              You can explore Pathway anonymously without an account, or sign in with Google to save assessments and monitor recourse plans.
             </Item>
             <Item>
-              They are written into the page address (URL) so results can be shared and bookmarked. That means they can appear in
-              your browser history, in links you share and in our host&rsquo;s request logs.
+              When signed in, your assessment data and recourse plans are stored in Supabase PostgreSQL protected by Row-Level Security (RLS) so only you can access your data.
             </Item>
-            <Item>The optional AI rewrite sends a generated summary to Anthropic, and only when you press its button.</Item>
             <Item>
-              One strictly necessary cookie remembers your cookie choice, and one optional setting remembers the money-cursor
-              animation. See <InternalLink href="#cookies">cookies and browser storage, and how to change your choice</InternalLink>.
+              We request only basic Google profile information (name, email, avatar). We never request access to Google Drive, contacts, or external accounts.
+            </Item>
+            <Item>
+              You have complete control: you can delete individual assessments or permanently purge all account data at any time from the Dashboard.
             </Item>
           </List>
         </Callout>
@@ -83,8 +82,8 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
 
       <LegalSection id="who-we-are" title="Who we are">
         <P>
-          Pathway is an open-source hackathon prototype and educational simulation built by the Pathway contributors
-          (&ldquo;we&rdquo;, &ldquo;us&rdquo;). For the limited processing described here, the Pathway contributors are the data
+          Pathway is an open-source hackathon prototype and educational credit recourse simulation built by the Pathway contributors
+          (&ldquo;we&rdquo;, &ldquo;us&rdquo;). For the processing described here, the Pathway contributors are the data
           fiduciary under India&rsquo;s Digital Personal Data Protection Act, 2023, and the controller under GDPR-style laws. You
           can reach us through the channel in <InternalLink href="#contact">Contact and grievances</InternalLink>.
         </P>
@@ -96,12 +95,10 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
           The applicant tool asks for monthly income, credit card utilisation, debt-to-income ratio, number of open credit
           lines and counts of late payments, plus an optional display name. It does not ask for age, dependents or real-estate
           loans: the model does not use them.
-          The offer check and the goal planner ask for similar figures and compute everything in your browser.
         </P>
         <P>
-          We use these figures only to calculate and show your results: the score, reasons, plan, timeline, savings estimates and
-          report. They are processed in your browser and by our server only to render the page you asked for. There are no
-          accounts and no database, and we do not store them on our servers.
+          We use these figures to calculate your simulated Pathway credit score, reason codes, recourse action plans, Monte Carlo
+          uncertainty bands, and interest savings estimates.
         </P>
 
         <Callout title="Your numbers are in the page address" tone="important">
@@ -151,6 +148,27 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
             page.
           </Item>
         </List>
+      </LegalSection>
+
+      <LegalSection id="accounts-and-auth" title="Accounts and Google Authentication">
+        <P>
+          Authentication is powered by Supabase Auth using Google OAuth. When you click &ldquo;Continue with Google&rdquo;,
+          we receive your verified Google identifier, name, email address, and profile picture.
+        </P>
+        <P>
+          We do not receive or store your Google password, nor do we request permissions beyond standard OpenID Connect profile info.
+        </P>
+      </LegalSection>
+
+      <LegalSection id="database-storage" title="Database storage and Row-Level Security">
+        <P>
+          When signed in, assessments, recourse plans, simulations, pricing results, and recorded outcomes are persisted in Supabase
+          PostgreSQL.
+        </P>
+        <P>
+          Every table enforces database-level Row-Level Security (RLS). Database policies verify that <Code>auth.uid() = user_id</Code>,
+          preventing any user from reading or modifying another applicant&rsquo;s assessments or simulations.
+        </P>
       </LegalSection>
 
       <LegalSection id="legal-basis" title="Legal basis and consent">
@@ -254,16 +272,16 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
         <List>
           <Item>HTTPS everywhere, with HTTP Strict Transport Security.</Item>
           <Item>
-            Security headers, including a Content Security Policy that allows only our own scripts, protection against being
-            framed by other sites, MIME-sniffing protection, a strict referrer policy, and a permissions policy that switches off
-            camera, microphone, location and payment features.
+            Security headers, including a Content Security Policy that allows only verified assets, protection against clickjacking,
+            strict referrer policies, and disabled dangerous permissions.
           </Item>
           <Item>
-            Server-side validation of every value sent to the AI rewrite. The server rebuilds the summary itself rather than
-            trusting text from the browser.
+            Row-Level Security (RLS) on PostgreSQL tables to ensure user data isolation.
           </Item>
-          <Item>Same-origin checks, a 4 KB request size limit and per-IP rate limiting on the AI rewrite.</Item>
-          <Item>No database, so there is no store of your entries to breach.</Item>
+          <Item>
+            Server-side Zod validation of all numbers and UUID parameters.
+          </Item>
+          <Item>Same-origin checks, request size limits, and rate limiting on API endpoints.</Item>
         </List>
         <P>
           No system is perfectly secure. If you find a problem, please report it through the{" "}
@@ -271,36 +289,23 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Prom
         </P>
       </LegalSection>
 
-      <LegalSection id="your-rights" title="Your rights">
-        <P>Under India&rsquo;s Digital Personal Data Protection Act, 2023 you have the right to:</P>
+      <LegalSection id="your-rights" title="Your rights & data deletion">
+        <P>Under India&rsquo;s Digital Personal Data Protection Act, 2023, the GDPR, and similar international laws, you have the right to:</P>
         <List>
-          <Item>get information about the personal data being processed and how it is processed;</Item>
-          <Item>have personal data corrected, completed, updated or erased;</Item>
-          <Item>have your grievances redressed;</Item>
-          <Item>nominate another person to exercise your rights if you die or become unable to;</Item>
-          <Item>withdraw your consent at any time.</Item>
+          <Item>Access all personal assessments, recourse plans, and simulations stored in your account.</Item>
+          <Item>Have your data erased completely (&ldquo;Right to be Forgotten&rdquo;).</Item>
+          <Item>Withdraw your consent and sign out at any time.</Item>
         </List>
-        <P>
-          If you are in the EU, the UK or another place with similar laws, you have comparable rights: access, rectification,
-          erasure, restriction, objection, portability and withdrawal of consent, and the right to complain to your data
-          protection authority.
-        </P>
         <SubHeading>How to exercise them</SubHeading>
-        <P>Because we hold no account data and store none of your entries, you can satisfy most requests yourself:</P>
         <List>
           <Item>
-            <strong className={strong}>Erase:</strong> clear this site from your browser history, delete bookmarks and shared links
-            that contain your figures, and delete this site&rsquo;s cookies and site data.
+            <strong className={strong}>Erase account data:</strong> Use the &ldquo;Permanently Delete My Data&rdquo; button inside your <InternalLink href="/dashboard">Dashboard</InternalLink> to immediately purge your profile, assessments, recourse plans, simulations, and outcomes from Supabase.
           </Item>
           <Item>
-            <strong className={strong}>Correct:</strong> change the numbers on the page; the address updates with them.
+            <strong className={strong}>Delete individual assessments:</strong> Click the trash icon next to any assessment in your Dashboard history.
           </Item>
           <Item>
-            <strong className={strong}>Withdraw consent:</strong> use Cookie settings in the footer.
-          </Item>
-          <Item>
-            <strong className={strong}>Access:</strong> everything Pathway uses about your entries is on the page and in its
-            address.
+            <strong className={strong}>Withdraw cookie consent:</strong> Use Cookie settings in the footer.
           </Item>
         </List>
         <P>

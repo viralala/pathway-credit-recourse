@@ -1,20 +1,21 @@
 import type { Lang } from "@/lib/i18n";
 import { PREPROCESSING } from "@/lib/model";
+import { INR_PER_MODEL_UNIT } from "@/lib/money";
 import type { Applicant, FeatureKey } from "@/lib/types";
 
 /**
- * Smallest monthly income a person may enter: the first whole dollar above the model's placeholder
- * limit. The model reads an income of 0 or 1 as "not provided" (ml/preprocess.py), which is how the
+ * Smallest monthly income a person may enter: the first whole model unit above the model's placeholder
+ * limit, in rupees. The model reads an income of 0 or 1 as "not provided" (ml/preprocess.py), which is how the
  * training data used those values, not something an applicant should be able to type in as an income.
  */
-export const MIN_MONTHLY_INCOME = PREPROCESSING.incomePlaceholderMax + 1;
+export const MIN_MONTHLY_INCOME = (PREPROCESSING.incomePlaceholderMax + 1) * INR_PER_MODEL_UNIT;
 
 /**
  * Server-side input validation. Every limit mirrors the applicant form, so anything the UI can
  * produce is accepted and anything else is rejected before it reaches the model.
  */
 export const APPLICANT_LIMITS: Record<FeatureKey, { min: number; max: number }> = {
-  monthlyIncome: { min: MIN_MONTHLY_INCOME, max: 100_000 },
+  monthlyIncome: { min: MIN_MONTHLY_INCOME, max: 20_00_000 },
   utilization: { min: 0, max: 1.5 },
   debtRatio: { min: 0, max: 3 },
   openCreditLines: { min: 0, max: 30 },

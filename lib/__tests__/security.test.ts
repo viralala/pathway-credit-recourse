@@ -8,7 +8,6 @@ import {
   BUILD_SOFTWARE,
   BUNDLED_SOFTWARE,
   CONSENT_COOKIE,
-  CURSOR_STORAGE_KEY,
   MIT_LICENSE_TEXT,
   RUNTIME_SOFTWARE,
   STORAGE_ITEMS,
@@ -17,6 +16,7 @@ import { hrefWithLang } from "@/components/legal/links";
 import { analyze } from "@/lib/analyze";
 import { summaryText } from "@/lib/i18n";
 import { PREPROCESSING, clean } from "@/lib/model";
+import { INR_PER_MODEL_UNIT } from "@/lib/money";
 import { SAMPLES } from "@/lib/samples";
 import { MAX_BODY_BYTES, readBodyWithLimit } from "@/lib/security/body";
 import { acceptRewrite, numbersIn, rewritePrompt, serverSummary } from "@/lib/security/explain";
@@ -125,7 +125,7 @@ describe("input validation", () => {
 
   it("refuses an income of 0 or 1, which the model reads as 'not provided', on every input path", () => {
     const base = sample("borderline");
-    expect(MIN_MONTHLY_INCOME).toBe(PREPROCESSING.incomePlaceholderMax + 1);
+    expect(MIN_MONTHLY_INCOME).toBe((PREPROCESSING.incomePlaceholderMax + 1) * INR_PER_MODEL_UNIT);
     for (const income of [0, 1, 1.5]) {
       expect(validateApplicant({ ...base, monthlyIncome: income })).toEqual({ ok: false, error: "applicant.monthlyIncome" });
       expect(parseExplainRequest({ applicant: { ...base, monthlyIncome: income } }).ok).toBe(false);
@@ -136,7 +136,7 @@ describe("input validation", () => {
     const lowest = validateApplicant({ ...base, monthlyIncome: MIN_MONTHLY_INCOME });
     expect(lowest.ok).toBe(true);
     expect(clean({ ...base, monthlyIncome: MIN_MONTHLY_INCOME }).incomePlaceholder).toBe(0);
-    expect(applicantFromParams({ sample: "borderline", income: "2" }).applicant.monthlyIncome).toBe(2);
+    expect(applicantFromParams({ sample: "borderline", income: String(MIN_MONTHLY_INCOME) }).applicant.monthlyIncome).toBe(MIN_MONTHLY_INCOME);
     // The model's own handling of missing and placeholder incomes is untouched.
     expect(clean({ ...base, monthlyIncome: 0 }).incomePlaceholder).toBe(1);
     expect(clean({ ...base, monthlyIncome: Number.NaN }).incomeMissing).toBe(1);
@@ -435,9 +435,9 @@ describe("legal facts stay true", () => {
     expect(MIT_LICENSE_TEXT.trim()).toBe(license);
   });
 
-  it("documents exactly the cookie and storage keys the app uses", () => {
-    expect(STORAGE_ITEMS.map((s) => s.name)).toEqual([CONSENT_COOKIE, CURSOR_STORAGE_KEY]);
-    expect([CONSENT_COOKIE, CURSOR_STORAGE_KEY]).toEqual(["pathway_consent", "pathway_cursor"]);
+  it("documents exactly the cookies the app and Supabase Auth use", () => {
+    expect(STORAGE_ITEMS.map((s) => s.name)).toEqual([CONSENT_COOKIE, "sb-<project>-auth-token", "sb-<project>-auth-token-code-verifier"]);
+    expect(CONSENT_COOKIE).toBe("pathway_consent");
   });
 
   it("keeps ?lang= on internal links, before any #fragment", () => {
@@ -458,7 +458,7 @@ describe("SEO files", () => {
 
   it("keeps crawlers out of the API and points them at the sitemap", () => {
     const r = robots();
-    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/", disallow: "/api/" });
+    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/", disallow: ["/api/", "/account", "/auth/"] });
     expect(r.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
   });
 

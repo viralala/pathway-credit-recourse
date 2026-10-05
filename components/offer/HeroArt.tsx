@@ -14,7 +14,7 @@ export function HeroArt({ className }: { className?: string }) {
 
   return (
     <svg viewBox="0 0 320 260" className={className} aria-hidden focusable="false">
-      <rect x="8" y="18" width="304" height="226" rx="36" fill="var(--pastel-lavender)" />
+      <rect x="8" y="18" width="304" height="226" rx="36" fill="var(--pastel-stone)" />
       <circle cx="268" cy="58" r="22" fill="var(--pastel-peach)" />
       <circle cx="42" cy="70" r="12" fill="var(--pastel-sky)" />
 

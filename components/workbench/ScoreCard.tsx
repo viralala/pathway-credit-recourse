@@ -39,7 +39,7 @@ export function ScorePanel({
             <span
               data-decision={a.approved ? "approved" : "declined"}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
+                "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold",
                 a.approved ? "bg-success-soft text-success-foreground" : "bg-danger-soft text-danger-foreground",
               )}
             >

@@ -38,7 +38,7 @@ export function Summary({
                 {ui.explanation}
               </h2>
               {source === "ai" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-pastel-lavender px-2 py-0.5 text-[11px] font-semibold text-deep-lavender">
+                <span className="inline-flex items-center gap-1 rounded-md bg-pastel-stone px-2 py-0.5 text-[11px] font-semibold text-deep-stone">
                   <Sparkles aria-hidden className="size-3" />
                   {ui.aiBadge}
                 </span>

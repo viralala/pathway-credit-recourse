@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const KIND_STYLE: Record<PlanAction["kind"], string> = {
   actionable: "bg-pastel-peach text-deep-peach",
-  "slow-moving": "bg-pastel-lavender text-deep-lavender",
+  "slow-moving": "bg-pastel-stone text-deep-stone",
   time: "bg-pastel-sky text-deep-sky",
 };
 
@@ -27,7 +27,7 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
           {s.plan.heading}
         </h2>
         {gp.status === "infeasible" && (
-          <span className="rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-warning-foreground">{s.plan.closest}</span>
+          <span className="rounded-md bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-warning-foreground">{s.plan.closest}</span>
         )}
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{tf(s.plan.sub, { score: gp.targetScore })}</p>
@@ -51,7 +51,7 @@ export function PlanSteps({ gp, lang }: { gp: GoalPlan; lang: Lang }) {
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="sr-only">{tf(s.plan.step, { n: i + 1 })}: </span>
-                    <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", KIND_STYLE[act.kind])}>{ui.kinds[act.kind]}</span>
+                    <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-semibold", KIND_STYLE[act.kind])}>{ui.kinds[act.kind]}</span>
                     <span className="text-xs text-muted-foreground tabular-nums">
                       {tf(s.plan.doneBy, { n: act.months })} · {tf(s.plan.effort, { n: act.effort.toFixed(1) })}
                     </span>

@@ -1,4 +1,5 @@
 import { MODEL, approvesProbability, isApproved, logit, probabilityOfDefault } from "./model";
+import { INR_PER_MODEL_UNIT } from "./money";
 import { findRecourse, type RecoursePlan } from "./recourse";
 import { simulate } from "./timeline";
 import type { Applicant, CreditModel } from "./types";
@@ -44,7 +45,8 @@ export function applicantOf(row: ParityRow): Applicant {
     late30: row.late30,
     late60: row.late60,
     late90: row.late90,
-    monthlyIncome: row.monthlyIncome === null ? Number.NaN : row.monthlyIncome,
+    // The parity rows are in the model's dataset units; the engine takes rupees (lib/money.ts).
+    monthlyIncome: row.monthlyIncome === null ? Number.NaN : row.monthlyIncome * INR_PER_MODEL_UNIT,
     debtRatio: row.debtRatio,
     openCreditLines: row.openCreditLines,
   };

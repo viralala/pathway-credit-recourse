@@ -102,7 +102,7 @@ export function MoneySaved({
                 </div>
               </div>
               <div className="grid gap-8 p-6 sm:grid-cols-2 sm:p-8">
-                <LoanControls ui={ui} amount={amount} term={term} onAmount={setAmount} onTerm={setTerm} />
+                <LoanControls ui={ui} lang={lang} amount={amount} term={term} onAmount={setAmount} onTerm={setTerm} />
               </div>
             </div>
           </Reveal>

@@ -14,7 +14,7 @@ import { RangeField } from "./RangeField";
 
 type Unit = "money" | "pct" | "count";
 const PROFILE: { key: FeatureKey; unit: Unit; min?: number; max: number }[] = [
-  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 100000 },
+  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 20_00_000 },
   { key: "utilization", unit: "pct", max: 150 },
   { key: "debtRatio", unit: "pct", max: 300 },
   { key: "openCreditLines", unit: "count", max: 30 },
@@ -71,7 +71,7 @@ export function GoalInputs({
           min={L.amount.min}
           max={L.amount.max}
           step={L.amount.step}
-          prefix="$"
+          prefix="₹"
           hint={s.inputs.amountHint}
           onChange={(v) => onGoal({ amount: v })}
         />
@@ -112,9 +112,9 @@ export function GoalInputs({
               value={applicant[f.key]}
               min={f.min}
               max={f.max}
-              step={f.unit === "money" ? 100 : 1}
+              step={f.unit === "money" ? 1000 : 1}
               scale={f.unit === "pct" ? 100 : 1}
-              prefix={f.unit === "money" ? "$" : undefined}
+              prefix={f.unit === "money" ? "₹" : undefined}
               suffix={f.unit === "pct" ? "%" : undefined}
               belowMinMessage={f.key === "monthlyIncome" ? tf(ui.incomeMin, { min: money(f.min ?? 0) }) : undefined}
               onChange={(v) => onField(f.key, v)}
@@ -143,7 +143,7 @@ export function GoalInputs({
                   aria-hidden
                   className={cn(
                     "grid size-8 shrink-0 place-items-center rounded-full",
-                    active ? "bg-primary text-primary-foreground" : "bg-pastel-lavender text-deep-lavender",
+                    active ? "bg-primary text-primary-foreground" : "bg-pastel-stone text-deep-stone",
                   )}
                 >
                   <UserRound className="size-4" />

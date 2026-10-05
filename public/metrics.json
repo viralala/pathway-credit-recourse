@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-05T07:18:45Z",
+  "generatedAt": "2026-10-05T10:11:10Z",
   "dataSource": "kaggle",
   "modelVersion": 2,
   "dataNote": "Kaggle 'Give Me Some Credit' (cs-training.csv, 150,000 rows): 60% training, 20% validation, 20% test, stratified",
@@ -101,21 +101,21 @@
     ],
     "income": [
       {
-        "group": "Under $3,000/mo",
+        "group": "Under ₹60,000/mo",
         "n": 1042,
         "adjustedEffort": 2.614889749120838,
         "noPlanRate": 0.023032629558541268,
         "medianMonths": 12
       },
       {
-        "group": "$3,000–6,000/mo",
+        "group": "₹60,000 to ₹1.2 lakh/mo",
         "n": 1356,
         "adjustedEffort": 2.3919329390527704,
         "noPlanRate": 0.007374631268436578,
         "medianMonths": 12
       },
       {
-        "group": "$6,000+/mo",
+        "group": "₹1.2 lakh+/mo",
         "n": 1020,
         "adjustedEffort": 2.370898950485193,
         "noPlanRate": 0.00392156862745098,
@@ -126,7 +126,7 @@
     "incomeGapRatio": 1.1029106696368116,
     "fairnessGap": 0.10291066963681161,
     "fairnessGapDimension": "income",
-    "fairnessGapHighest": "Under $3,000/mo",
-    "fairnessGapLowest": "$6,000+/mo"
+    "fairnessGapHighest": "Under ₹60,000/mo",
+    "fairnessGapLowest": "₹1.2 lakh+/mo"
   }
 }

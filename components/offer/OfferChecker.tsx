@@ -71,11 +71,6 @@ export function OfferChecker({ lang, homeHref }: { lang: Lang; homeHref: string 
     setExample(id);
     setTouched({});
   };
-  const changeCurrency = (c: Currency) => {
-    // An untouched example switches to its version in the other currency; typed numbers are kept.
-    if (example) setForm(formFromInput(exampleById(example).byCurrency[c], c));
-    else setForm((f) => ({ ...f, currency: c }));
-  };
   const clear = () => {
     setForm((f) => emptyOfferForm(f));
     setExample(null);
@@ -103,7 +98,6 @@ export function OfferChecker({ lang, homeHref }: { lang: Lang; homeHref: string 
             errors={visibleErrors}
             example={example}
             onChange={change}
-            onCurrency={changeCurrency}
             onBlur={blur}
             onClear={clear}
           />

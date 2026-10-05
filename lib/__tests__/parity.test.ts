@@ -21,6 +21,7 @@ import {
   score,
   sigmoid,
 } from "../model";
+import { INR_PER_MODEL_UNIT } from "../money";
 import { PARITY_TOLERANCE, auditRecourse, compareParity, planProblem, type ParityFile } from "../parity";
 import { RECOURSE_GROUPS, findRecourse, reachesGoal, targetLogit } from "../recourse";
 import { SAMPLES } from "../samples";
@@ -40,8 +41,11 @@ const cutoff = readJson("ml/artifacts/phase8_cutoff.json");
 const PARITY_PATH = path.join(ROOT, "data/parity_test.json");
 const parity: ParityFile | null = fs.existsSync(PARITY_PATH) ? JSON.parse(fs.readFileSync(PARITY_PATH, "utf8")) : null;
 
+/** Applicant incomes are rupees; the dataset-unit figures in these tests are scaled into them. */
+const rupees = (modelUnits: number) => modelUnits * INR_PER_MODEL_UNIT;
+
 /** A normal applicant: real income, real counts, nothing out of range. */
-const normal: Applicant = { utilization: 0.82, late30: 2, late60: 1, late90: 0, monthlyIncome: 4200, debtRatio: 0.45, openCreditLines: 7 };
+const normal: Applicant = { utilization: 0.82, late30: 2, late60: 1, late90: 0, monthlyIncome: rupees(4200), debtRatio: 0.45, openCreditLines: 7 };
 const med = PREPROCESSING.medians;
 
 describe("shipped model is the Phase 6 Kaggle model", () => {
@@ -119,7 +123,7 @@ describe("cut-off convention: probability < 0.10 approves, >= 0.10 rejects", () 
     expect(displayScore(T, false)).toBe(T - 1);
     expect(displayScore(T - 1e-9, true)).toBe(T);
     // A real declined profile within half a point of the line (Rohan with 63% utilization).
-    const near: Applicant = { monthlyIncome: 4600, utilization: 0.63, debtRatio: 0.42, openCreditLines: 6, late30: 1, late60: 0, late90: 0 };
+    const near: Applicant = { monthlyIncome: rupees(4600), utilization: 0.63, debtRatio: 0.42, openCreditLines: 6, late30: 1, late60: 0, late90: 0 };
     const a = assess(near);
     expect(a.approved).toBe(false);
     expect(Math.round(a.score)).toBe(T);
@@ -146,7 +150,7 @@ describe("cut-off convention: probability < 0.10 approves, >= 0.10 rejects", () 
 
 describe("cleaning matches ml/preprocess.py", () => {
   it("leaves a normal applicant unchanged with all three flags at 0", () => {
-    expect(clean(normal)).toEqual({ ...normal, lateSpecialCode: 0, incomeMissing: 0, incomePlaceholder: 0 });
+    expect(clean(normal)).toEqual({ ...normal, monthlyIncome: 4200, lateSpecialCode: 0, incomeMissing: 0, incomePlaceholder: 0 });
   });
 
   it("missing income: training medians for income and debt ratio, incomeMissing = 1", () => {
@@ -156,13 +160,13 @@ describe("cleaning matches ml/preprocess.py", () => {
 
   it("income of 0 or 1 is a placeholder: medians, incomePlaceholder = 1; an income of 2 is real", () => {
     for (const income of [0, 1]) {
-      const x = clean({ ...normal, monthlyIncome: income });
+      const x = clean({ ...normal, monthlyIncome: rupees(income) });
       expect([x.monthlyIncome, x.debtRatio, x.incomeMissing, x.incomePlaceholder]).toEqual([med.monthlyIncome, med.debtRatio, 0, 1]);
     }
-    const real = clean({ ...normal, monthlyIncome: 2 });
+    const real = clean({ ...normal, monthlyIncome: rupees(2) });
     expect([real.monthlyIncome, real.debtRatio, real.incomePlaceholder]).toEqual([2, normal.debtRatio, 0]);
     // The income floor: 2 to 999 all score like 1,000, and only the income feature is affected.
-    expect(logit({ ...normal, monthlyIncome: 2 })).toBe(logit({ ...normal, monthlyIncome: 1000 }));
+    expect(logit({ ...normal, monthlyIncome: rupees(2) })).toBe(logit({ ...normal, monthlyIncome: rupees(1000) }));
   });
 
   it("late counts of 96/98 are special codes: the count becomes 0 and lateSpecialCode = 1", () => {
@@ -211,7 +215,7 @@ describe("reasons are true of the applicant", () => {
     expect(coded[0].key).toBe("lateSpecialCode");
     // The coded counts themselves are not reasons: the model did not use them.
     expect(coded.map((r) => r.key)).not.toContain("late30");
-    for (const income of [Number.NaN, 0, 1]) {
+    for (const income of [Number.NaN, 0, rupees(1)]) {
       const keys = reasons({ ...normal, monthlyIncome: income }, MODEL, 10).map((r) => r.key);
       // An unusable income is replaced by the median, so the applicant's own figure is never quoted.
       expect(keys).not.toContain("monthlyIncome");
@@ -241,7 +245,7 @@ describe("the form asks only for model inputs", () => {
   });
 
   it("every input changes the model's output", () => {
-    const bumped: Applicant = { utilization: 0.2, late30: 0, late60: 0, late90: 1, monthlyIncome: 9000, debtRatio: 0.9, openCreditLines: 2 };
+    const bumped: Applicant = { utilization: 0.2, late30: 0, late60: 0, late90: 1, monthlyIncome: rupees(9000), debtRatio: 0.9, openCreditLines: 2 };
     for (const key of INPUT_KEYS) expect(logit({ ...normal, [key]: bumped[key] })).not.toBe(logit(normal));
   });
 });
@@ -263,7 +267,7 @@ describe("recourse never claims what the model does not confirm", () => {
   });
 
   it("without a usable income, no plan pretends a raise or a payment cut helps", () => {
-    for (const income of [Number.NaN, 0, 1]) {
+    for (const income of [Number.NaN, 0, rupees(1)]) {
       const a = { ...SAMPLES[0].applicant, monthlyIncome: income };
       const r = findRecourse(a);
       expect(r.status).not.toBe("approved");

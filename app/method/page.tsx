@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 /** "derived" marks the three 0/1 flags the cleaning works out; nobody enters them and no plan changes them. */
 const CLASS_STYLE: Record<FeatureClass | "derived", string> = {
-  derived: "bg-pastel-lavender text-deep-lavender",
+  derived: "bg-pastel-stone text-deep-stone",
   actionable: "bg-pastel-mint text-deep-mint",
   "slow-moving": "bg-pastel-butter text-deep-butter",
 };
@@ -71,7 +71,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
     },
     {
       t: "Export",
-      d: "Coefficients, scaler, intercept, cut-off and cleaning rules go to lib/model.json and lib/model.meta.json. No Python runs in production.",
+      d: "Coefficients, scaler, intercept, cut-off and cleaning rules go to lib/model.json and lib/model.meta.json. No Python runs in production. Rupee incomes are divided by 20, close to India's purchasing-power parity, on the way into the model.",
     },
     {
       t: "Recourse engine",
@@ -105,12 +105,12 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
       <div lang={lang} className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Breadcrumbs items={[{ label: s.crumbs.method }]} homeHref={L("/")} homeLabel={s.crumbs.home} />
         {lang !== "en" ? (
-          <p className="no-print rounded-full bg-pastel-sky px-3 py-1 text-xs font-semibold text-deep-sky">{s.method.englishOnly}</p>
+          <p className="no-print rounded-md bg-pastel-sky px-3 py-1 text-xs font-semibold text-deep-sky">{s.method.englishOnly}</p>
         ) : null}
       </div>
 
       <div lang="en" className="mt-5">
-        <PageHero eyebrow="How it works" title="An interpretable model, so every reason and every plan is exact." tone="lavender">
+        <PageHero eyebrow="How it works" title="An interpretable model, so every reason and every plan is exact." tone="stone">
           <p>
             Pathway pairs a logistic regression credit model with a search over realistic changes, a month-by-month simulator,
             illustrative risk-based pricing and a Monte Carlo certainty band. Everything below is read from the same code and
@@ -125,7 +125,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <li key={x.id}>
                   <a
                     href={`#${x.id}`}
-                    className="inline-flex rounded-full bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground ring-1 ring-foreground/10 transition-colors hover:bg-secondary"
+                    className="inline-flex rounded-md bg-card px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground ring-1 ring-foreground/10 transition-colors hover:bg-secondary"
                   >
                     {x.label}
                   </a>
@@ -212,7 +212,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                       <TableRow key={f.key}>
                         <TableCell className="whitespace-normal font-semibold">{f.label}</TableCell>
                         <TableCell>
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[classOf(f.key)]}`}>
+                          <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${CLASS_STYLE[classOf(f.key)]}`}>
                             {classOf(f.key)}
                           </span>
                         </TableCell>
@@ -233,7 +233,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
               </div>
             </Reveal>
             <Reveal className="h-full" delay={0.08}>
-              <div className="h-full rounded-2xl bg-pastel-lavender p-5 text-deep-lavender sm:p-6">
+              <div className="h-full rounded-2xl bg-pastel-stone p-5 text-deep-stone sm:p-6">
                 <h3 className="text-lg font-bold">Assumptions (lib/config.ts)</h3>
                 <ConfigList items={describeAssumptions()} className="mt-4 space-y-3 text-sm" />
                 <p className="mt-6 text-sm text-foreground/80">
@@ -316,7 +316,7 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                     </span>
                   </p>
                   <p className="mt-3 text-sm text-foreground/80">
-                    P is the amount borrowed, r the monthly rate (APR ÷ 12) and n the number of monthly payments. Interest saved is
+                    P is the amount borrowed, r the monthly rate (yearly rate ÷ 12) and n the number of monthly payments. Interest saved is
                     total interest at today&apos;s rate minus total interest at the after-plan rate, on the same loan.
                   </p>
                 </div>
@@ -325,8 +325,8 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
                 <div className="rounded-2xl bg-money-soft p-5 text-money-foreground ring-1 ring-money/25 sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.18em]">Worked example</p>
                   <p className="mt-2 text-sm">
-                    Crossing the approval line, from declined ({aprText(crossing.todayApr)} APR from a high-cost alternative) to the{" "}
-                    {entryTier ? en.tiers[entryTier.id] : "entry"} tier ({aprText(crossing.planApr)} APR), cuts projected interest on
+                    Crossing the approval line, from declined ({aprText(crossing.todayApr)} a year from a high-cost lender) to the{" "}
+                    {entryTier ? en.tiers[entryTier.id] : "entry"} tier ({aprText(crossing.planApr)} a year), cuts projected interest on
                     the default loan from {money(crossing.todayInterest)} to {money(crossing.planInterest)}:
                   </p>
                   <p className="mt-2 text-3xl font-extrabold tracking-tight tabular-nums">{money(crossing.saved)} saved</p>
@@ -395,16 +395,16 @@ export default async function MethodPage({ searchParams }: { searchParams: Promi
               <div className="mt-3 space-y-3 leading-relaxed text-muted-foreground">
                 <p>
                   Instead of asking “what gets me approved?”, the goal planner starts from the rate you would like. It works backwards
-                  from a target APR to the lowest Pathway score whose tier is priced at or below it, then runs the same lowest-effort
+                  from a target yearly interest rate to the lowest Pathway score whose tier is priced at or below it, then runs the same lowest-effort
                   search the approval plan uses, aimed at that score instead of the cut-off.
                 </p>
                 <p>
-                  For example, a target of {aprText(goalTier.apr)} APR needs a score of at least {goalScore ?? goalTier.minScore}, the{" "}
+                  For example, a target of {aprText(goalTier.apr)} a year needs a score of at least {goalScore ?? goalTier.minScore}, the{" "}
                   {en.tiers[goalTier.id]} tier in the illustrative pricing above.
                 </p>
                 <p>
                   It also applies an affordability rule: all monthly instalments together, including the new loan, should stay within{" "}
-                  {aprText(PRICING.maxEmiToIncome)} of monthly income (PRICING.maxEmiToIncome), a common lender rule of thumb. When the
+                  {aprText(PRICING.maxEmiToIncome)} of monthly income (PRICING.maxEmiToIncome). Indian lenders call this the FOIR limit. When the
                   payment does not fit, the planner also works out the largest amount, or the shortest longer term, that would.
                 </p>
               </div>

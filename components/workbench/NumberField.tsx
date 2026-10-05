@@ -27,7 +27,7 @@ export function NumberField({
   min: number;
   max: number;
   step?: number;
-  /** Visual unit before the number (e.g. "$"); hidden from screen readers, so put the unit in the label too. */
+  /** Visual unit before the number (e.g. "₹"); hidden from screen readers, so put the unit in the label too. */
   prefix?: string;
   suffix?: string;
   onValue: (v: number) => void;

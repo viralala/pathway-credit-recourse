@@ -6,7 +6,7 @@
 export function LegalArt({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 200 200" className={className} aria-hidden="true" focusable="false">
-      <circle cx="150" cy="150" r="70" fill="var(--pastel-lavender)" />
+      <circle cx="150" cy="150" r="70" fill="var(--pastel-stone)" />
       <circle cx="58" cy="160" r="22" fill="var(--pastel-peach)" />
       <circle cx="104" cy="118" r="18" fill="var(--pastel-mint)" />
       <circle cx="142" cy="78" r="15" fill="var(--pastel-butter)" />

@@ -15,7 +15,7 @@
  *   1. shadcn semantic tokens: background, foreground, card, primary, secondary, muted, accent,
  *      destructive, border, input, ring  (e.g. bg-card, text-muted-foreground)
  *   2. status tokens: success, warning, danger, money (+ -soft fill and -foreground text)
- *   3. pastel families for decoration: pastel-{periwinkle,mint,peach,blush,butter,lavender,sky}
+ *   3. pastel families for decoration: pastel-{periwinkle,mint,peach,blush,butter,stone,sky}
  *      with matching deep-{…} text shades
  *   4. chart-1 … chart-5 for data series
  * The pre-pastel Bauhaus colour names (cream, indigo, rose, red, orange, plum, brown, paper, ink)
@@ -28,7 +28,7 @@
   --pastel-peach: #fde3d4;
   --pastel-blush: #f9dde2;
   --pastel-butter: #fbf1c9;
-  --pastel-lavender: #e9e1f7;
+  --pastel-stone: #ebe5d6;
   --pastel-sky: #daeef7;
   /* pastel families: text on a matching fill (AA on the fill and on white) */
   --deep-periwinkle: #3e4a7e;
@@ -36,7 +36,7 @@
   --deep-peach: #84401e;
   --deep-blush: #8c2f3e;
   --deep-butter: #685310;
-  --deep-lavender: #54407e;
+  --deep-stone: #4a4038;
   --deep-sky: #255669;
 
   /* shadcn semantic tokens */
@@ -101,14 +101,14 @@
   --color-pastel-peach: var(--pastel-peach);
   --color-pastel-blush: var(--pastel-blush);
   --color-pastel-butter: var(--pastel-butter);
-  --color-pastel-lavender: var(--pastel-lavender);
+  --color-pastel-stone: var(--pastel-stone);
   --color-pastel-sky: var(--pastel-sky);
   --color-deep-periwinkle: var(--deep-periwinkle);
   --color-deep-mint: var(--deep-mint);
   --color-deep-peach: var(--deep-peach);
   --color-deep-blush: var(--deep-blush);
   --color-deep-butter: var(--deep-butter);
-  --color-deep-lavender: var(--deep-lavender);
+  --color-deep-stone: var(--deep-stone);
   --color-deep-sky: var(--deep-sky);
 
   --color-success: var(--success);

@@ -2,25 +2,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CONSENT_COOKIE,
   CONSENT_MAX_AGE,
-  CURSOR_STORAGE_KEY,
-  OPEN_CONSENT_EVENT,
-  consentCookie,
   consentValueFrom,
-  getConsentSnapshot,
-  makeConsent,
-  openConsentSettings,
-  parseConsent,
-  readConsent,
-  serializeConsent,
-  subscribeConsent,
-  writeConsent,
+  dismissNotice,
+  getNoticeSnapshot,
+  noticeCookie,
+  parseNotice,
+  serializeNotice,
+  subscribeNotice,
 } from "../consent";
 
-/** Minimal browser stand-ins: a cookie jar that behaves like document.cookie, plus localStorage. */
+/** A cookie jar that behaves like document.cookie. */
 function fakeBrowser(protocol = "https:") {
   const jar = new Map<string, string>();
   const writes: string[] = [];
-  const store = new Map<string, string>();
   const doc = {
     get cookie() {
       return [...jar].map(([k, v]) => `${k}=${v}`).join("; ");
@@ -32,119 +26,75 @@ function fakeBrowser(protocol = "https:") {
       jar.set(pair.slice(0, eq).trim(), pair.slice(eq + 1));
     },
   };
-  const localStorage = {
-    getItem: (k: string) => store.get(k) ?? null,
-    setItem: (k: string, v: string) => void store.set(k, v),
-    removeItem: (k: string) => void store.delete(k),
-  };
-  const events = new EventTarget();
-  const win = {
-    addEventListener: events.addEventListener.bind(events),
-    removeEventListener: events.removeEventListener.bind(events),
-    dispatchEvent: events.dispatchEvent.bind(events),
-  };
   vi.stubGlobal("document", doc);
-  vi.stubGlobal("localStorage", localStorage);
   vi.stubGlobal("location", { protocol });
-  vi.stubGlobal("window", win);
-  return { jar, writes, store, win };
+  return { jar, writes };
 }
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("consent cookie format", () => {
+describe("cookie notice format", () => {
   it("round-trips through serialize and parse", () => {
-    const c = makeConsent(true, new Date("2026-10-04T10:00:00.000Z"));
-    expect(c).toEqual({ v: 1, functional: true, ts: "2026-10-04T10:00:00.000Z" });
-    const raw = serializeConsent(c);
-    expect(raw).toBe(encodeURIComponent(JSON.stringify(c)));
-    expect(parseConsent(raw)).toEqual(c);
+    const seen = { v: 2, ts: "2026-10-05T10:00:00.000Z" };
+    expect(parseNotice(serializeNotice(seen))).toEqual(seen);
   });
 
-  it("treats malformed, outdated or incomplete values as no decision", () => {
-    expect(parseConsent(null)).toBeNull();
-    expect(parseConsent("")).toBeNull();
-    expect(parseConsent("%E0%A4%A")).toBeNull(); // broken URI escape
-    expect(parseConsent(encodeURIComponent("not json"))).toBeNull();
-    expect(parseConsent(encodeURIComponent(JSON.stringify({ v: 2, functional: true, ts: "2026-01-01T00:00:00Z" })))).toBeNull();
-    expect(parseConsent(encodeURIComponent(JSON.stringify({ v: 1, functional: "yes", ts: "2026-01-01T00:00:00Z" })))).toBeNull();
-    expect(parseConsent(encodeURIComponent(JSON.stringify({ v: 1, functional: true, ts: "yesterday" })))).toBeNull();
-    expect(parseConsent(encodeURIComponent(JSON.stringify([1, 2])))).toBeNull();
+  it("accepts the old version 1 consent cookie as already seen", () => {
+    const v1 = encodeURIComponent(JSON.stringify({ v: 1, functional: false, ts: "2026-10-04T10:00:00.000Z" }));
+    expect(parseNotice(v1)).toEqual({ v: 1, ts: "2026-10-04T10:00:00.000Z" });
+  });
+
+  it("treats malformed or unknown values as not seen", () => {
+    for (const raw of [null, "", "%", "not-json", encodeURIComponent("[]"), encodeURIComponent(JSON.stringify({ v: 9, ts: "2026-10-04T10:00:00Z" })), encodeURIComponent(JSON.stringify({ v: 2, ts: "yesterday" }))]) {
+      expect(parseNotice(raw)).toBeNull();
+    }
   });
 
   it("builds the exact cookie attributes (180 days, Lax, Secure only on https)", () => {
-    const c = makeConsent(false, new Date("2026-10-04T10:00:00.000Z"));
+    const seen = { v: 2, ts: "2026-10-05T10:00:00.000Z" };
+    expect(noticeCookie(seen, true)).toBe(`${CONSENT_COOKIE}=${serializeNotice(seen)}; Path=/; Max-Age=${CONSENT_MAX_AGE}; SameSite=Lax; Secure`);
+    expect(noticeCookie(seen, false)).not.toContain("Secure");
     expect(CONSENT_MAX_AGE).toBe(180 * 24 * 60 * 60);
-    expect(consentCookie(c, true)).toBe(`pathway_consent=${serializeConsent(c)}; Path=/; Max-Age=15552000; SameSite=Lax; Secure`);
-    expect(consentCookie(c, false)).not.toContain("Secure");
   });
 
-  it("finds the consent cookie among others, including in a Cookie header", () => {
-    const raw = serializeConsent(makeConsent(true));
-    const header = `a=1; ${CONSENT_COOKIE}=${raw}; pathway_consent_old=x; b=2`;
-    expect(consentValueFrom(header)).toBe(raw);
-    expect(readConsent(header)?.functional).toBe(true);
-    expect(readConsent("a=1; b=2")).toBeNull();
-  });
-
-  it("returns null when there is no document (server)", () => {
-    expect(readConsent()).toBeNull();
-    expect(getConsentSnapshot()).toBeNull();
+  it("finds the cookie among others", () => {
+    expect(consentValueFrom(`a=1; ${CONSENT_COOKIE}=xyz; b=2`)).toBe("xyz");
+    expect(consentValueFrom("a=1")).toBeNull();
   });
 });
 
-describe("writing and withdrawing consent", () => {
-  it("stores the decision and notifies subscribers", () => {
-    const { writes, win } = fakeBrowser("https:");
-    const seen: number[] = [];
-    const off = subscribeConsent(() => seen.push(1));
-    expect(readConsent()).toBeNull();
-    writeConsent(true);
+describe("dismissing the notice", () => {
+  it("returns null when there is no document (server)", () => {
+    expect(getNoticeSnapshot()).toBeNull();
+  });
+
+  it("stores the dismissal and notifies subscribers", () => {
+    const { writes } = fakeBrowser();
+    const calls: number[] = [];
+    const off = subscribeNotice(() => calls.push(1));
+    expect(getNoticeSnapshot()).toBeNull();
+    dismissNotice(new Date("2026-10-05T10:00:00.000Z"));
     expect(writes).toHaveLength(1);
-    expect(writes[0]).toMatch(/^pathway_consent=.+; Path=\/; Max-Age=15552000; SameSite=Lax; Secure$/);
-    expect(readConsent()?.functional).toBe(true);
-    expect(seen).toHaveLength(1);
-    // Focus re-checks the cookie (another tab may have changed it).
-    win.dispatchEvent(new Event("focus"));
-    expect(seen).toHaveLength(2);
+    expect(writes[0]).toContain("; Secure");
+    expect(getNoticeSnapshot()).toEqual({ v: 2, ts: "2026-10-05T10:00:00.000Z" });
+    expect(calls).toHaveLength(1);
     off();
-    writeConsent(false);
-    expect(seen).toHaveLength(2);
   });
 
   it("omits Secure on plain http (local development)", () => {
     const { writes } = fakeBrowser("http:");
-    writeConsent(false);
+    dismissNotice();
     expect(writes[0]).not.toContain("Secure");
-  });
-
-  it("deletes the remembered cursor choice when functional consent is withdrawn", () => {
-    const { store } = fakeBrowser();
-    writeConsent(true);
-    store.set(CURSOR_STORAGE_KEY, "off");
-    writeConsent(true);
-    expect(store.get(CURSOR_STORAGE_KEY)).toBe("off");
-    writeConsent(false);
-    expect(store.has(CURSOR_STORAGE_KEY)).toBe(false);
   });
 
   it("returns a stable snapshot until the cookie changes", () => {
     fakeBrowser();
-    writeConsent(true);
-    const a = getConsentSnapshot();
-    expect(getConsentSnapshot()).toBe(a);
-    writeConsent(false);
-    expect(getConsentSnapshot()).not.toBe(a);
-    expect(getConsentSnapshot()?.functional).toBe(false);
-  });
-
-  it("opens the settings dialog through a window event", () => {
-    const { win } = fakeBrowser();
-    const opened = vi.fn();
-    win.addEventListener(OPEN_CONSENT_EVENT, opened);
-    openConsentSettings();
-    expect(opened).toHaveBeenCalledTimes(1);
+    dismissNotice(new Date("2026-10-05T10:00:00.000Z"));
+    const a = getNoticeSnapshot();
+    expect(getNoticeSnapshot()).toBe(a);
+    dismissNotice(new Date("2026-10-06T10:00:00.000Z"));
+    expect(getNoticeSnapshot()).not.toBe(a);
   });
 });

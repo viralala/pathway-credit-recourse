@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 /**
- * Fade-and-rise when the block scrolls into view (once). Respects prefers-reduced-motion.
+ * A short, subtle fade-in when the block scrolls into view (once). Respects prefers-reduced-motion.
  * Shared animation language for the whole app: use this instead of ad-hoc entrance animations.
  *
  *   <Reveal delay={0.1}><Card>…</Card></Reveal>
@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 export function Reveal({
   children,
   delay = 0,
-  y = 16,
+  y = 6,
   className,
   as = "div",
 }: {
@@ -30,7 +30,7 @@ export function Reveal({
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.3, delay: Math.min(delay, 0.1), ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </Comp>
@@ -38,7 +38,7 @@ export function Reveal({
 }
 
 /** Children reveal one after another. Wrap items in <StaggerItem>. */
-export function Stagger({ children, className, gap = 0.06 }: { children: ReactNode; className?: string; gap?: number }) {
+export function Stagger({ children, className, gap = 0.03 }: { children: ReactNode; className?: string; gap?: number }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -58,8 +58,8 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 12 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+        hidden: { opacity: 0, y: 4 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
       }}
     >
       {children}

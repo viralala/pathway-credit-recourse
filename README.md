@@ -173,11 +173,13 @@ npm test           # unit tests
 npm run build      # production build
 ```
 
-Optional: copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` to enable the "rewrite in simpler words" button. Without a key, the built-in templates are used.
+---
 
 **Model pipeline:** the shipped model is exported from the verified reports in `ml/artifacts/` by `npm run export-model` (nothing is retrained). `npm run parity` checks that the app scores all 30,000 raw test applicants exactly like Python, and `npm run evaluate` rebuilds `public/metrics.json`. These need `pip install numpy pandas scikit-learn` and Kaggle's `cs-training.csv` in `data/`. `ml/train.py` is the retired version-1 script; it cannot overwrite the shipped model.
 
-## Results
+## Supabase & Google Authentication Setup
+
+Pathway integrates Supabase PostgreSQL and Google OAuth for persistent user assessments, recourse plans, simulations, pricing calculations, and ground-truth verified outcomes.
 
 | Metric | Value |
 |---|---|
@@ -189,7 +191,7 @@ Optional: copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` to ena
 | Good applicants rejected at the cut-off | **10.1%** validation · **10.1%** test |
 | Rejected test applicants with a plan the model approves | **98.4%** (3,970 / 4,035) |
 | Median months to approval | **12** |
-| Recourse-effort gap at equal risk | **10.3%** (income: Under $3,000/mo vs $6,000+/mo) |
+| Recourse-effort gap at equal risk | **10.3%** (income: Under ₹60,000/mo vs ₹1.2 lakh+/mo) |
 
 Model numbers come from `ml/artifacts/phase7_evaluation.json` and `phase8_cutoff.json`; recourse and fairness numbers from `public/metrics.json`, produced by running the shipped TypeScript engine over the 4,035 rejected test applicants.
 
@@ -207,21 +209,88 @@ Model numbers come from `ml/artifacts/phase7_evaluation.json` and `phase8_cutoff
 
 The skipped test compares against a fingerprint of the retired version-1 model. Two parity tests need `data/parity_test.json` and skip without it. One Monte Carlo test is a wall-clock speed check (under 50 ms per simulation) and can fail on a busy machine; it passes when its file is run on its own.
 
-## Security and privacy
+### Step 1: Create a Supabase Project
+1. Go to [database.new](https://database.new) and create a new project.
+2. Note your **Project URL**, **Anon (Public) Key**, and **Service Role (Secret) Key** from **Project Settings → API**.
 
-- A strict security-header set: CSP, HSTS, `X-Frame-Options: DENY`, a restrictive Permissions-Policy, COOP/CORP.
-- The API recomputes every explanation on the server from validated numbers. It is same-origin, JSON-only, size-capped and rate-limited.
-- No accounts, no database, no tracking cookies. One consent cookie; the money-cursor preference is stored only with consent.
+### Step 2: Configure Google Cloud OAuth Credentials
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+2. Create an **OAuth 2.0 Client ID** (Web application).
+3. Set **Authorized JavaScript origins** to `http://localhost:3000` (and your production domain).
+4. Set **Authorized redirect URIs** to your Supabase Auth callback:
+   `https://<your-project-id>.supabase.co/auth/v1/callback`
+5. Copy your **Client ID** and **Client Secret**.
 
-## Future scope
+### Step 3: Enable Google Provider in Supabase
+1. In the Supabase Dashboard, go to **Authentication → Providers → Google**.
+2. Toggle Google **Enabled**.
+3. Paste your Google **Client ID** and **Client Secret**, then click **Save**.
+4. In **Authentication → URL Configuration**, add `http://localhost:3000/auth/callback` to **Redirect URLs**.
 
-- 🔐 Accounts with Google sign-in, saved plans and progress check-ins
-- 🗄️ A database to track plans over time, with reminders and nudges (WhatsApp/SMS)
-- 🏦 Account Aggregator cash-flow underwriting for thin-file and gig workers
-- 🤝 Lender dashboard: a second-chance pipeline and compliance-ready adverse-action notices
-- 🧩 Pluggable decision types: credit cards, BNPL limits, insurance premiums, rental approval
-- 🗣️ Voice-first guidance in more Indian languages
-- 📈 Calibration on real bureau data with partner lenders
+### Step 4: Run Database Migrations
+Run the reproducible SQL migration in `supabase/migrations/20261005000000_init.sql` (or paste `supabase/schema.sql` into the Supabase SQL Editor):
+- Creates `profiles`, `assessments`, `recourse_plans`, `simulations`, `pricing_results`, `outcomes` tables.
+- Establishes performance indexes.
+- Enforces strict Row-Level Security (RLS) policies.
+- Adds the `on_auth_user_created` trigger for automatic profile synchronization.
+
+### Step 5: Configure Environment Variables
+Create `.env.local` based on `.env.example`:
+
+```env
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Supabase PostgreSQL & Auth
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Optional: Anthropic API for AI explanation rewrites
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-haiku-4-5
+```
+
+### Step 6: Start the Application
+```bash
+npm run dev
+```
+
+### Step 7: Test Google Login
+1. Open `http://localhost:3000`.
+2. Click **"Continue with Google"** in the top navigation or on the `/login` page.
+3. Authenticate with your Google account. You will be redirected to `/dashboard` with your active session.
+
+### Step 8: Create an Assessment
+1. Go to the home workbench (`/`).
+2. Adjust financial features or select a sample applicant.
+3. Click **"Save to Dashboard"**.
+
+### Step 9: Verify Assessment in Supabase
+1. Open the Supabase Table Editor.
+2. In `assessments`, confirm that the input features, server-calculated `predicted_score`, `pd`, `reasons`, and `model_version` ("v1") are stored.
+
+### Step 10: Verify Recourse Plan & Simulations
+1. In `recourse_plans`, confirm that the computed action list and projected score are saved.
+2. In `simulations` and `pricing_results`, confirm the Monte Carlo bounds and interest savings records are created.
+
+### Step 11: Continuous Learning & Verified Outcomes
+1. Navigate to `/dashboard`.
+2. Submit a real-world outcome in the **"Track Real Outcome"** panel.
+3. Verify that the outcome is saved with `verified = false` (preventing unverified training contamination).
+
+### Step 12: Multi-Account RLS Isolation Test
+1. Log out and sign in with a second Google account.
+2. Confirm that the dashboard shows only the second user's assessments (cross-user data access is strictly blocked by RLS).
+
+---
+
+## Security & Privacy Architecture
+
+- **Server-Side ML Inference:** Credit score prediction, adverse action reasoning, recourse planning, Monte Carlo timeline simulations, and risk-based pricing are computed server-side in TypeScript. Client scores are never trusted.
+- **Row-Level Security (RLS):** Every user-owned table enforces `auth.uid() = user_id` at the database level.
+- **Strict Zod Validation:** All API route handlers strictly validate numeric ranges, display names, and UUIDs.
+- **Privacy & GDPR Compliance:** Users can permanently purge all stored account data and assessments at any time with the one-click deletion feature (`DELETE /api/user/delete`).
+- **Offline ML Retraining Pipeline:** Python training remains strictly offline (`ml/train.py`). Only verified outcomes (`verified = true`) are eligible for future model evaluation and candidate model retraining.
 
 ## License
 

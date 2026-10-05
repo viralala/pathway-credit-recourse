@@ -3,13 +3,15 @@
  * wording, and so lib/__tests__/security.test.ts can check the licence table against node_modules.
  */
 
-import { CONSENT_COOKIE, CURSOR_STORAGE_KEY } from "@/lib/storage-keys";
+import { CONSENT_COOKIE } from "@/lib/storage-keys";
 
 export const LEGAL_UPDATED = { iso: "2026-10-04", label: "4 October 2026" } as const;
 
 export const ANTHROPIC_PRIVACY_URL = "https://www.anthropic.com/legal/privacy";
 export const VERCEL_PRIVACY_URL = "https://vercel.com/legal/privacy-policy";
 export const KAGGLE_COMPETITION_URL = "https://www.kaggle.com/c/GiveMeSomeCredit";
+export const GOOGLE_PRIVACY_URL = "https://policies.google.com/privacy";
+export const SUPABASE_PRIVACY_URL = "https://supabase.com/privacy";
 
 /** Everything Pathway stores in the browser. Nothing else is set by Pathway. */
 export interface StorageItem {
@@ -21,7 +23,7 @@ export interface StorageItem {
 }
 
 /** Single source of truth (lib/storage-keys.ts): the names the consent code actually reads and writes. */
-export { CONSENT_COOKIE, CURSOR_STORAGE_KEY };
+export { CONSENT_COOKIE };
 
 export const STORAGE_ITEMS: StorageItem[] = [
   {
@@ -32,11 +34,18 @@ export const STORAGE_ITEMS: StorageItem[] = [
     duration: "180 days",
   },
   {
-    name: CURSOR_STORAGE_KEY,
-    kind: "Local storage, this browser only",
-    purpose: "Remembers whether the money-cursor animation is switched on or off.",
-    category: "Functional, set only with your consent",
-    duration: "Until you clear site data; deleted when you withdraw consent",
+    name: "sb-<project>-auth-token",
+    kind: "First-party cookie / session",
+    purpose: "Stores the encrypted Supabase JWT session when you log in with Google.",
+    category: "Strictly necessary (authenticated only)",
+    duration: "Session / 1 hour with rolling refresh",
+  },
+  {
+    name: "sb-<project>-auth-token-code-verifier",
+    kind: "First-party cookie",
+    purpose: "Temporary PKCE code verifier for secure OAuth 2.0 authentication handshake with Google.",
+    category: "Strictly necessary (during login only)",
+    duration: "Authentication flow only",
   },
 ];
 
@@ -64,6 +73,10 @@ export const RUNTIME_SOFTWARE: SoftwareCredit[] = [
   { name: "cn", version: "0.4.0", license: "MIT", homepage: "https://github.com/shadcn-ui/cn", usedFor: "Class name merging" },
   { name: "shadcn", version: "4.21.1", license: "MIT", homepage: "https://ui.shadcn.com", usedFor: "Component source and base styles" },
   { name: "tw-animate-css", version: "1.4.0", license: "MIT", homepage: "https://github.com/Wombosvideo/tw-animate-css", usedFor: "CSS animation utilities" },
+  { name: "@supabase/supabase-js", version: "2.117.2", license: "MIT", homepage: "https://supabase.com", usedFor: "Supabase client SDK for authentication and database queries" },
+  { name: "@supabase/ssr", version: "0.12.7", license: "MIT", homepage: "https://supabase.com", usedFor: "Server-side Supabase authentication and session management" },
+  { name: "zod", version: "4.6.5", license: "MIT", homepage: "https://zod.dev", usedFor: "Schema declaration and server-side request validation" },
+  { name: "server-only", version: "0.0.1", license: "MIT", homepage: "https://reactjs.org/", usedFor: "Ensures server-only code is never bundled into client components" },
 ];
 
 /** Tools used to build and test the site; they do not ship to visitors. */

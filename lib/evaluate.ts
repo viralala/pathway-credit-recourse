@@ -42,9 +42,9 @@ export const AGE_BANDS: { label: string; test: (a: number) => boolean }[] = [
   { label: "55+", test: (a) => a >= 55 },
 ];
 export const INCOME_BANDS: { label: string; test: (i: number) => boolean }[] = [
-  { label: "Under $3,000/mo", test: (i) => i < 3000 },
-  { label: "$3,000–6,000/mo", test: (i) => i >= 3000 && i < 6000 },
-  { label: "$6,000+/mo", test: (i) => i >= 6000 },
+  { label: "Under ₹60,000/mo", test: (i) => i < 60_000 },
+  { label: "₹60,000 to ₹1.2 lakh/mo", test: (i) => i >= 60_000 && i < 1_20_000 },
+  { label: "₹1.2 lakh+/mo", test: (i) => i >= 1_20_000 },
 ];
 
 const median = (xs: number[]) => {

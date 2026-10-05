@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { MODEL, assess, isApproved, logit, reasons, score, scoreFromLogit, thresholdLogit } from "../model";
+import { INR_PER_MODEL_UNIT } from "../money";
 import type { Applicant } from "../types";
+
+/** Applicant incomes are rupees; the dataset-unit figures below are scaled into them. */
+const rupees = (modelUnits: number) => modelUnits * INR_PER_MODEL_UNIT;
 
 const base: Applicant = {
   utilization: 0.3,
   late30: 0,
   debtRatio: 0.35,
-  monthlyIncome: 5000,
+  monthlyIncome: rupees(5000),
   openCreditLines: 8,
   late90: 0,
   late60: 0,
@@ -31,7 +35,7 @@ describe("credit model", () => {
     expect(score({ ...base, utilization: 0.9 })).toBeLessThan(score(base));
     expect(score({ ...base, late90: 2 })).toBeLessThan(score(base));
     expect(score({ ...base, debtRatio: 1.2 })).toBeLessThan(score(base));
-    expect(score({ ...base, monthlyIncome: 9000 })).toBeGreaterThan(score(base));
+    expect(score({ ...base, monthlyIncome: rupees(9000) })).toBeGreaterThan(score(base));
   });
 
   it("agrees between score, logit and the approve flag", () => {

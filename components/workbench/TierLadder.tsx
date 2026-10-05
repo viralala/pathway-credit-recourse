@@ -80,7 +80,7 @@ export function TierLadder({ ui, markers }: { ui: UIStrings; markers: LadderMark
                         layoutId={`ladder-marker-${m.kind}`}
                         transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 28 }}
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold",
+                          "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold",
                           m.kind === "today" ? "bg-card text-foreground ring-1 ring-foreground/15" : "bg-primary text-primary-foreground",
                         )}
                       >

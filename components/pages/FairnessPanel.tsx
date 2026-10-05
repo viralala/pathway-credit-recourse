@@ -50,7 +50,7 @@ export function FairnessPanel({
         <h2 id={headingId} className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
           {title}
         </h2>
-        <span className="rounded-full bg-pastel-peach px-3 py-1 text-xs font-bold text-deep-peach">
+        <span className="rounded-md bg-pastel-peach px-3 py-1 text-xs font-bold text-deep-peach">
           {tf(fs.panels.gap, { v: gapText(ratio) })}
         </span>
       </div>

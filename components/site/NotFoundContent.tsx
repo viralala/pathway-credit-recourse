@@ -21,7 +21,7 @@ export function NotFoundContent({ lang }: { lang: Lang }) {
     <div lang={lang} className="page-container py-16 sm:py-24">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
         <LostPathIllustration />
-        <p className="mt-8 inline-flex rounded-full bg-pastel-lavender px-3 py-1 text-xs font-bold text-deep-lavender">
+        <p className="mt-8 inline-flex rounded-md bg-pastel-stone px-3 py-1 text-xs font-bold text-deep-stone">
           {n.code}
         </p>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-balance text-foreground sm:text-4xl">
@@ -89,12 +89,12 @@ function LostPathIllustration() {
           fill="none"
           strokeWidth="2.4"
           strokeLinecap="round"
-          style={{ stroke: "var(--deep-lavender)" }}
+          style={{ stroke: "var(--deep-stone)" }}
         />
-        <circle cx="0" cy="14.4" r="1.5" style={{ fill: "var(--deep-lavender)" }} />
+        <circle cx="0" cy="14.4" r="1.5" style={{ fill: "var(--deep-stone)" }} />
       </g>
       <path d="M40 30l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" style={{ fill: "var(--pastel-blush)" }} />
-      <path d="M118 22l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" style={{ fill: "var(--pastel-lavender)" }} />
+      <path d="M118 22l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" style={{ fill: "var(--pastel-stone)" }} />
     </svg>
   );
 }

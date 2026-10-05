@@ -14,6 +14,8 @@ import { asLang, type Lang } from "@/lib/i18n";
 import { shell } from "@/lib/strings/shell";
 import { cn } from "@/lib/utils";
 
+import { UserMenu } from "@/components/auth/UserMenu";
+
 /** Reads `?lang=` and `?sample=` from the URL. Mount inside <Suspense> (see app/layout.tsx). */
 export function SiteHeader() {
   const sp = useSearchParams();
@@ -80,8 +82,9 @@ export function HeaderBar({ lang, search, sample }: { lang: Lang; search: string
           </MotionConfig>
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher lang={lang} search={search} className="max-[359px]:hidden" />
+          <UserMenu lang={lang} />
 
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -132,6 +135,24 @@ export function HeaderBar({ lang, search, sample }: { lang: Lang; search: string
                       </li>
                     );
                   })}
+                  <li>
+                    <Link
+                      href={withLang("/dashboard", lang)}
+                      aria-current={isActivePath(pathname, "/dashboard") ? "page" : undefined}
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                        isActivePath(pathname, "/dashboard") ? "bg-secondary text-secondary-foreground" : "text-foreground hover:bg-muted",
+                      )}
+                    >
+                      Dashboard
+                      {isActivePath(pathname, "/dashboard") ? (
+                        <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
+                      ) : (
+                        <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                      )}
+                    </Link>
+                  </li>
                 </ul>
               </nav>
 

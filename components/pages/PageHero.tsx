@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 const TONES = {
   periwinkle: { box: "bg-pastel-periwinkle", eyebrow: "text-deep-periwinkle", art: "var(--deep-periwinkle)" },
-  lavender: { box: "bg-pastel-lavender", eyebrow: "text-deep-lavender", art: "var(--deep-lavender)" },
+  stone: { box: "bg-pastel-stone", eyebrow: "text-deep-stone", art: "var(--deep-stone)" },
   mint: { box: "bg-pastel-mint", eyebrow: "text-deep-mint", art: "var(--deep-mint)" },
   sky: { box: "bg-pastel-sky", eyebrow: "text-deep-sky", art: "var(--deep-sky)" },
 } as const;

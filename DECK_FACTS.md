@@ -59,7 +59,7 @@ Source: `public/metrics.json` (shipped TypeScript engine run on every rejected t
 | Rejected applicants with a plan the model itself approves | **98.4%** (3,970 of 4,035) |
 | No feasible plan within the horizon | **65** of 4,035 |
 | Median months to approval (successful plans) | **12 months** |
-| Fairness gap (recourse effort, same risk level) | **10.3%** (income: Under $3,000/mo vs. $6,000+/mo; income gap 10.3%, age gap 2.8%) |
+| Fairness gap (recourse effort, same risk level) | **10.3%** (income: Under ₹60,000/mo vs. ₹1.2 lakh+/mo; income gap 10.3%, age gap 2.8%) |
 
 - Every plan counted was re-scored by the model and approved.
 - Plans are limited to a 36-month horizon and capped paces of change.
@@ -73,7 +73,7 @@ Source: commands run on 2026-10-05.
 
 ## Known limitations / caveats
 - **Educational simulation.** Not a credit decision, not financial advice, not used by any lender.
-- **One public dataset.** Results describe the Kaggle data, in US dollars; nothing was tested on Indian or lender data.
+- **One public dataset.** Results describe the Kaggle data (its incomes are scaled by 20 into rupees, near purchasing-power parity); nothing was tested on Indian or lender data.
 - **Probabilities are not recalibrated.** The model understates risk somewhat between 5% and 40% (validation applicants scored 10–20% defaulted at 17.5%).
 - **Illustrative assumptions.** APR tiers, monthly paces of change and Monte Carlo settings are stated in the app but not calibrated to any lender or market, so "money saved" and approval months are illustrations.
 - **Not everyone gets a plan.** 65 rejected test applicants have none within 36 months.
@@ -83,8 +83,8 @@ Source: commands run on 2026-10-05.
 - No accounts, database or saved plans; those are future scope.
 
 ## Suggested screenshot routes
-1. `/?sample=clear-rejection`: declined applicant, score vs. threshold, ranked reason codes
-2. `/?sample=borderline#plan`: lowest-effort feasible plan (what changes, and what the model does not use)
-3. `/?sample=borderline#timeline`: month-by-month score vs. threshold chart, "Approved in N months"
+1. `/check?sample=clear-rejection`: declined applicant, score vs. threshold, ranked reason codes
+2. `/check?sample=borderline#plan`: lowest-effort feasible plan (what changes, what the model does not use)
+3. `/check?sample=borderline#timeline`: month-by-month score vs. threshold chart, "Approved in N months"
 4. `/fairness`: recourse-effort gap across age and income bands at equal risk
-5. `/report?sample=clear-rejection&lang=hi`: printable adverse-action report in Hindi
+5. `/report?sample=clear-rejection&lang=hi`: printable rejection letter (reasons in writing) in Hindi

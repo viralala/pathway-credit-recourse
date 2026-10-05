@@ -13,7 +13,7 @@ import { useEffect, useEffectEvent, useRef } from "react";
 export function CountUp({
   value,
   format = (v) => String(Math.round(v)),
-  duration = 0.9,
+  duration = 0.6,
   className,
 }: {
   value: number;

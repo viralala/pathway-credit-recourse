@@ -35,11 +35,12 @@ describe("page strings (fairness, report, method)", () => {
   });
 
   it("localizes the evaluator's income band labels and leaves unknown ones alone", () => {
-    expect(groupLabel("en", "Under $3,000/mo")).toContain("$3,000");
-    expect(groupLabel("en", "$3,000–6,000/mo")).toContain("6,000");
-    expect(groupLabel("en", "$6,000+/mo")).toContain("$6,000");
+    expect(groupLabel("en", "Under ₹60,000/mo")).toBe("Under ₹60,000 a month");
+    expect(groupLabel("en", "₹60,000 to ₹1.2 lakh/mo")).toBe("₹60,000 to ₹1.2 lakh a month");
+    expect(groupLabel("en", "₹1.2 lakh+/mo")).toBe("₹1.2 lakh or more a month");
+    expect(groupLabel("hi", "₹1.2 lakh+/mo")).toBe("₹1.2 लाख या अधिक/माह");
     for (const l of LANGS) {
-      expect(groupLabel(l.id, "Under $3,000/mo")).toContain("$3,000");
+      expect(groupLabel(l.id, "Under ₹60,000/mo")).toContain("₹60,000");
       expect(groupLabel(l.id, "Something else")).toBe("Something else");
     }
   });

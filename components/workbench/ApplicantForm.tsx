@@ -19,7 +19,7 @@ interface FieldSpec {
 
 /** Field layout: the four that matter most first, then late-payment history. Every field here is a model input. */
 export const PRIMARY_FIELDS: FieldSpec[] = [
-  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 100000 },
+  { key: "monthlyIncome", unit: "money", min: APPLICANT_LIMITS.monthlyIncome.min, max: 20_00_000 },
   { key: "utilization", unit: "pct", max: 150 },
   { key: "debtRatio", unit: "pct", max: 300 },
   { key: "openCreditLines", unit: "count", max: 30 },
@@ -51,17 +51,17 @@ function Field({
     <div className="grid content-start gap-1.5">
       <Label htmlFor={id} className="leading-snug font-medium text-muted-foreground">
         {label}
-        {spec.unit !== "count" && <span className="sr-only"> ({spec.unit === "pct" ? "%" : "$"})</span>}
+        {spec.unit !== "count" && <span className="sr-only"> ({spec.unit === "pct" ? "%" : "₹"})</span>}
       </Label>
       <NumberField
         id={id}
         value={shown}
         min={spec.min ?? 0}
-        max={spec.max}
-        step={spec.unit === "money" ? 100 : 1}
-        prefix={spec.unit === "money" ? "$" : undefined}
-        suffix={spec.unit === "pct" ? "%" : undefined}
         belowMinMessage={belowMinMessage}
+        max={spec.max}
+        step={spec.unit === "money" ? 1000 : 1}
+        prefix={spec.unit === "money" ? "₹" : undefined}
+        suffix={spec.unit === "pct" ? "%" : undefined}
         onValue={(v) => onChange(spec.unit === "pct" ? v / 100 : v)}
         inputClassName={cn(big ? "h-12 text-xl" : "text-base")}
       />

@@ -17,9 +17,9 @@ export function hrefWithLang(href: string, lang: Lang): string {
 }
 
 export const LEGAL_PAGES = [
-  { href: "/terms", label: "Terms of use" },
+  { href: "/terms", label: "Terms and conditions" },
   { href: "/privacy", label: "Privacy policy" },
-  { href: "/licenses", label: "Licenses & credits" },
+  { href: "/licenses", label: "Licences and credits" },
 ] as const;
 
 export type LegalHref = (typeof LEGAL_PAGES)[number]["href"];

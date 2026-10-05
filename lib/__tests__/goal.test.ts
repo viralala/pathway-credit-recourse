@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ASSUMPTIONS } from "../config";
 import { DEFAULT_GOAL, GOAL_LIMITS, affordabilityFor, bestTier, normalizeGoal, planGoal, principalFor, type Goal } from "../goal";
 import { MODEL, isApproved, score } from "../model";
+import { INR_PER_MODEL_UNIT } from "../money";
 import { PRICING, emi, scoreForApr } from "../pricing";
 import { findRecourse, type RecourseResult } from "../recourse";
 import { SAMPLES } from "../samples";
@@ -13,9 +14,10 @@ import { simulate, type Timeline } from "../timeline";
 import type { Applicant } from "../types";
 import { GOAL_PARAM, applicantFromParams, goalFromParams, paramsFor } from "../url";
 
-const evalSample: Applicant[] = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../../ml/artifacts/eval_sample.json"), "utf8"),
-);
+// The held-out sample is stored in the model's dataset units; the engine takes rupees (lib/money.ts).
+const evalSample: Applicant[] = (
+  JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../ml/artifacts/eval_sample.json"), "utf8")) as Applicant[]
+).map((a) => ({ ...a, monthlyIncome: a.monthlyIncome * INR_PER_MODEL_UNIT }));
 const subset = evalSample.slice(0, 200);
 const sha = (s: string) => createHash("sha256").update(s).digest("hex");
 const sample = (id: string) => SAMPLES.find((s) => s.id === id)!.applicant;
@@ -40,14 +42,16 @@ const tierScores = PRICING.tiers
 
 /**
  * SHA-256 of JSON.stringify(findRecourse / simulate results) on the first 200 eval applicants, recorded
- * from the engine BEFORE the optional target was added. `fingerprint` hashes the inputs (model,
+ * from the engine BEFORE the optional target was added, re-recorded when money moved to rupees (a
+ * one-off run against the dollar engine matched score, plan status, effort, months and approval month
+ * on all 3,000 eval applicants). `fingerprint` hashes the inputs (model,
  * assumptions, applicants); if any of them is changed on purpose, the recorded output no longer applies
  * and that one comparison is skipped (the equivalence tests below still run).
  */
 const LEGACY = {
-  fingerprint: "feb8301aa3750c32fdd5651f41f6f51f9c717f38e023e8e7b2475d4f393ecbba",
-  recourse: "1a98da811d585c2d8fbea8a17d462f694edf82ba586aa938e8e5a7ff9d10e23f",
-  timeline: "35e3d537a6dac8db39b229f0e57b5991d1767751961424a0c5a864ea796a1eb0",
+  fingerprint: "3f3eac8f5aed9139541ad8622e07860c49c013528444f9a6ab8285ae3d1d5420",
+  recourse: "979d56d0f57baba1454b6871a8cb65d9e5afbf0f21a14bd716894a1f66ab882f",
+  timeline: "0327921c082cc3f3863e364f55a6242a04a10962d93c8f305a8ff2f04c6fd74d",
 };
 const inputsUnchanged = sha(JSON.stringify({ MODEL, ASSUMPTIONS, subset })) === LEGACY.fingerprint;
 

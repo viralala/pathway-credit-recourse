@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
 
-export type Tone = "periwinkle" | "mint" | "peach" | "blush" | "butter" | "lavender" | "sky";
+export type Tone = "periwinkle" | "mint" | "peach" | "blush" | "butter" | "stone" | "sky";
 
 /** Pastel fill + matching readable text for each decorative tone. */
 export const TONE: Record<Tone, string> = {
@@ -10,7 +10,7 @@ export const TONE: Record<Tone, string> = {
   peach: "bg-pastel-peach text-deep-peach",
   blush: "bg-pastel-blush text-deep-blush",
   butter: "bg-pastel-butter text-deep-butter",
-  lavender: "bg-pastel-lavender text-deep-lavender",
+  stone: "bg-pastel-stone text-deep-stone",
   sky: "bg-pastel-sky text-deep-sky",
 };
 

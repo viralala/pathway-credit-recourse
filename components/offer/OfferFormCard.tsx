@@ -11,10 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
-  CURRENCIES,
   CURRENCY_FORMAT,
   FREQUENCIES,
-  type Currency,
   type ExampleId,
   type Frequency,
   type OfferErrorCode,
@@ -131,7 +129,6 @@ export function OfferFormCard({
   errors,
   example,
   onChange,
-  onCurrency,
   onBlur,
   onClear,
   className,
@@ -142,7 +139,6 @@ export function OfferFormCard({
   errors: Partial<Record<OfferField, OfferErrorCode>>;
   example: ExampleId | null;
   onChange: (patch: Partial<OfferForm>) => void;
-  onCurrency: (c: Currency) => void;
   onBlur: (field: OfferField) => void;
   onClear: () => void;
   className?: string;
@@ -177,22 +173,6 @@ export function OfferFormCard({
       </CardHeader>
       <CardContent>
         <form className="grid gap-5" onSubmit={(e) => e.preventDefault()} noValidate>
-          <div className="grid gap-1.5">
-            <Label htmlFor="offer-currency">{s.currency}</Label>
-            <Select value={form.currency} onValueChange={(v) => onCurrency(v as Currency)}>
-              <SelectTrigger id="offer-currency" className="w-full bg-card data-[size=default]:h-10">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {s.currencies[c]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {field("sanctioned", s.sanctioned, { hint: s.sanctionedHint, money: true })}
 
           <div className="grid gap-5 sm:grid-cols-2">

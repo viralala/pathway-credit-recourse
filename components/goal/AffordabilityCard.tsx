@@ -36,7 +36,7 @@ function Column({ title, f, lang }: { title: string; f: Affordability; lang: Lan
         <h3 className="text-sm font-semibold">{title}</h3>
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs font-semibold",
             f.affordable ? "bg-success-soft text-success-foreground" : "bg-danger-soft text-danger-foreground",
           )}
         >
