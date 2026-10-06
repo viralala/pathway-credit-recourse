@@ -1,7 +1,7 @@
 import type { Lang } from "@/lib/i18n";
 import { PREPROCESSING } from "@/lib/model";
 import { INR_PER_MODEL_UNIT } from "@/lib/money";
-import type { Applicant, FeatureKey } from "@/lib/types";
+import type { Applicant, FeatureKey, LoanType } from "@/lib/types";
 
 /**
  * Smallest monthly income a person may enter: the first whole model unit above the model's placeholder
@@ -70,6 +70,15 @@ export function parseLang(input: unknown): Validation<Lang> {
   return typeof input === "string" && (LANG_VALUES as readonly string[]).includes(input)
     ? { ok: true, value: input as Lang }
     : { ok: false, error: "lang" };
+}
+
+const LOAN_TYPE_VALUES: readonly LoanType[] = ["secured", "unsecured"];
+
+/** Strictly validate loanType: only "secured" or "unsecured" allowed. */
+export function parseLoanType(input: unknown): Validation<LoanType> {
+  return typeof input === "string" && (LOAN_TYPE_VALUES as readonly string[]).includes(input)
+    ? { ok: true, value: input as LoanType }
+    : { ok: false, error: "loanType" };
 }
 
 export interface ExplainRequest {
