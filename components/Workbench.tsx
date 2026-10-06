@@ -177,24 +177,6 @@ export function Workbench({
     setFromBank(true);
     // No sync(): fetched numbers stay out of the URL until the person edits a field.
   };
-  const handleImportedFinancials = (imported: {
-    monthlyIncome: number;
-    debtRatio: number;
-    openCreditLines: number;
-    utilization?: number;
-  }) => {
-    const next: Applicant = {
-      ...applicant,
-      monthlyIncome: imported.monthlyIncome,
-      debtRatio: imported.debtRatio,
-      openCreditLines: imported.openCreditLines,
-      ...(typeof imported.utilization === "number" ? { utilization: imported.utilization } : {}),
-    };
-    setApplicant(next);
-    setSampleId(null);
-    setName(DEFAULT_NAME);
-    sync(next, null, DEFAULT_NAME, loanType, loanAmount, collateralValue, recentHardInquiries);
-  };
   const loadSample = (id: string) => {
     const s = SAMPLES.find((x) => x.id === id);
     if (!s) return;
@@ -438,7 +420,6 @@ export function Workbench({
                 onLoanAmount={handleLoanAmount}
                 onCollateralValue={handleCollateralValue}
                 onRecentHardInquiries={handleRecentHardInquiries}
-                onImportedFinancials={handleImportedFinancials}
               />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">
