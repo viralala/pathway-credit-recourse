@@ -68,8 +68,8 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
       relevantFactors.push(`Loan-to-Value (LTV): ${ltv}%`);
     }
     relevantFactors.push(`FOIR / Debt Ratio: ${foir}%`);
-    if (applicant.realEstateLoans > 0) {
-      relevantFactors.push(`Existing Real Estate Obligations: ${applicant.realEstateLoans}`);
+    if (applicant.openCreditLines > 0) {
+      relevantFactors.push(`Active Credit Lines: ${applicant.openCreditLines}`);
     }
 
     assessmentNotes.push(

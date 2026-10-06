@@ -98,13 +98,10 @@ describe("Loan Type Assessment Layer (Secured vs Unsecured)", () => {
       monthlyIncome: 45000,
       utilization: 0.42,
       debtRatio: 0.38,
-      age: 34,
       openCreditLines: 6,
       late30: 1,
       late60: 0,
       late90: 0,
-      dependents: 1,
-      realEstateLoans: 1,
     };
 
     // 1. Evaluate ML model independently
