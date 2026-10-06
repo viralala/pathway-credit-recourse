@@ -424,6 +424,215 @@ export type Database = {
         };
         Relationships: [];
       };
+      aa_consents: {
+        Row: {
+          id: string;
+          user_id: string;
+          consent_id: string;
+          status: "PENDING" | "ACTIVE" | "REJECTED" | "REVOKED" | "EXPIRED" | "FAILED";
+          purpose: string;
+          redirect_url: string | null;
+          fiu_id: string | null;
+          session_id: string | null;
+          normalized_data: Json | null;
+          requested_at: string;
+          approved_at: string | null;
+          expires_at: string | null;
+          revoked_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          consent_id: string;
+          status?: "PENDING" | "ACTIVE" | "REJECTED" | "REVOKED" | "EXPIRED" | "FAILED";
+          purpose?: string;
+          redirect_url?: string | null;
+          fiu_id?: string | null;
+          session_id?: string | null;
+          normalized_data?: Json | null;
+          requested_at?: string;
+          approved_at?: string | null;
+          expires_at?: string | null;
+          revoked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          consent_id?: string;
+          status?: "PENDING" | "ACTIVE" | "REJECTED" | "REVOKED" | "EXPIRED" | "FAILED";
+          purpose?: string;
+          redirect_url?: string | null;
+          fiu_id?: string | null;
+          session_id?: string | null;
+          normalized_data?: Json | null;
+          requested_at?: string;
+          approved_at?: string | null;
+          expires_at?: string | null;
+          revoked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "aa_consents_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      government_schemes: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          short_description: string;
+          description: string;
+          government_level: "central" | "state";
+          ministry: string | null;
+          state: string | null;
+          category: string;
+          purposes: Json;
+          beneficiary_types: Json;
+          benefits: Json;
+          eligibility_rules: Json;
+          required_documents: Json;
+          application_url: string | null;
+          official_source_url: string;
+          source_type: "official_gazette" | "ministry_portal" | "open_data" | "myScheme_reference";
+          source_name: string;
+          version: string;
+          effective_from: string | null;
+          effective_until: string | null;
+          last_verified_at: string;
+          active: boolean;
+          priority: number;
+          metadata: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          short_description: string;
+          description: string;
+          government_level: "central" | "state";
+          ministry?: string | null;
+          state?: string | null;
+          category: string;
+          purposes?: Json;
+          beneficiary_types?: Json;
+          benefits?: Json;
+          eligibility_rules: Json;
+          required_documents?: Json;
+          application_url?: string | null;
+          official_source_url: string;
+          source_type?: "official_gazette" | "ministry_portal" | "open_data" | "myScheme_reference";
+          source_name: string;
+          version?: string;
+          effective_from?: string | null;
+          effective_until?: string | null;
+          last_verified_at?: string;
+          active?: boolean;
+          priority?: number;
+          metadata?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          short_description?: string;
+          description?: string;
+          government_level?: "central" | "state";
+          ministry?: string | null;
+          state?: string | null;
+          category?: string;
+          purposes?: Json;
+          beneficiary_types?: Json;
+          benefits?: Json;
+          eligibility_rules?: Json;
+          required_documents?: Json;
+          application_url?: string | null;
+          official_source_url?: string;
+          source_type?: "official_gazette" | "ministry_portal" | "open_data" | "myScheme_reference";
+          source_name?: string;
+          version?: string;
+          effective_from?: string | null;
+          effective_until?: string | null;
+          last_verified_at?: string;
+          active?: boolean;
+          priority?: number;
+          metadata?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      government_scheme_matches: {
+        Row: {
+          id: string;
+          user_id: string;
+          assessment_id: string | null;
+          scheme_id: string;
+          match_status: "likely_match" | "potential_match" | "insufficient_information" | "not_matching" | "expired" | "inactive";
+          match_strength: number;
+          matched_criteria: Json;
+          unmet_criteria: Json;
+          missing_information: Json;
+          scheme_version: string;
+          matched_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          assessment_id?: string | null;
+          scheme_id: string;
+          match_status: "likely_match" | "potential_match" | "insufficient_information" | "not_matching" | "expired" | "inactive";
+          match_strength: number;
+          matched_criteria?: Json;
+          unmet_criteria?: Json;
+          missing_information?: Json;
+          scheme_version?: string;
+          matched_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          assessment_id?: string | null;
+          scheme_id?: string;
+          match_status?: "likely_match" | "potential_match" | "insufficient_information" | "not_matching" | "expired" | "inactive";
+          match_strength?: number;
+          matched_criteria?: Json;
+          unmet_criteria?: Json;
+          missing_information?: Json;
+          scheme_version?: string;
+          matched_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "government_scheme_matches_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "government_scheme_matches_scheme_id_fkey";
+            columns: ["scheme_id"];
+            isOneToOne: false;
+            referencedRelation: "government_schemes";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -455,3 +664,6 @@ export type PricingResultRow = Database["public"]["Tables"]["pricing_results"]["
 export type OutcomeRow = Database["public"]["Tables"]["outcomes"]["Row"];
 export type SavedPlanRow = Database["public"]["Tables"]["saved_plans"]["Row"];
 export type CheckinRow = Database["public"]["Tables"]["plan_checkins"]["Row"];
+export type AAConsentRow = Database["public"]["Tables"]["aa_consents"]["Row"];
+export type GovernmentSchemeRow = Database["public"]["Tables"]["government_schemes"]["Row"];
+export type GovernmentSchemeMatchRow = Database["public"]["Tables"]["government_scheme_matches"]["Row"];

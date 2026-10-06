@@ -26,10 +26,10 @@ describe("shell strings", () => {
     }
   });
 
-  it("builds the six primary nav items in every language", () => {
+  it("builds the primary nav items in every language", () => {
     for (const { id } of LANGS) {
       const nav = primaryNav(id);
-      expect(nav.map((n) => n.href)).toEqual(["/", "/goal", "/offer-check", "/fairness", "/report", "/method"]);
+      expect(nav.map((n) => n.href)).toEqual(["/", "/goal", "/offer-check", "/fairness", "/report", "/schemes", "/method"]);
       for (const n of nav) expect(n.label.length).toBeGreaterThan(0);
     }
   });

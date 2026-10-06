@@ -24,6 +24,7 @@ import { ScoreBreakdown } from "./workbench/ScoreBreakdown";
 import { ScorePanel } from "./workbench/ScoreCard";
 import { Summary } from "./workbench/Summary";
 import { TimelineSection } from "./workbench/TimelineSection";
+import { GovernmentSchemesSection } from "./workbench/GovernmentSchemesSection";
 import { WhatIf } from "./workbench/WhatIf";
 
 const DEFAULT_NAME = "Applicant";
@@ -175,6 +176,24 @@ export function Workbench({
     setName(result.holderName || DEFAULT_NAME);
     setFromBank(true);
     // No sync(): fetched numbers stay out of the URL until the person edits a field.
+  };
+  const handleImportedFinancials = (imported: {
+    monthlyIncome: number;
+    debtRatio: number;
+    openCreditLines: number;
+    utilization?: number;
+  }) => {
+    const next: Applicant = {
+      ...applicant,
+      monthlyIncome: imported.monthlyIncome,
+      debtRatio: imported.debtRatio,
+      openCreditLines: imported.openCreditLines,
+      ...(typeof imported.utilization === "number" ? { utilization: imported.utilization } : {}),
+    };
+    setApplicant(next);
+    setSampleId(null);
+    setName(DEFAULT_NAME);
+    sync(next, null, DEFAULT_NAME, loanType, loanAmount, collateralValue, recentHardInquiries);
   };
   const loadSample = (id: string) => {
     const s = SAMPLES.find((x) => x.id === id);
@@ -419,6 +438,7 @@ export function Workbench({
                 onLoanAmount={handleLoanAmount}
                 onCollateralValue={handleCollateralValue}
                 onRecentHardInquiries={handleRecentHardInquiries}
+                onImportedFinancials={handleImportedFinancials}
               />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">
@@ -499,6 +519,13 @@ export function Workbench({
         approvalLabel={approvalLabel}
         thresholdScore={r.thresholdScore}
         horizon={r.horizon}
+      />
+      <GovernmentSchemesSection
+        applicant={applicant}
+        loanType={loanType}
+        loanAmount={loanAmount}
+        collateralValue={collateralValue}
+        applicantName={name}
       />
       <MoreTools ui={ui} goalHref={goalHref} offerHref={offerHref} fairnessHref={fairnessHref} />
     </div>
