@@ -507,7 +507,7 @@ export function Workbench({
         thresholdScore={r.thresholdScore}
         horizon={r.horizon}
       />
-      <SchemePathways lang={lang} applicant={analyzed} />
+      <SchemePathways lang={lang} applicant={analyzed} loanAmount={loanAmount} />
       <MoreTools ui={ui} goalHref={goalHref} offerHref={offerHref} fairnessHref={fairnessHref} />
     </div>
   );

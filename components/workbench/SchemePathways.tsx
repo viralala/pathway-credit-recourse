@@ -25,7 +25,17 @@ const MAX_MONTHLY_INCOME = 20_00_000;
  * and shows the explained result. It is kept apart from the credit assessment on purpose: nothing from
  * the score, the model or the plan is sent, only the monthly income the person typed.
  */
-export function SchemePathways({ lang, applicant }: { lang: Lang; applicant: Pick<Applicant, "monthlyIncome"> }) {
+export function SchemePathways({
+  lang,
+  applicant,
+  loanAmount,
+}: {
+  lang: Lang;
+  /** Typed in or filled from the bank connection; only the income is read. */
+  applicant: Pick<Applicant, "monthlyIncome">;
+  /** The loan amount from the form above: used when the scheme questions leave the amount blank. */
+  loanAmount?: number;
+}) {
   const s = schemeStrings(lang);
   const { user } = useAuth();
   const base = useId();
@@ -71,6 +81,7 @@ export function SchemePathways({ lang, applicant }: { lang: Lang; applicant: Pic
     if (Object.keys(profile).length > 0) body.profile = profile;
     const income = applicant.monthlyIncome;
     if (Number.isFinite(income) && income >= 0 && income <= MAX_MONTHLY_INCOME) body.applicant = { monthlyIncome: Math.round(income) };
+    if (loanAmount !== undefined && Number.isFinite(loanAmount) && loanAmount > 0) body.goal = { amount: Math.round(loanAmount) };
     const asked = !!user && saveChecked;
     if (asked) body.save = true;
 

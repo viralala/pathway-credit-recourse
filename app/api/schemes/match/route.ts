@@ -28,11 +28,6 @@ import { isJsonContentType } from "@/lib/security/validate";
 const limiter = createRateLimiter({ limit: 20, windowMs: 60_000 });
 const MAX_MATCH_BODY_BYTES = 8 * 1024;
 
-/** The part of a Supabase client the save needs. */
-interface MatchHistoryClient {
-  from(table: "scheme_matches"): { insert(rows: Record<string, unknown>[]): PromiseLike<{ error: unknown }> };
-}
-
 export async function POST(req: Request) {
   try {
     if (!isSameOriginRequest(req.headers)) return apiError("FORBIDDEN", "Cross-origin requests are not allowed.", 403);
@@ -103,12 +98,12 @@ async function saveMatches(matches: SchemeMatch[], profile: ApplicantSchemeProfi
         scheme_version: m.scheme.version,
         status: m.status,
         relevance_score: m.relevance.score,
-        profile,
-        evaluation: m.evaluation,
+        profile: profile as Record<string, unknown>,
+        evaluation: m.evaluation as unknown as Record<string, unknown>,
       }));
     if (rows.length === 0) return false;
 
-    const { error } = await (supabase as unknown as MatchHistoryClient).from("scheme_matches").insert(rows);
+    const { error } = await supabase.from("scheme_matches").insert(rows);
     return !error;
   } catch {
     return false;
