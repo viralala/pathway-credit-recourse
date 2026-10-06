@@ -2,7 +2,7 @@ import { t, type Lang } from "@/lib/i18n";
 import { shell } from "@/lib/strings/shell";
 
 /** Site navigation: one list shared by the header, the mobile menu and the footer. */
-export type NavKey = "home" | "goal" | "offerCheck" | "fairness" | "report" | "method";
+export type NavKey = "home" | "schemes" | "goal" | "offerCheck" | "fairness" | "report" | "method";
 export interface NavItem {
   key: NavKey;
   href: string;
@@ -18,6 +18,7 @@ export function primaryNav(lang: Lang): NavItem[] {
     { key: "offerCheck", href: "/offer-check", label: s.nav.offerCheck },
     { key: "fairness", href: "/fairness", label: ui.fairness },
     { key: "report", href: "/report", label: ui.report },
+    { key: "schemes", href: "/schemes", label: s.nav.schemes },
     { key: "method", href: "/method", label: ui.method },
   ];
 }

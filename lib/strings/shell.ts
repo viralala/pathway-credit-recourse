@@ -9,7 +9,7 @@ export interface ShellStrings {
   skipToContent: string;
   homeAria: string;
   mainNav: string;
-  nav: { home: string; goal: string; offerCheck: string; partners: string };
+  nav: { home: string; schemes: string; goal: string; offerCheck: string; partners: string };
   account: { signIn: string; account: string };
   menu: { open: string; close: string; title: string; description: string };
   language: string;
@@ -60,7 +60,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
     skipToContent: "Skip to content",
     homeAria: "Pathway home",
     mainNav: "Main",
-    nav: { home: "Home", goal: "Goal planner", offerCheck: "Offer check", partners: "For lenders" },
+    nav: { home: "Home", schemes: "Schemes", goal: "Goal planner", offerCheck: "Offer check", partners: "For lenders" },
     account: { signIn: "Sign in", account: "My plans" },
     menu: {
       open: "Open menu",
@@ -115,7 +115,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
     skipToContent: "मुख्य सामग्री पर जाएँ",
     homeAria: "पाथवे होम",
     mainNav: "मुख्य",
-    nav: { home: "होम", goal: "लक्ष्य योजनाकार", offerCheck: "ऑफ़र जाँच", partners: "ऋणदाताओं के लिए" },
+    nav: { home: "होम", schemes: "योजनाएँ", goal: "लक्ष्य योजनाकार", offerCheck: "ऑफ़र जाँच", partners: "ऋणदाताओं के लिए" },
     account: { signIn: "साइन इन", account: "मेरी योजनाएँ" },
     menu: {
       open: "मेनू खोलें",
@@ -170,7 +170,7 @@ export const SHELL: Record<Lang, ShellStrings> = {
     skipToContent: "मुख्य मजकुराकडे जा",
     homeAria: "पाथवे मुख्यपृष्ठ",
     mainNav: "मुख्य",
-    nav: { home: "मुख्यपृष्ठ", goal: "ध्येय नियोजक", offerCheck: "ऑफर तपासणी", partners: "कर्जदात्यांसाठी" },
+    nav: { home: "मुख्यपृष्ठ", schemes: "योजना", goal: "ध्येय नियोजक", offerCheck: "ऑफर तपासणी", partners: "कर्जदात्यांसाठी" },
     account: { signIn: "साइन इन", account: "माझ्या योजना" },
     menu: {
       open: "मेनू उघडा",

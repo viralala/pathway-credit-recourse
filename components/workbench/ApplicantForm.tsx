@@ -1,13 +1,14 @@
 "use client";
 
-import { useId } from "react";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { useState, useId } from "react";
+import { Building2, CreditCard, ShieldCheck } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { money, tf, type UIStrings } from "@/lib/i18n";
 import { APPLICANT_LIMITS } from "@/lib/security/validate";
 import type { Applicant, FeatureKey, LoanType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { NumberField } from "./NumberField";
+import { SetuImportModal } from "./SetuImportModal";
 
 type Unit = "money" | "pct" | "count";
 interface FieldSpec {
@@ -83,6 +84,7 @@ export function ApplicantForm({
   onLoanAmount,
   onCollateralValue,
   onRecentHardInquiries,
+  onImportedFinancials,
 }: {
   ui: UIStrings;
   applicant: Applicant;
@@ -95,20 +97,83 @@ export function ApplicantForm({
   onLoanAmount?: (amount: number) => void;
   onCollateralValue?: (value: number | null) => void;
   onRecentHardInquiries?: (inquiries: number) => void;
+  onImportedFinancials?: (imported: {
+    monthlyIncome: number;
+    debtRatio: number;
+    openCreditLines: number;
+    utilization?: number;
+  }) => void;
 }) {
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [entryMode, setEntryMode] = useState<"manual" | "import">("manual");
   const loanAmountId = useId();
   const collateralId = useId();
   const hardInquiriesId = useId();
+
+  const handleApplySetuData = (data: {
+    monthlyIncome: number;
+    debtRatio: number;
+    openCreditLines: number;
+    utilization?: number;
+  }) => {
+    setEntryMode("import");
+    if (onImportedFinancials) {
+      onImportedFinancials(data);
+    } else {
+      onField("monthlyIncome", data.monthlyIncome);
+      onField("debtRatio", data.debtRatio);
+      onField("openCreditLines", data.openCreditLines);
+      if (typeof data.utilization === "number") {
+        onField("utilization", data.utilization);
+      }
+    }
+  };
 
   return (
     <section
       aria-labelledby="profile-title"
       className="rounded-2xl bg-card/90 p-5 ring-1 ring-foreground/10 backdrop-blur-sm sm:p-7"
     >
-      <h2 id="profile-title" className="text-xl font-extrabold tracking-tight">
-        {ui.profileTitle}
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">{ui.profileSub}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4 mb-5">
+        <div>
+          <h2 id="profile-title" className="text-xl font-extrabold tracking-tight">
+            {ui.profileTitle}
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">{ui.profileSub}</p>
+        </div>
+
+        <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1 text-xs">
+          <button
+            type="button"
+            onClick={() => setEntryMode("manual")}
+            className={cn(
+              "rounded-lg px-3 py-1.5 font-bold transition-all cursor-pointer",
+              entryMode === "manual" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Enter Manually
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setImportModalOpen(true);
+            }}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-bold transition-all cursor-pointer",
+              entryMode === "import" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Building2 className="size-3.5" />
+            <span>Import (Setu AA)</span>
+          </button>
+        </div>
+      </div>
+
+      <SetuImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onApplyImportedData={handleApplySetuData}
+      />
 
       <div className="mt-6 grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
         {PRIMARY_FIELDS.map((f) => (

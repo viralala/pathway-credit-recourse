@@ -117,6 +117,71 @@ CREATE TABLE IF NOT EXISTS public.outcomes (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 7. AA CONSENTS TABLE (Setu Account Aggregator Consent Tracking)
+CREATE TABLE IF NOT EXISTS public.aa_consents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  consent_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE', 'REJECTED', 'REVOKED', 'EXPIRED', 'FAILED')),
+  purpose TEXT NOT NULL DEFAULT 'Credit assessment and loan recourse planning',
+  redirect_url TEXT,
+  fiu_id TEXT,
+  session_id TEXT,
+  normalized_data JSONB,
+  requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  approved_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 8. GOVERNMENT SCHEMES TABLE (Verified Central & State Credit Schemes)
+CREATE TABLE IF NOT EXISTS public.government_schemes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  short_description TEXT NOT NULL,
+  description TEXT NOT NULL,
+  government_level TEXT NOT NULL CHECK (government_level IN ('central', 'state')),
+  ministry TEXT,
+  state TEXT,
+  category TEXT NOT NULL CHECK (category IN ('business', 'msme', 'artisan', 'agriculture', 'education', 'housing', 'women_entrepreneur', 'general')),
+  purposes JSONB NOT NULL DEFAULT '[]'::jsonb,
+  beneficiary_types JSONB NOT NULL DEFAULT '[]'::jsonb,
+  benefits JSONB NOT NULL DEFAULT '[]'::jsonb,
+  eligibility_rules JSONB NOT NULL DEFAULT '{"combinator": "AND", "rules": []}'::jsonb,
+  required_documents JSONB NOT NULL DEFAULT '[]'::jsonb,
+  application_url TEXT,
+  official_source_url TEXT NOT NULL,
+  source_type TEXT NOT NULL DEFAULT 'ministry_portal' CHECK (source_type IN ('official_gazette', 'ministry_portal', 'open_data', 'myScheme_reference')),
+  source_name TEXT NOT NULL,
+  version TEXT NOT NULL DEFAULT '2026.1',
+  effective_from DATE,
+  effective_until DATE,
+  last_verified_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  active BOOLEAN NOT NULL DEFAULT true,
+  priority INTEGER NOT NULL DEFAULT 0,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 9. GOVERNMENT SCHEME MATCHES TABLE (User Assessment Matches)
+CREATE TABLE IF NOT EXISTS public.government_scheme_matches (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  assessment_id UUID REFERENCES public.assessments(id) ON DELETE SET NULL,
+  scheme_id UUID NOT NULL REFERENCES public.government_schemes(id) ON DELETE CASCADE,
+  match_status TEXT NOT NULL CHECK (match_status IN ('likely_match', 'potential_match', 'insufficient_information', 'not_matching', 'expired', 'inactive')),
+  match_strength NUMERIC NOT NULL CHECK (match_strength >= 0 AND match_strength <= 100),
+  matched_criteria JSONB NOT NULL DEFAULT '[]'::jsonb,
+  unmet_criteria JSONB NOT NULL DEFAULT '[]'::jsonb,
+  missing_information JSONB NOT NULL DEFAULT '[]'::jsonb,
+  scheme_version TEXT NOT NULL DEFAULT '2026.1',
+  matched_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ==============================================================================
 -- INDEXES FOR PERFORMANCE
 -- ==============================================================================
@@ -136,6 +201,20 @@ CREATE INDEX IF NOT EXISTS idx_outcomes_assessment_id ON public.outcomes(assessm
 CREATE INDEX IF NOT EXISTS idx_outcomes_user_id ON public.outcomes(user_id);
 CREATE INDEX IF NOT EXISTS idx_outcomes_verified ON public.outcomes(verified) WHERE verified = true;
 
+CREATE INDEX IF NOT EXISTS idx_aa_consents_user_id ON public.aa_consents(user_id);
+CREATE INDEX IF NOT EXISTS idx_aa_consents_consent_id ON public.aa_consents(consent_id);
+CREATE INDEX IF NOT EXISTS idx_aa_consents_status ON public.aa_consents(status);
+
+CREATE INDEX IF NOT EXISTS idx_gov_schemes_active ON public.government_schemes(active);
+CREATE INDEX IF NOT EXISTS idx_gov_schemes_category ON public.government_schemes(category);
+CREATE INDEX IF NOT EXISTS idx_gov_schemes_gov_level ON public.government_schemes(government_level);
+CREATE INDEX IF NOT EXISTS idx_gov_schemes_state ON public.government_schemes(state);
+CREATE INDEX IF NOT EXISTS idx_gov_schemes_priority ON public.government_schemes(priority DESC);
+
+CREATE INDEX IF NOT EXISTS idx_gov_scheme_matches_user ON public.government_scheme_matches(user_id);
+CREATE INDEX IF NOT EXISTS idx_gov_scheme_matches_assessment ON public.government_scheme_matches(assessment_id);
+CREATE INDEX IF NOT EXISTS idx_gov_scheme_matches_scheme ON public.government_scheme_matches(scheme_id);
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
@@ -145,6 +224,9 @@ ALTER TABLE public.recourse_plans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pricing_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.outcomes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.aa_consents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.government_schemes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.government_scheme_matches ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "Users can view own profile"
@@ -222,6 +304,41 @@ CREATE POLICY "Users can insert own outcomes"
 
 CREATE POLICY "Users can delete own outcomes"
   ON public.outcomes FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- AA Consents policies
+CREATE POLICY "Users can view own consents"
+  ON public.aa_consents FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own consents"
+  ON public.aa_consents FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own consents"
+  ON public.aa_consents FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own consents"
+  ON public.aa_consents FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Government Schemes policies
+CREATE POLICY "Public can view active government schemes"
+  ON public.government_schemes FOR SELECT
+  USING (active = true);
+
+-- Government Scheme Matches policies
+CREATE POLICY "Users can view own scheme matches"
+  ON public.government_scheme_matches FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own scheme matches"
+  ON public.government_scheme_matches FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own scheme matches"
+  ON public.government_scheme_matches FOR DELETE
   USING (auth.uid() = user_id);
 
 -- ==============================================================================
