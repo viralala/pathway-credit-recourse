@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { analyze } from "@/lib/analyze";
 import { summaryText, t, tf, type Lang } from "@/lib/i18n";
 import { SAMPLES } from "@/lib/samples";
-import type { Applicant, FeatureKey } from "@/lib/types";
+import type { Applicant, FeatureKey, LoanType } from "@/lib/types";
 import { paramsFor } from "@/lib/url";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ApplicantForm } from "./workbench/ApplicantForm";
@@ -31,12 +31,18 @@ export function Workbench({
   initialApplicant,
   initialName,
   initialSampleId,
+  initialLoanType = "unsecured",
+  initialLoanAmount = 500_000,
+  initialCollateralValue,
   lang,
   planId,
 }: {
   initialApplicant: Applicant;
   initialName: string;
   initialSampleId: string | null;
+  initialLoanType?: LoanType;
+  initialLoanAmount?: number;
+  initialCollateralValue?: number | null;
   lang: Lang;
   /** A saved plan being updated (from "My plans"), or null. */
   planId: string | null;
@@ -45,6 +51,15 @@ export function Workbench({
   const [applicant, setApplicant] = useState(initialApplicant);
   const [name, setName] = useState(initialName);
   const [sampleId, setSampleId] = useState(initialSampleId);
+  const [loanType, setLoanType] = useState<LoanType>(initialLoanType);
+  const [loanAmount, setLoanAmount] = useState<number>(initialLoanAmount);
+  const [collateralValue, setCollateralValue] = useState<number | null>(
+    initialCollateralValue !== undefined
+      ? initialCollateralValue
+      : initialLoanType === "secured"
+        ? 800_000
+        : null
+  );
   const [aiText, setAiText] = useState<{ key: string; text: string; source: "ai" | "template" } | null>(null);
   const [rewriting, setRewriting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,11 +69,30 @@ export function Workbench({
 
   // Inputs stay instant; the (heavier) analysis follows a beat behind while typing.
   const analyzed = useDeferredValue(applicant);
-  const r = useMemo(() => analyze(analyzed), [analyzed]);
+  const r = useMemo(
+    () => analyze(analyzed, { loanType, loanAmount, collateralValue }),
+    [analyzed, loanType, loanAmount, collateralValue]
+  );
   const { assessment: a, plan, timeline } = r;
 
-  const sync = (next: Applicant, nextSample: string | null, nextName: string) => {
-    const q = new URLSearchParams(paramsFor(next, { sampleId: nextSample, lang, name: nextName === DEFAULT_NAME ? undefined : nextName }));
+  const sync = (
+    next: Applicant,
+    nextSample: string | null,
+    nextName: string,
+    nextLoanType: LoanType = loanType,
+    nextLoanAmount: number = loanAmount,
+    nextCollateral: number | null = collateralValue
+  ) => {
+    const q = new URLSearchParams(
+      paramsFor(next, {
+        sampleId: nextSample,
+        lang,
+        name: nextName === DEFAULT_NAME ? undefined : nextName,
+        loanType: nextLoanType,
+        loanAmount: nextLoanAmount,
+        collateralValue: nextCollateral,
+      })
+    );
     if (planId) q.set("plan", planId);
     window.history.replaceState(null, "", `${window.location.pathname}?${q}${window.location.hash}`);
   };
@@ -67,7 +101,21 @@ export function Workbench({
     setApplicant(next);
     setSampleId(null);
     setName(DEFAULT_NAME);
-    sync(next, null, DEFAULT_NAME);
+    sync(next, null, DEFAULT_NAME, loanType, loanAmount, collateralValue);
+  };
+  const handleLoanType = (type: LoanType) => {
+    setLoanType(type);
+    const nextCollateral = type === "secured" ? (collateralValue ?? 800_000) : null;
+    setCollateralValue(nextCollateral);
+    sync(applicant, sampleId, name, type, loanAmount, nextCollateral);
+  };
+  const handleLoanAmount = (amount: number) => {
+    setLoanAmount(amount);
+    sync(applicant, sampleId, name, loanType, amount, collateralValue);
+  };
+  const handleCollateralValue = (val: number | null) => {
+    setCollateralValue(val);
+    sync(applicant, sampleId, name, loanType, loanAmount, val);
   };
   const loadSample = (id: string) => {
     const s = SAMPLES.find((x) => x.id === id);
@@ -75,7 +123,7 @@ export function Workbench({
     setApplicant(s.applicant);
     setSampleId(s.id);
     setName(s.name);
-    sync(s.applicant, s.id, s.name);
+    sync(s.applicant, s.id, s.name, loanType, loanAmount, collateralValue);
   };
 
   const feasible = r.recourse.status === "plan";
@@ -97,11 +145,11 @@ export function Workbench({
   });
 
   const langQuery = lang !== "en" ? `?lang=${lang}` : "";
-  const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name })}`;
+  const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name, loanType, loanAmount, collateralValue })}`;
   const fairnessHref = `/fairness${langQuery}`;
-  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name })}`;
+  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue })}`;
   const offerHref = `/offer-check${langQuery}`;
-  const homeQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name }));
+  const homeQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue }));
   if (planId) homeQuery.set("plan", planId);
   const returnTo = `/?${homeQuery}`;
 
@@ -125,7 +173,13 @@ export function Workbench({
     }
   }
 
-  async function saveAssessmentWithData(appData: Applicant, applicantName: string) {
+  async function saveAssessmentWithData(
+    appData: Applicant,
+    applicantName: string,
+    selectedLoanType: LoanType = loanType,
+    selectedLoanAmount: number = loanAmount,
+    selectedCollateralValue: number | null = collateralValue
+  ) {
     setSaving(true);
     setSaveError(null);
     try {
@@ -133,7 +187,13 @@ export function Workbench({
       const res = await fetch("/api/assessments", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ applicant: appData, applicantName }),
+        body: JSON.stringify({
+          applicant: appData,
+          applicantName,
+          loanType: selectedLoanType,
+          loanAmount: selectedLoanAmount,
+          collateralValue: selectedLoanType === "secured" ? selectedCollateralValue : null,
+        }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.success) {
@@ -178,7 +238,13 @@ export function Workbench({
       try {
         localStorage.setItem(
           "pathway_pending_assessment",
-          JSON.stringify({ applicant: analyzed, name })
+          JSON.stringify({
+            applicant: analyzed,
+            name,
+            loanType,
+            loanAmount,
+            collateralValue: loanType === "secured" ? collateralValue : null,
+          })
         );
       } catch {
         // Ignore storage errors
@@ -187,7 +253,7 @@ export function Workbench({
       return;
     }
 
-    await saveAssessmentWithData(analyzed, name);
+    await saveAssessmentWithData(analyzed, name, loanType, loanAmount, collateralValue);
   }
 
   // Check and process any pending assessment saved prior to OAuth redirect
@@ -201,14 +267,32 @@ export function Workbench({
         if (pending?.applicant) {
           const applicantData = pending.applicant;
           const applicantName = pending.name || DEFAULT_NAME;
+          const pendingLoanType: LoanType = pending.loanType === "secured" ? "secured" : "unsecured";
+          const pendingLoanAmount = typeof pending.loanAmount === "number" ? pending.loanAmount : 500_000;
+          const pendingCollateral =
+            pendingLoanType === "secured" && typeof pending.collateralValue === "number"
+              ? pending.collateralValue
+              : pendingLoanType === "secured"
+                ? 800_000
+                : null;
           setTimeout(() => {
-            saveAssessmentWithData(applicantData, applicantName);
+            if (pending.loanType) setLoanType(pendingLoanType);
+            setLoanAmount(pendingLoanAmount);
+            setCollateralValue(pendingCollateral);
+            saveAssessmentWithData(
+              applicantData,
+              applicantName,
+              pendingLoanType,
+              pendingLoanAmount,
+              pendingCollateral
+            );
           }, 0);
         }
       }
     } catch {
       // Ignore storage errors
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const current = aiText && aiText.key === summary ? aiText : null;
@@ -231,11 +315,23 @@ export function Workbench({
                   approvalLabel={approvalLabel}
                   reportHref={reportHref}
                   fairnessHref={fairnessHref}
+                  loanType={loanType}
+                  loanAssessment={r.loanAssessment}
                 />
               </div>
             </div>
             <div className="lg:col-span-7">
-              <ApplicantForm ui={ui} applicant={applicant} onField={setField} />
+              <ApplicantForm
+                ui={ui}
+                applicant={applicant}
+                loanType={loanType}
+                loanAmount={loanAmount}
+                collateralValue={collateralValue}
+                onField={setField}
+                onLoanType={handleLoanType}
+                onLoanAmount={handleLoanAmount}
+                onCollateralValue={handleCollateralValue}
+              />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">
                   <a href="#why">

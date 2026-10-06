@@ -1,10 +1,11 @@
 import { ASSUMPTIONS } from "./config";
+import { assessLoan } from "./loanAssessment";
 import { MODEL, assess, type Assessment } from "./model";
 import { simulateUncertainty, type UncertaintyBand } from "./montecarlo";
 import { PRICING, moneySaved, nextTier, totalInterest, type RateTier, type Savings } from "./pricing";
 import { findRecourse, type RecoursePlan, type RecourseResult } from "./recourse";
 import { simulate, type Timeline } from "./timeline";
-import type { Applicant } from "./types";
+import type { Applicant, LoanAssessment, LoanType } from "./types";
 
 export interface Analysis {
   assessment: Assessment;
@@ -16,12 +17,31 @@ export interface Analysis {
   uncertainty: UncertaintyBand;
   thresholdScore: number;
   horizon: number;
+  loanType: LoanType;
+  loanAssessment: LoanAssessment;
 }
 
-export function analyze(applicant: Applicant): Analysis {
+export function analyze(
+  applicant: Applicant,
+  loanOpts: LoanType | { loanType?: LoanType; loanAmount?: number; collateralValue?: number | null } = "unsecured",
+): Analysis {
   const assessment = assess(applicant);
   const recourse = findRecourse(applicant);
   const plan = recourse.status === "plan" ? recourse.plan : recourse.status === "infeasible" ? recourse.closest : null;
+
+  const loanType: LoanType = typeof loanOpts === "string" ? loanOpts : (loanOpts.loanType || "unsecured");
+  const loanAmount = typeof loanOpts === "object" ? loanOpts.loanAmount : undefined;
+  const collateralValue = typeof loanOpts === "object" ? loanOpts.collateralValue : undefined;
+
+  const loanAssessment = assessLoan({
+    loanType,
+    loanAmount,
+    collateralValue,
+    applicant,
+    predictedScore: assessment.score,
+    pd: assessment.pd,
+    decision: assessment.approved ? "approved" : "declined",
+  });
   return {
     assessment,
     recourse,
@@ -30,6 +50,8 @@ export function analyze(applicant: Applicant): Analysis {
     uncertainty: simulateUncertainty(applicant, plan),
     thresholdScore: MODEL.thresholdScore,
     horizon: ASSUMPTIONS.horizonMonths,
+    loanType,
+    loanAssessment,
   };
 }
 

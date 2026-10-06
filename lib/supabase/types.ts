@@ -1,3 +1,5 @@
+import type { LoanType } from "@/lib/types";
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[] | Record<string, unknown> | unknown[];
 
 export type Database = {
@@ -45,6 +47,10 @@ export type Database = {
           dependents: number | null;
           real_estate_loans: number | null;
           applicant_name: string | null;
+          loan_type: LoanType;
+          loan_amount: number;
+          collateral_value: number | null;
+          ltv: number | null;
           predicted_score: number;
           pd: number;
           decision: "approved" | "declined";
@@ -66,6 +72,10 @@ export type Database = {
           dependents?: number | null;
           real_estate_loans?: number | null;
           applicant_name?: string | null;
+          loan_type?: LoanType;
+          loan_amount?: number;
+          collateral_value?: number | null;
+          ltv?: number | null;
           predicted_score: number;
           pd: number;
           decision: "approved" | "declined";
@@ -87,6 +97,10 @@ export type Database = {
           dependents?: number | null;
           real_estate_loans?: number | null;
           applicant_name?: string | null;
+          loan_type?: LoanType;
+          loan_amount?: number;
+          collateral_value?: number | null;
+          ltv?: number | null;
           predicted_score?: number;
           pd?: number;
           decision?: "approved" | "declined";

@@ -2,6 +2,7 @@ import { getAuthenticatedUser } from "@/lib/security/auth-check";
 import { apiError, apiSuccess } from "@/lib/security/api-response";
 import { createAssessmentSchema } from "@/lib/security/zod-schemas";
 import { assess, MODEL } from "@/lib/model";
+import { assessLoan } from "@/lib/loanAssessment";
 import type { Applicant } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -23,12 +24,23 @@ export async function POST(req: Request) {
       return apiError("VALIDATION_ERROR", "Invalid assessment input parameters", 400, parseResult.error.flatten());
     }
 
-    const { applicant, applicantName } = parseResult.data;
+    const { applicant, applicantName, loanType, loanAmount, collateralValue } = parseResult.data;
 
-    // Server-side calculation using existing TypeScript ML inference
+    // Server-side calculation using existing TypeScript ML inference (ML MODEL REMAINS INVARIANT)
     const result = assess(applicant as Applicant, MODEL);
     const decision = result.approved ? "approved" : "declined";
     const modelVersion = `v${MODEL.version}`;
+
+    // Loan-Type Contextual Assessment Layer (evaluated around/after the ML model)
+    const loanAssessment = assessLoan({
+      loanType,
+      loanAmount,
+      collateralValue: loanType === "secured" ? (collateralValue ?? null) : null,
+      applicant: applicant as Applicant,
+      predictedScore: result.score,
+      pd: result.pd,
+      decision,
+    });
 
     // Defensively ensure user profile exists in public.profiles to satisfy foreign key
     const userMeta = user.user_metadata || {};
@@ -56,6 +68,10 @@ export async function POST(req: Request) {
         late_60: applicant.late60,
         late_90: applicant.late90,
         applicant_name: applicantName || "Applicant",
+        loan_type: loanType,
+        loan_amount: loanAssessment.loanAmount,
+        collateral_value: loanAssessment.collateralValue,
+        ltv: loanAssessment.ltv,
         predicted_score: result.score,
         pd: result.pd,
         decision,
@@ -71,6 +87,11 @@ export async function POST(req: Request) {
 
     return apiSuccess({
       assessment: savedAssessment,
+      loanType,
+      loanAmount: loanAssessment.loanAmount,
+      collateralValue: loanAssessment.collateralValue,
+      ltv: loanAssessment.ltv,
+      loanAssessment,
       score: result.score,
       decision,
       pd: result.pd,

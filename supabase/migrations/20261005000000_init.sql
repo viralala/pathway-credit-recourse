@@ -31,6 +31,10 @@ CREATE TABLE IF NOT EXISTS public.assessments (
 
   -- Optional applicant context
   applicant_name TEXT,
+  loan_type TEXT NOT NULL DEFAULT 'unsecured' CHECK (loan_type IN ('secured', 'unsecured')),
+  loan_amount NUMERIC NOT NULL DEFAULT 500000 CHECK (loan_amount > 0),
+  collateral_value NUMERIC CHECK (collateral_value IS NULL OR collateral_value > 0),
+  ltv NUMERIC CHECK (ltv IS NULL OR ltv >= 0),
 
   -- Server-side calculated outputs (Never trusted from client)
   predicted_score NUMERIC NOT NULL,

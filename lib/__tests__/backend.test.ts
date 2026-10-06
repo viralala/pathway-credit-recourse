@@ -8,6 +8,7 @@ import {
   uuidSchema,
 } from "@/lib/security/zod-schemas";
 import { assess, MODEL } from "@/lib/model";
+import { assessLoan } from "@/lib/loanAssessment";
 import { findRecourse } from "@/lib/recourse";
 import { simulate } from "@/lib/timeline";
 import { simulateUncertainty } from "@/lib/montecarlo";
@@ -35,15 +36,155 @@ describe("Backend Validation Schemas (Zod)", () => {
     expect(uuidSchema.safeParse("").success).toBe(false);
   });
 
-  it("validates assessment and recourse payloads", () => {
-    const validUuid = "123e4567-e89b-12d3-a456-426614174000";
-    expect(createAssessmentSchema.safeParse({ applicant: demoApplicant, applicantName: "Alice" }).success).toBe(true);
-    expect(createRecourseSchema.safeParse({ assessmentId: validUuid, targetScore: 720 }).success).toBe(true);
-    expect(createRecourseSchema.safeParse({ assessmentId: "invalid", targetScore: 720 }).success).toBe(false);
+  it("validates assessment payloads for secured and unsecured loans", () => {
+    // 1. Valid secured loan with positive collateral
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+        loanType: "secured",
+        loanAmount: 500_000,
+        collateralValue: 800_000,
+      }).success
+    ).toBe(true);
+
+    // 2. Valid unsecured loan without collateral or with null collateral
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Bob",
+        loanType: "unsecured",
+        loanAmount: 300_000,
+      }).success
+    ).toBe(true);
+
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Bob",
+        loanType: "unsecured",
+        loanAmount: 300_000,
+        collateralValue: null,
+      }).success
+    ).toBe(true);
   });
 
-  it("validates simulation and outcome payloads", () => {
+  it("rejects missing, invalid, or malformed loanType", () => {
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+        loanType: "invalid_type",
+      }).success
+    ).toBe(false);
+
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+        loanType: "auto",
+      }).success
+    ).toBe(false);
+
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+        loanType: "",
+      }).success
+    ).toBe(false);
+
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+        loanType: null,
+      }).success
+    ).toBe(false);
+
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        applicantName: "Alice",
+      }).success
+    ).toBe(false);
+  });
+
+  it("rejects invalid, negative, or zero loan amounts", () => {
+    // Negative loan amount
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "unsecured",
+        loanAmount: -50000,
+      }).success
+    ).toBe(false);
+
+    // Zero loan amount
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "unsecured",
+        loanAmount: 0,
+      }).success
+    ).toBe(false);
+
+    // String loan amount
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "unsecured",
+        loanAmount: "500000" as unknown as number,
+      }).success
+    ).toBe(false);
+  });
+
+  it("requires valid positive collateral for secured loans and rejects missing/zero/negative collateral", () => {
+    // Missing collateral for secured loan
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "secured",
+        loanAmount: 500_000,
+      }).success
+    ).toBe(false);
+
+    // Null collateral for secured loan
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "secured",
+        loanAmount: 500_000,
+        collateralValue: null,
+      }).success
+    ).toBe(false);
+
+    // Zero collateral for secured loan
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "secured",
+        loanAmount: 500_000,
+        collateralValue: 0,
+      }).success
+    ).toBe(false);
+
+    // Negative collateral for secured loan
+    expect(
+      createAssessmentSchema.safeParse({
+        applicant: demoApplicant,
+        loanType: "secured",
+        loanAmount: 500_000,
+        collateralValue: -100_000,
+      }).success
+    ).toBe(false);
+  });
+
+  it("validates recourse, simulation, and outcome payloads", () => {
     const validUuid = "123e4567-e89b-12d3-a456-426614174000";
+    expect(createRecourseSchema.safeParse({ assessmentId: validUuid, targetScore: 720 }).success).toBe(true);
+    expect(createRecourseSchema.safeParse({ assessmentId: "invalid", targetScore: 720 }).success).toBe(false);
+
     expect(createSimulationSchema.safeParse({ assessmentId: validUuid, runs: 300 }).success).toBe(true);
     expect(createSimulationSchema.safeParse({ assessmentId: validUuid, runs: 5000 }).success).toBe(false); // Max runs exceeded
     expect(createOutcomeSchema.safeParse({ assessmentId: validUuid, actualOutcome: "Approved for credit card", actualScore: 690 }).success).toBe(true);
@@ -64,6 +205,20 @@ describe("Server-Side Inference and Business Logic Pipeline", () => {
     expect(MODEL.version).toBe(2);
     const modelVersionTag = `v${MODEL.version}`;
     expect(modelVersionTag).toBe("v2");
+  });
+
+  it("calculates server-side LTV and does not trust client overrides", () => {
+    // Client could attempt to send a fabricated LTV, but assessLoan computes it mathematically
+    const serverResult = assessLoan({
+      loanType: "secured",
+      loanAmount: 600_000,
+      collateralValue: 1_000_000,
+      applicant: demoApplicant,
+    });
+
+    expect(serverResult.ltv).toBe(60);
+    expect(serverResult.collateralValue).toBe(1_000_000);
+    expect(serverResult.loanAmount).toBe(600_000);
   });
 
   it("runs recourse planning and flips decisions for subprime applicants", () => {
@@ -89,12 +244,15 @@ describe("Server-Side Inference and Business Logic Pipeline", () => {
   });
 
   it("calculates risk-based pricing and savings correctly", () => {
-    const savings = moneySaved({
-      scoreToday: 600,
-      scoreAfter: 720,
-      amount: 10000,
-      termMonths: 36,
-    }, PRICING);
+    const savings = moneySaved(
+      {
+        scoreToday: 600,
+        scoreAfter: 720,
+        amount: 10000,
+        termMonths: 36,
+      },
+      PRICING
+    );
 
     expect(savings.todayApr).toBeGreaterThan(savings.planApr);
     expect(savings.saved).toBeGreaterThan(0);

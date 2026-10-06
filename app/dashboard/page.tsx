@@ -38,6 +38,10 @@ interface AssessmentRecord {
   late_60: number;
   late_90: number;
   applicant_name: string | null;
+  loan_type?: "secured" | "unsecured" | null;
+  loan_amount?: number | null;
+  collateral_value?: number | null;
+  ltv?: number | null;
   predicted_score: number;
   pd: number;
   decision: "approved" | "declined";
@@ -128,7 +132,13 @@ export default function DashboardPage() {
             const res = await fetch("/api/assessments", {
               method: "POST",
               headers: { "content-type": "application/json" },
-              body: JSON.stringify({ applicant: pending.applicant, applicantName: pending.name || "Applicant" }),
+              body: JSON.stringify({
+                applicant: pending.applicant,
+                applicantName: pending.name || "Applicant",
+                loanType: pending.loanType || "unsecured",
+                loanAmount: pending.loanAmount,
+                collateralValue: pending.loanType === "secured" ? pending.collateralValue : null,
+              }),
             });
             const json = await res.json().catch(() => ({}));
             const assessmentId = json.data?.assessment?.id;
@@ -458,6 +468,13 @@ export default function DashboardPage() {
                           <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                             {item.model_version}
                           </span>
+                          <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
+                            item.loan_type === "secured"
+                              ? "bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                              : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                          }`}>
+                            {item.loan_type === "secured" ? "Secured" : "Unsecured"}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">
@@ -516,7 +533,7 @@ export default function DashboardPage() {
                         Created: {new Date(selectedAssessment.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center gap-3">
+                    <div className="mt-1 flex flex-wrap items-center gap-3">
                       <h2 className="text-2xl font-black text-foreground">
                         Score: {Math.round(selectedAssessment.predicted_score)}
                       </h2>
@@ -528,6 +545,15 @@ export default function DashboardPage() {
                         }`}
                       >
                         {selectedAssessment.decision === "approved" ? "Approved" : "Declined (Recourse Available)"}
+                      </span>
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          selectedAssessment.loan_type === "secured"
+                            ? "bg-sky-500/15 text-sky-600 dark:text-sky-400"
+                            : "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400"
+                        }`}
+                      >
+                        {selectedAssessment.loan_type === "secured" ? "Secured Loan" : "Unsecured Loan"}
                       </span>
                     </div>
                   </div>
@@ -544,6 +570,9 @@ export default function DashboardPage() {
                     };
                     const query = paramsFor(applicantObj, {
                       name: selectedAssessment.applicant_name || undefined,
+                      loanType: selectedAssessment.loan_type === "secured" ? "secured" : "unsecured",
+                      loanAmount: selectedAssessment.loan_amount ?? undefined,
+                      collateralValue: selectedAssessment.collateral_value ?? undefined,
                     });
                     return (
                       <Button asChild variant="outline" size="sm" className="gap-1.5 rounded-xl font-bold">
@@ -559,9 +588,37 @@ export default function DashboardPage() {
                 {/* Input feature pills */}
                 <div className="mt-6 border-t border-border pt-4">
                   <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Input Features
+                    Input Features & Assessment Context
                   </h3>
                   <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                    <div className="col-span-2 rounded-xl bg-primary/5 border border-primary/15 p-3 sm:col-span-4">
+                      <div className="text-xs font-bold text-primary flex flex-wrap items-center justify-between gap-1">
+                        <span>
+                          Loan Facility: {selectedAssessment.loan_type === "secured" ? "Secured Loan (Collateral Backed)" : "Unsecured Loan (Cash Flow Backed)"}
+                        </span>
+                        <span className="text-[10px] font-normal text-muted-foreground">Evaluated separately from ML credit score</span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs font-medium text-foreground">
+                        <div>
+                          <span className="text-muted-foreground">Loan Amount: </span>
+                          <strong>₹{(selectedAssessment.loan_amount ?? 500_000).toLocaleString()}</strong>
+                        </div>
+                        {selectedAssessment.loan_type === "secured" && selectedAssessment.collateral_value && (
+                          <div>
+                            <span className="text-muted-foreground">Collateral: </span>
+                            <strong>₹{selectedAssessment.collateral_value.toLocaleString()}</strong>
+                          </div>
+                        )}
+                        {selectedAssessment.loan_type === "secured" && selectedAssessment.ltv !== null && selectedAssessment.ltv !== undefined && (
+                          <div>
+                            <span className="text-muted-foreground">LTV: </span>
+                            <strong className={selectedAssessment.ltv > 80 ? "text-amber-600 dark:text-amber-400" : "text-primary"}>
+                              {selectedAssessment.ltv}%
+                            </strong>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <div className="rounded-xl bg-muted/40 p-2.5">
                       <div className="text-muted-foreground">Monthly Income</div>
                       <div className="font-bold text-foreground">

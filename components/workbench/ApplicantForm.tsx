@@ -1,10 +1,11 @@
 "use client";
 
 import { useId } from "react";
+import { CreditCard, ShieldCheck } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { money, tf, type UIStrings } from "@/lib/i18n";
 import { APPLICANT_LIMITS } from "@/lib/security/validate";
-import type { Applicant, FeatureKey } from "@/lib/types";
+import type { Applicant, FeatureKey, LoanType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { NumberField } from "./NumberField";
 
@@ -73,12 +74,27 @@ function Field({
 export function ApplicantForm({
   ui,
   applicant,
+  loanType = "unsecured",
+  loanAmount = 500_000,
+  collateralValue,
   onField,
+  onLoanType,
+  onLoanAmount,
+  onCollateralValue,
 }: {
   ui: UIStrings;
   applicant: Applicant;
+  loanType?: LoanType;
+  loanAmount?: number;
+  collateralValue?: number | null;
   onField: (key: FeatureKey, v: number) => void;
+  onLoanType?: (type: LoanType) => void;
+  onLoanAmount?: (amount: number) => void;
+  onCollateralValue?: (value: number | null) => void;
 }) {
+  const loanAmountId = useId();
+  const collateralId = useId();
+
   return (
     <section
       aria-labelledby="profile-title"
@@ -108,6 +124,136 @@ export function ApplicantForm({
         {SECONDARY_FIELDS.map((f) => (
           <Field key={f.key} spec={f} label={ui.fields[f.key]} value={applicant[f.key]} onChange={(v) => onField(f.key, v)} />
         ))}
+      </div>
+
+      <div className="mt-8 border-t border-border pt-6">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-bold text-foreground">Loan Information</h3>
+          <span className="text-[11px] font-medium text-muted-foreground">Required for Application Assessment</span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Specify loan facility structure and parameters. (ML credit risk score is evaluated independently).
+        </p>
+
+        <div className="mt-4">
+          <Label className="leading-snug font-medium text-muted-foreground">
+            Loan Type
+          </Label>
+          <div role="radiogroup" aria-label="Loan Type" className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={loanType === "unsecured"}
+              onClick={() => {
+                onLoanType?.("unsecured");
+                onCollateralValue?.(null);
+              }}
+              className={cn(
+                "flex items-start gap-3 rounded-xl border p-3.5 text-left transition-all cursor-pointer",
+                loanType === "unsecured"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-xs"
+                  : "border-border bg-card/60 hover:border-foreground/20 hover:bg-muted/40"
+              )}
+            >
+              <div className={cn(
+                "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg",
+                loanType === "unsecured" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              )}>
+                <CreditCard className="size-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-foreground">Unsecured Loan</span>
+                  {loanType === "unsecured" && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Active</span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  No collateral pledged (personal loan, card, credit line). Underwritten on income & debt ratio.
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              role="radio"
+              aria-checked={loanType === "secured"}
+              onClick={() => {
+                onLoanType?.("secured");
+                if (!collateralValue) onCollateralValue?.(800_000);
+              }}
+              className={cn(
+                "flex items-start gap-3 rounded-xl border p-3.5 text-left transition-all cursor-pointer",
+                loanType === "secured"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-xs"
+                  : "border-border bg-card/60 hover:border-foreground/20 hover:bg-muted/40"
+              )}
+            >
+              <div className={cn(
+                "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg",
+                loanType === "secured" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              )}>
+                <ShieldCheck className="size-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-foreground">Secured Loan</span>
+                  {loanType === "secured" && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Active</span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Backed by collateral (property, vehicle, deposit). Reduces lender loss given default.
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
+          <div className="grid content-start gap-1.5">
+            <Label htmlFor={loanAmountId} className="leading-snug font-medium text-muted-foreground">
+              Loan Amount
+              <span className="sr-only"> (₹)</span>
+            </Label>
+            <NumberField
+              id={loanAmountId}
+              value={loanAmount}
+              min={10_000}
+              max={50_00_000}
+              step={10_000}
+              prefix="₹"
+              onValue={(v) => onLoanAmount?.(Math.round(v))}
+              inputClassName="h-12 text-lg font-bold"
+            />
+          </div>
+
+          {loanType === "secured" && (
+            <div className="grid content-start gap-1.5 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={collateralId} className="leading-snug font-medium text-muted-foreground">
+                  Collateral Value
+                  <span className="sr-only"> (₹)</span>
+                </Label>
+                {collateralValue && collateralValue > 0 && (
+                  <span className="text-[11px] font-bold text-primary tabular-nums">
+                    LTV: {((loanAmount / collateralValue) * 100).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <NumberField
+                id={collateralId}
+                value={collateralValue ?? 800_000}
+                min={10_000}
+                max={1_00_00_000}
+                step={25_000}
+                prefix="₹"
+                onValue={(v) => onCollateralValue?.(Math.round(v))}
+                inputClassName="h-12 text-lg font-bold border-primary/40 bg-primary/5"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

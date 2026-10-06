@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const applicantSchema = z.object({
-  monthlyIncome: z.number().min(0).max(20_00_000),
+  monthlyIncome: z.number().min(0).max(2_000_000),
   utilization: z.number().min(0).max(1.5),
   debtRatio: z.number().min(0).max(3),
   openCreditLines: z.number().int().min(0).max(30),
@@ -10,10 +10,32 @@ export const applicantSchema = z.object({
   late90: z.number().int().min(0).max(10),
 });
 
-export const createAssessmentSchema = z.object({
-  applicant: applicantSchema,
-  applicantName: z.string().max(40).optional(),
-});
+export const loanTypeSchema = z.enum(["secured", "unsecured"]);
+
+export const createAssessmentSchema = z
+  .object({
+    applicant: applicantSchema,
+    applicantName: z.string().max(40).optional(),
+    loanType: loanTypeSchema,
+    loanAmount: z.number().positive().max(100_000_000).default(500_000),
+    collateralValue: z.number().positive().max(500_000_000).nullable().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.loanType === "secured") {
+        return (
+          typeof data.collateralValue === "number" &&
+          Number.isFinite(data.collateralValue) &&
+          data.collateralValue > 0
+        );
+      }
+      return true;
+    },
+    {
+      message: "Collateral value is required and must be greater than 0 for secured loans",
+      path: ["collateralValue"],
+    }
+  );
 
 export const createRecourseSchema = z.object({
   assessmentId: z.string().uuid(),
