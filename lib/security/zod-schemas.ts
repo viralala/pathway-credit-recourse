@@ -1,25 +1,28 @@
 import { z } from "zod";
 
-export const applicantSchema = z.object({
-  monthlyIncome: z.number().min(0).max(2_000_000),
-  utilization: z.number().min(0).max(1.5),
-  debtRatio: z.number().min(0).max(3),
-  openCreditLines: z.number().int().min(0).max(30),
-  late30: z.number().int().min(0).max(10),
-  late60: z.number().int().min(0).max(10),
-  late90: z.number().int().min(0).max(10),
-});
+export const applicantSchema = z
+  .object({
+    monthlyIncome: z.union([z.number().min(0).max(2_000_000), z.nan()]).default(45000),
+    utilization: z.number().min(0).max(1.5),
+    debtRatio: z.number().min(0).max(3),
+    openCreditLines: z.number().int().min(0).max(30),
+    late30: z.number().int().min(0).max(10),
+    late60: z.number().int().min(0).max(10),
+    late90: z.number().int().min(0).max(10),
+  })
+  .passthrough();
 
 export const loanTypeSchema = z.enum(["secured", "unsecured"]);
 
 export const createAssessmentSchema = z
   .object({
     applicant: applicantSchema,
-    applicantName: z.string().max(40).optional(),
+    applicantName: z.string().max(100).optional(),
     loanType: loanTypeSchema,
     loanAmount: z.number().positive().max(100_000_000).default(500_000),
     collateralValue: z.number().positive().max(500_000_000).nullable().optional(),
   })
+  .passthrough()
   .refine(
     (data) => {
       if (data.loanType === "secured") {
