@@ -179,10 +179,8 @@ describe("Setu provider requests", () => {
     expect(headers).toMatchObject({ "x-client-id": "cid-consent", "x-client-secret": "sec", "x-product-instance-id": "pid" });
     const body = JSON.parse(String(calls[0].init.body));
     expect(body.redirectUrl).toBe("https://pathway.example/connect/done");
-    expect(body.fiTypes).toEqual(["DEPOSIT"]);
-    expect(body.purpose).toMatchObject({ code: "105", refUri: expect.stringContaining("105") });
-    expect(body.dataLife).toBeDefined();
-    expect(body.frequency).toBeDefined();
+    expect(Object.keys(body).sort()).toEqual(["consentDuration", "context", "dataRange", "redirectUrl", "vua"]);
+    expect(body.vua).toBe("9876543210@onemoney");
   });
 
   it("falls back to a Bearer token when header auth is refused, and remembers it", async () => {

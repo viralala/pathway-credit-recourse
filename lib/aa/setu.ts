@@ -60,23 +60,14 @@ const PATHS = {
   session: (id: string) => `/v2/sessions/${encodeURIComponent(id)}`,
 } as const;
 
-// Purpose 105 is ReBIT's "explicit one-time consent for accessing data from the accounts". Setu requires purpose,
-// dataLife and frequency even for a one-time fetch. CREDIT_CARD is not in Setu's fiTypes list, so card utilization and
-// late payments come back as "not available" in Setu mode.
+// Data types, purpose, data life and frequency come from the consent template configured on the Bridge product;
+// sending our own fiTypes is rejected ("Invalid FIType") when they differ from it. So the request carries only what
+// varies per person, as in Setu's own example: who (vua), which period (dataRange), how long, and the redirect.
+// Configure the product for one-time access to bank (DEPOSIT) accounts. Setu has no credit card data type, so card
+// utilization and late payments come back as "not available" in Setu mode.
 const CONSENT_TEMPLATE = {
-  consentTypes: ["PROFILE", "SUMMARY", "TRANSACTIONS"],
-  fiTypes: ["DEPOSIT"],
   consentDuration: { unit: "DAY", value: 1 },
-  dataLife: { unit: "DAY", value: 1 },
-  frequency: { unit: "HOUR", value: 1 },
   context: [] as unknown[],
-  purpose: {
-    code: "105",
-    refUri: "https://api.rebit.org.in/aa/purpose/105.xml",
-    text: "Explicit one-time consent for accessing data from the accounts",
-    category: { type: "string" },
-  },
-  fetchType: "ONETIME",
 } as const;
 
 // TODO(verify with Setu sandbox): the AA handle. Setu's examples use both @onemoney and @setu.
