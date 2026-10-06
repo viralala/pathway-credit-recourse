@@ -63,6 +63,8 @@ export interface AAFinancialData {
 export interface NormalizedApplicant {
   applicant: Applicant;
   sources: Partial<Record<FeatureKey, FieldSource>>;
+  /** The months actually read: the requested period, or the statement's own last months when it holds no data there. */
+  period: { from: string; to: string };
 }
 
 /** Fewest months of salary-like credits that make an income figure trustworthy. */
@@ -74,6 +76,8 @@ export const CARD_MIN_DUE_SHARE = 0.05;
 
 const SALARY_RE = /\b(SALARY|SAL|PAYROLL)\b/i;
 const OBLIGATION_RE = /\b(EMI|ACH|NACH|ECS|LOAN)\b/i;
+/** Credits that are not income: refunds, reversals, cashback, interest and moving money between one's own accounts. */
+const NOT_INCOME_RE = /\b(REFUND|REV|REVERSAL|REVERSED|CASHBACK|SELF|INTEREST)\b/i;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 const clampKey = (key: FeatureKey, v: number) => clamp(v, APPLICANT_LIMITS[key].min, APPLICANT_LIMITS[key].max);
@@ -142,11 +146,28 @@ function salaryCredits(txns: AATransaction[]): AATransaction[] {
   return [...credits.filter((t) => SALARY_RE.test(t.narration)), ...recurring];
 }
 
+/**
+ * The months to read. Normally the requested period; when the statement has fewer than MIN_INCOME_MONTHS months of
+ * transactions inside it (sandbox banks return fixed old statements), the statement's own most recent months instead,
+ * as many as were requested.
+ */
+function effectivePeriod(data: AAFinancialData): { from: string; to: string } {
+  const all = data.deposits.flatMap((d) => d.transactions).filter((t) => /^\d{4}-\d{2}/.test(t.date) && t.amount > 0);
+  const requested = monthsBetween(data.period.from, data.period.to);
+  const inRequested = new Set(all.map((t) => monthOf(t.date)).filter((m) => requested.includes(m)));
+  if (inRequested.size >= MIN_INCOME_MONTHS || all.length === 0) return data.period;
+  const latest = all.reduce((max, t) => (t.date > max ? t.date : max), all[0].date).slice(0, 10);
+  const span = [...lastMonths(latest, requested.length)].sort();
+  return { from: `${span[0]}-01`, to: latest };
+}
+
 export function normalize(data: AAFinancialData): NormalizedApplicant {
-  const months = monthsBetween(data.period.from, data.period.to);
+  const period = effectivePeriod(data);
+  const months = monthsBetween(period.from, period.to);
   const inPeriod = new Set(months);
   const txns = data.deposits.flatMap((d) => d.transactions).filter((t) => inPeriod.has(monthOf(t.date)) && t.amount > 0);
-  const periodLabel = `last ${months.length} month${months.length === 1 ? "" : "s"}`;
+  const periodLabel =
+    period === data.period ? `last ${months.length} month${months.length === 1 ? "" : "s"}` : `${months[0]} to ${months[months.length - 1]}`;
   const sources: Partial<Record<FeatureKey, FieldSource>> = {};
 
   // Income: median of per-month salary-like totals.
@@ -160,10 +181,25 @@ export function normalize(data: AAFinancialData): NormalizedApplicant {
       detail: `Median monthly salary credit, ${periodLabel} (${perMonth.size} months with salary)`,
     };
   } else {
-    sources.monthlyIncome = {
-      origin: "not-available",
-      detail: `Found salary-like credits in ${perMonth.size} of ${months.length} months; at least ${MIN_INCOME_MONTHS} are needed. Enter it yourself.`,
-    };
+    // No salary label (common for freelancers, gig and business income): estimate from everything received.
+    const received = new Map<string, number>();
+    for (const t of txns) {
+      if (t.type !== "CREDIT" || NOT_INCOME_RE.test(t.narration)) continue;
+      received.set(monthOf(t.date), (received.get(monthOf(t.date)) ?? 0) + t.amount);
+    }
+    const estimate = Math.round(median([...received.values()]));
+    if (received.size >= MIN_INCOME_MONTHS && estimate >= APPLICANT_LIMITS.monthlyIncome.min) {
+      monthlyIncome = clampKey("monthlyIncome", estimate);
+      sources.monthlyIncome = {
+        origin: "bank-statement",
+        detail: `Estimate: median money received per month, ${periodLabel} (${received.size} months). No salary was labelled, so check this figure.`,
+      };
+    } else {
+      sources.monthlyIncome = {
+        origin: "not-available",
+        detail: `Found income in ${Math.max(perMonth.size, received.size)} of ${months.length} months; at least ${MIN_INCOME_MONTHS} are needed. Enter it yourself.`,
+      };
+    }
   }
 
   // Debt ratio: monthly obligations over income.
@@ -182,7 +218,10 @@ export function normalize(data: AAFinancialData): NormalizedApplicant {
     debtRatio = clampKey("debtRatio", obligations / monthlyIncome);
     sources.debtRatio = {
       origin: loanEmi >= bankMonthly && activeLoans.length > 0 ? "loan-account" : "bank-statement",
-      detail: "Monthly loan EMIs and card minimum payments divided by monthly income",
+      detail:
+        obligations > 0
+          ? "Monthly loan EMIs and card minimum payments divided by monthly income"
+          : "No EMI, loan or card payments found in the shared accounts",
     };
   }
 
@@ -236,7 +275,7 @@ export function normalize(data: AAFinancialData): NormalizedApplicant {
     late60: clampKey("late60", counts.late60),
     late90: clampKey("late90", counts.late90),
   };
-  return { applicant, sources };
+  return { applicant, sources, period };
 }
 
 /** The accounts the user linked, for display. Numbers are already masked by the source. */

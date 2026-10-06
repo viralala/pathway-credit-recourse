@@ -313,8 +313,8 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
         const status = str(body.status).toUpperCase();
         if (SESSION_READY.has(status)) {
           const data = mapSetuFiData(body.fips, { from, to });
-          const { applicant, sources } = normalize(data);
-          return { mode: "setu", applicant, sources, period: { from, to }, accounts: linkedAccounts(data) };
+          const { applicant, sources, period } = normalize(data);
+          return { mode: "setu", applicant, sources, period, accounts: linkedAccounts(data) };
         }
         if (SESSION_FAILED.has(status)) throw new AAError("upstream");
         await new Promise((r) => setTimeout(r, POLL_DELAY_MS));
