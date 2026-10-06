@@ -282,3 +282,43 @@ describe("statements without a salary label", () => {
     expect(out.sources.monthlyIncome?.detail).toContain("2020-01 to 2020-12");
   });
 });
+
+describe("fields worked out from the bank statement alone", () => {
+  const tx = (date: string, amount: number, type: "CREDIT" | "DEBIT", narration: string): AATransaction => ({ date, amount, type, narration, mode: "OTHERS" });
+  const statement = (extra: AATransaction[]) => {
+    const t: AATransaction[] = [...extra];
+    for (let m = 1; m <= 6; m++) t.push(tx(`2026-0${m}-01`, 60000, "CREDIT", "NEFT SALARY ACME LTD"));
+    return normalize({ period: { from: "2026-01-01", to: "2026-06-30" }, deposits: [{ institution: "x", masked: "XX1", transactions: t }], cards: [], loans: [] });
+  };
+
+  it("fills every field with a bank-statement source when no card or loan account is shared", () => {
+    const out = statement([]);
+    for (const key of ["monthlyIncome", "debtRatio", "utilization", "openCreditLines", "late30", "late60", "late90"] as FeatureKey[]) {
+      expect(out.sources[key]?.origin, key).toBe("bank-statement");
+    }
+    expect(out.applicant).toMatchObject({ utilization: 0, openCreditLines: 0, late30: 0, late60: 0, late90: 0 });
+  });
+
+  it("counts regular loan and card payees as open lines and bounced months as lates", () => {
+    const out = statement([
+      tx("2026-01-05", 8000, "DEBIT", "NACH DR HDFC HOME LOAN 0001"),
+      tx("2026-02-05", 8000, "DEBIT", "NACH DR HDFC HOME LOAN 0002"),
+      tx("2026-03-05", 8000, "DEBIT", "NACH DR HDFC HOME LOAN RETURN INSUFFICIENT FUNDS"),
+      tx("2026-03-06", 500, "DEBIT", "ECS RTN CHGS"),
+      tx("2026-01-20", 3000, "DEBIT", "CC PAYMENT AXIS 1111"),
+      tx("2026-02-20", 3000, "DEBIT", "CC PAYMENT AXIS 2222"),
+    ]);
+    expect(out.applicant.openCreditLines).toBe(2);
+    expect(out.applicant.late30).toBe(1);
+    // A card bill is paid but the card's limit is unknown: utilization is not guessed.
+    expect(out.sources.utilization?.origin).toBe("not-available");
+  });
+
+  it("passes the account holder's name through from Setu's profile", () => {
+    const data = mapSetuFiData(
+      [{ fipID: "setu-fip-2", accounts: [{ data: { account: { type: "deposit", profile: { holders: { holder: [{ name: "Ramkrishna Sharma" }] } }, transactions: { transaction: [] } } } }] }],
+      { from: "2026-01-01", to: "2026-06-30" },
+    );
+    expect(data.deposits[0].holderName).toBe("Ramkrishna Sharma");
+  });
+});

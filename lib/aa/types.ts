@@ -29,6 +29,8 @@ export interface AAFetchResult {
   /** ISO dates (YYYY-MM-DD) covered by the data. */
   period: { from: string; to: string };
   accounts: LinkedAccount[];
+  /** Account holder's name from the shared profile, when the bank sent one. Shown in the form, never stored. */
+  holderName?: string;
 }
 
 export type ConsentStatus = "PENDING" | "ACTIVE" | "REJECTED" | "EXPIRED";

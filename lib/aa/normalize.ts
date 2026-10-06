@@ -32,6 +32,8 @@ export interface DepositAccount {
   institution: string;
   masked: string;
   transactions: AATransaction[];
+  /** Account holder's name from the AA profile, when shared. */
+  holderName?: string;
 }
 
 export interface CardAccount {
@@ -77,6 +79,10 @@ export const CARD_MIN_DUE_SHARE = 0.05;
 const SALARY_RE = /\b(SALARY|SAL|PAYROLL)\b/i;
 const OBLIGATION_RE = /\b(EMI|ACH|NACH|ECS|LOAN)\b/i;
 /** Credits that are not income: refunds, reversals, cashback, interest and moving money between one's own accounts. */
+/** Paying a credit card bill from the bank account. */
+const CARD_PAYMENT_RE = /\b(CREDIT ?CARD|CC ?(PAYMENT|PMT|BILL)|CARD ?(PAYMENT|PMT|BILL))\b/i;
+/** A bounced or returned debit (EMI, NACH, ECS, cheque) or its charge: a missed payment. */
+const BOUNCE_RE = /\b(RETURN|RETURNED|RTN|BOUNCE|BOUNCED|DISHONOU?R(ED)?|INSUFFICIENT|INSUFF)\b/i;
 const NOT_INCOME_RE = /\b(REFUND|REV|REVERSAL|REVERSED|CASHBACK|SELF|INTEREST)\b/i;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -231,23 +237,47 @@ export function normalize(data: AAFinancialData): NormalizedApplicant {
   if (cards.length > 0 && limitSum > 0) {
     utilization = clampKey("utilization", cards.reduce((s, c) => s + Math.max(0, c.currentBalance), 0) / limitSum);
     sources.utilization = { origin: "credit-card", detail: `Total balance over total limit across ${cards.length} card${cards.length === 1 ? "" : "s"}` };
+  } else if (txns.some((t) => t.type === "DEBIT" && CARD_PAYMENT_RE.test(t.narration))) {
+    // The statement pays a card bill, but without the card's limit there is no honest utilization.
+    sources.utilization = { origin: "not-available", detail: "Card bill payments found, but the card and its limit were not shared" };
   } else {
-    sources.utilization = { origin: "not-available", detail: "No credit card with a limit was shared" };
+    sources.utilization = {
+      origin: "bank-statement",
+      detail: `No credit card was shared and the statement pays no card bill, ${periodLabel}, so 0% is used. Change it if you have a card.`,
+    };
   }
 
-  // Open lines.
+  // Open lines: the shared card and loan accounts, or else the regular loan and card payees in the statement.
   const lines = cards.length + activeLoans.length;
-  const openCreditLines = clampKey("openCreditLines", lines);
-  sources.openCreditLines =
-    lines > 0
-      ? {
-          origin: cards.length >= activeLoans.length ? "credit-card" : "loan-account",
-          detail: `${cards.length} active card${cards.length === 1 ? "" : "s"} and ${activeLoans.length} active loan${activeLoans.length === 1 ? "" : "s"}`,
-        }
-      : { origin: "not-available", detail: "No active card or loan was shared" };
+  let openCreditLines: number;
+  if (lines > 0) {
+    openCreditLines = clampKey("openCreditLines", lines);
+    sources.openCreditLines = {
+      origin: cards.length >= activeLoans.length ? "credit-card" : "loan-account",
+      detail: `${cards.length} active card${cards.length === 1 ? "" : "s"} and ${activeLoans.length} active loan${activeLoans.length === 1 ? "" : "s"}`,
+    };
+  } else {
+    const payees = new Map<string, Set<string>>();
+    for (const t of txns) {
+      if (t.type !== "DEBIT" || BOUNCE_RE.test(t.narration)) continue;
+      if (!OBLIGATION_RE.test(t.narration) && !CARD_PAYMENT_RE.test(t.narration)) continue;
+      const key = sourceKey(t.narration);
+      if (!key) continue;
+      payees.set(key, (payees.get(key) ?? new Set<string>()).add(monthOf(t.date)));
+    }
+    const regular = [...payees.values()].filter((m) => m.size >= 2).length;
+    openCreditLines = clampKey("openCreditLines", regular);
+    sources.openCreditLines = {
+      origin: "bank-statement",
+      detail:
+        regular > 0
+          ? `${regular} regular loan or card payment${regular === 1 ? "" : "s"} in the statement, ${periodLabel}`
+          : `No regular loan or card payments in the statement, ${periodLabel}`,
+    };
+  }
 
   // Late payments: account-months in each DPD bucket over the last 24 months.
-  const window = lastMonths(data.period.to, LATE_WINDOW_MONTHS);
+  const window = lastMonths(period.to, LATE_WINDOW_MONTHS);
   const counts = { late30: 0, late60: 0, late90: 0 };
   for (const entry of [...cards.flatMap((c) => c.dpd), ...data.loans.flatMap((l) => l.dpd)]) {
     if (!window.has(entry.month)) continue;
@@ -256,14 +286,32 @@ export function normalize(data: AAFinancialData): NormalizedApplicant {
   }
   const lateHave = cards.length + data.loans.length > 0;
   const lateOrigin = cards.length > 0 ? "credit-card" : "loan-account";
-  for (const [key, label] of [
-    ["late30", "30 to 59"],
-    ["late60", "60 to 89"],
-    ["late90", "90 or more"],
-  ] as const) {
-    sources[key] = lateHave
-      ? { origin: lateOrigin, detail: `Months with ${label} days past due on cards and loans, last ${LATE_WINDOW_MONTHS} months` }
-      : { origin: "not-available", detail: "No card or loan history was shared" };
+  if (lateHave) {
+    for (const [key, label] of [
+      ["late30", "30 to 59"],
+      ["late60", "60 to 89"],
+      ["late90", "90 or more"],
+    ] as const) {
+      sources[key] = { origin: lateOrigin, detail: `Months with ${label} days past due on cards and loans, last ${LATE_WINDOW_MONTHS} months` };
+    }
+  } else {
+    // Without card or loan accounts, the statement's bounced payments are the evidence: each month with a bounced
+    // EMI, NACH, ECS or cheque debit counts as one missed payment. A statement cannot show how late it became.
+    const bounced = new Set(txns.filter((t) => BOUNCE_RE.test(t.narration)).map((t) => monthOf(t.date)));
+    counts.late30 = bounced.size;
+    sources.late30 = {
+      origin: "bank-statement",
+      detail:
+        bounced.size > 0
+          ? `${bounced.size} month${bounced.size === 1 ? "" : "s"} with a bounced EMI or cheque payment, ${periodLabel}`
+          : `No bounced EMI or cheque payments, ${periodLabel}`,
+    };
+    for (const key of ["late60", "late90"] as const) {
+      sources[key] = {
+        origin: "bank-statement",
+        detail: "A bank statement cannot show payments 60 or more days late, so 0 is used. Check your credit report.",
+      };
+    }
   }
 
   const applicant: Applicant = {
