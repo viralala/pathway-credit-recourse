@@ -178,7 +178,8 @@ async function logSetuError(where: string, res: Response): Promise<void> {
   } catch {
     // Not JSON: the status is enough.
   }
-  console.error(`[aa/setu] ${where} failed: HTTP ${res.status}${detail ? ` ${detail}` : ""}`);
+  const region = process.env.VERCEL_REGION ? ` (region ${process.env.VERCEL_REGION})` : "";
+  console.error(`[aa/setu] ${where} failed: HTTP ${res.status}${detail ? ` ${detail}` : ""}${region}`);
 }
 
 /** Bearer tokens by client id, shared across requests served by the same server instance. */
