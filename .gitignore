@@ -41,6 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # datasets: never commit the Kaggle CSV or any raw data
+# Anchored to the repo root: a bare "data/" also matched app/api/aa/data/ or app/api/setu/data/.
 /data/
 *.csv
 

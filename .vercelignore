@@ -1,5 +1,6 @@
-ml
-data
+# Patterns are anchored to the repo root: a bare "data" would also drop app/api/aa/data/.
+/ml
+/data
 *.pptx
 *.aco
 original-*.webp
