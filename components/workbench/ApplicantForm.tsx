@@ -1,9 +1,11 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { CreditCard, ShieldCheck } from "lucide-react";
+import { FetchedBadge } from "@/components/connect/FetchedBadge";
 import { Label } from "@/components/ui/label";
-import { money, tf, type UIStrings } from "@/lib/i18n";
+import type { FieldSource } from "@/lib/aa/types";
+import { money, tf, type Lang, type UIStrings } from "@/lib/i18n";
 import { APPLICANT_LIMITS } from "@/lib/security/validate";
 import type { Applicant, FeatureKey, LoanType } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,7 @@ function Field({
   value,
   big,
   belowMinMessage,
+  badge,
   onChange,
 }: {
   spec: FieldSpec;
@@ -44,6 +47,8 @@ function Field({
   value: number;
   big?: boolean;
   belowMinMessage?: string;
+  /** Where a bank-filled value came from, shown next to the label. */
+  badge?: ReactNode;
   onChange: (v: number) => void;
 }) {
   const id = useId();
@@ -53,6 +58,7 @@ function Field({
       <Label htmlFor={id} className="leading-snug font-medium text-muted-foreground">
         {label}
         {spec.unit !== "count" && <span className="sr-only"> ({spec.unit === "pct" ? "%" : "₹"})</span>}
+        {badge && <span className="ml-2 inline-block align-middle">{badge}</span>}
       </Label>
       <NumberField
         id={id}
@@ -73,7 +79,9 @@ function Field({
 /** Every model input with a visible label. Values update the analysis as you type. */
 export function ApplicantForm({
   ui,
+  lang,
   applicant,
+  sources,
   loanType = "unsecured",
   loanAmount = 500_000,
   collateralValue,
@@ -85,7 +93,10 @@ export function ApplicantForm({
   onRecentHardInquiries,
 }: {
   ui: UIStrings;
+  lang: Lang;
   applicant: Applicant;
+  /** Fields filled from a linked bank, by feature. A hand edit removes its entry (handled by the parent). */
+  sources?: Partial<Record<FeatureKey, FieldSource>>;
   loanType?: LoanType;
   loanAmount?: number;
   collateralValue?: number | null;
@@ -96,6 +107,10 @@ export function ApplicantForm({
   onCollateralValue?: (value: number | null) => void;
   onRecentHardInquiries?: (inquiries: number) => void;
 }) {
+  const badgeFor = (key: FeatureKey) => {
+    const src = sources?.[key];
+    return src ? <FetchedBadge lang={lang} source={src} /> : undefined;
+  };
   const loanAmountId = useId();
   const collateralId = useId();
   const hardInquiriesId = useId();
@@ -118,6 +133,7 @@ export function ApplicantForm({
             spec={f}
             label={ui.fields[f.key]}
             value={applicant[f.key]}
+            badge={badgeFor(f.key)}
             belowMinMessage={f.key === "monthlyIncome" ? tf(ui.incomeMin, { min: money(f.min ?? 0) }) : undefined}
             onChange={(v) => onField(f.key, v)}
           />
@@ -127,7 +143,7 @@ export function ApplicantForm({
       <h3 className="mt-8 text-sm font-bold text-foreground">{ui.historyTitle}</h3>
       <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {SECONDARY_FIELDS.map((f) => (
-          <Field key={f.key} spec={f} label={ui.fields[f.key]} value={applicant[f.key]} onChange={(v) => onField(f.key, v)} />
+          <Field key={f.key} spec={f} label={ui.fields[f.key]} value={applicant[f.key]} badge={badgeFor(f.key)} onChange={(v) => onField(f.key, v)} />
         ))}
       </div>
 

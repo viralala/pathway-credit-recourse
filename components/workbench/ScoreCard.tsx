@@ -3,7 +3,7 @@
 import { ArrowRight, CircleCheck, CircleAlert, CreditCard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { CountUp } from "@/components/motion/CountUp";
-import { displayScore, pct, type UIStrings } from "@/lib/i18n";
+import { displayScore, money, pct, type UIStrings } from "@/lib/i18n";
 import type { Assessment } from "@/lib/model";
 import type { LoanAssessment, LoanType } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -93,7 +93,7 @@ export function ScorePanel({
             <div className="flex justify-between items-center gap-4 py-2.5">
               <dt className="text-muted-foreground">Loan Amount</dt>
               <dd className="font-semibold tabular-nums text-foreground">
-                ₹{(loanAssessment?.loanAmount ?? 500_000).toLocaleString()}
+                {money(loanAssessment?.loanAmount ?? 500_000)}
               </dd>
             </div>
 
@@ -101,7 +101,7 @@ export function ScorePanel({
               <div className="flex justify-between items-center gap-4 py-2.5">
                 <dt className="text-muted-foreground">Collateral Value</dt>
                 <dd className="font-semibold tabular-nums text-foreground">
-                  ₹{loanAssessment.collateralValue.toLocaleString()}
+                  {money(loanAssessment.collateralValue)}
                 </dd>
               </div>
             )}
