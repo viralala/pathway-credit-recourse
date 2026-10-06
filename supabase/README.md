@@ -59,3 +59,37 @@ signed-in person, and row level security does the rest.
    plan shows two updates.
 4. **Download my data** returns a JSON file; **Delete my account** removes everything.
 5. Send a test enquiry from **For lenders**, then read it in **Table Editor > partner_enquiries**.
+
+## Government schemes
+
+The scheme matcher reads its schemes from the database; no scheme is written in the app's code.
+Two migrations set it up, and they run after the accounts migration above:
+
+1. `migrations/20261007000000_government_schemes.sql` creates `government_schemes` (the catalogue,
+   readable by everyone, writable by nobody through the API) and `scheme_matches` (a signed-in
+   person's match history, visible only to them). A manual check of the row level security is
+   written at the bottom of that file for the SQL editor.
+2. `migrations/20261007000001_seed_government_schemes.sql` loads the reviewed starting data. It is
+   safe to run again: an entry whose scheme and version already exist is skipped.
+
+Run both in the SQL editor in that order, or with `supabase db push`.
+
+**Add or change a scheme.** A published version is never edited: a trigger refuses any change to
+its rules, amounts or wording. A change is a new row with the next version number.
+
+1. Open `seed/government_schemes.json` and add an entry with the same `slug` and `version` one
+   higher (or a new slug with `version` 1). Read every number and criterion from the official page
+   and list the exact pages you read in `sources`.
+2. Set `verification_status` to `"verified"` and `last_verified_at` to today only if you read the
+   official source and the entry agrees with it. Otherwise use `"unverified"`.
+3. Run `npm run seed:schemes`. It validates the file and rewrites the seed migration. Never edit
+   that SQL by hand; `npm test` fails if it is out of step with the JSON.
+4. Run the new migration. The new version becomes the current one; the old version stays in the
+   table for history and stops appearing in matches.
+
+To retire a scheme without a new version, set its `status` to `retired` in the SQL editor
+(for example `update public.government_schemes set status = 'retired' where slug = '...'`).
+
+**Re-verify.** Re-read the official pages. If everything still matches, update only the check
+date: `update public.government_schemes set last_verified_at = current_date, verification_status =
+'verified' where slug = '...' and is_current;`. If anything differs, add a new version as above.

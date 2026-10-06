@@ -407,6 +407,134 @@ export type Database = {
         };
         Relationships: [];
       };
+      government_schemes: {
+        Row: {
+          id: string;
+          slug: string;
+          version: number;
+          is_current: boolean;
+          status: "draft" | "active" | "retired";
+          name: string;
+          short_name: string;
+          scheme_type: "loan" | "credit_guarantee" | "credit_linked_subsidy" | "composite";
+          summary: string;
+          benefits: Json;
+          implementing_agency: string;
+          ministry: string | null;
+          min_loan_amount: number | null;
+          max_loan_amount: number | null;
+          eligibility_rules: Json;
+          how_to_apply: string | null;
+          application_url: string | null;
+          official_url: string;
+          sources: Json;
+          last_verified_at: string;
+          verification_status: "verified" | "unverified";
+          effective_from: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          version?: number;
+          is_current?: boolean;
+          status?: "draft" | "active" | "retired";
+          name: string;
+          short_name: string;
+          scheme_type: "loan" | "credit_guarantee" | "credit_linked_subsidy" | "composite";
+          summary: string;
+          benefits?: Json;
+          implementing_agency: string;
+          ministry?: string | null;
+          min_loan_amount?: number | null;
+          max_loan_amount?: number | null;
+          eligibility_rules: Json;
+          how_to_apply?: string | null;
+          application_url?: string | null;
+          official_url: string;
+          sources: Json;
+          last_verified_at: string;
+          verification_status?: "verified" | "unverified";
+          effective_from?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          version?: number;
+          is_current?: boolean;
+          status?: "draft" | "active" | "retired";
+          name?: string;
+          short_name?: string;
+          scheme_type?: "loan" | "credit_guarantee" | "credit_linked_subsidy" | "composite";
+          summary?: string;
+          benefits?: Json;
+          implementing_agency?: string;
+          ministry?: string | null;
+          min_loan_amount?: number | null;
+          max_loan_amount?: number | null;
+          eligibility_rules?: Json;
+          how_to_apply?: string | null;
+          application_url?: string | null;
+          official_url?: string;
+          sources?: Json;
+          last_verified_at?: string;
+          verification_status?: "verified" | "unverified";
+          effective_from?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      scheme_matches: {
+        Row: {
+          id: string;
+          user_id: string;
+          scheme_id: string;
+          scheme_slug: string;
+          scheme_version: number;
+          status: "appears_relevant" | "needs_more_information" | "not_matched";
+          relevance_score: number;
+          profile: Json;
+          evaluation: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          scheme_id: string;
+          scheme_slug: string;
+          scheme_version: number;
+          status: "appears_relevant" | "needs_more_information" | "not_matched";
+          relevance_score: number;
+          profile: Json;
+          evaluation: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          scheme_id?: string;
+          scheme_slug?: string;
+          scheme_version?: number;
+          status?: "appears_relevant" | "needs_more_information" | "not_matched";
+          relevance_score?: number;
+          profile?: Json;
+          evaluation?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scheme_matches_scheme_id_fkey";
+            columns: ["scheme_id"];
+            isOneToOne: false;
+            referencedRelation: "government_schemes";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -438,3 +566,5 @@ export type PricingResultRow = Database["public"]["Tables"]["pricing_results"]["
 export type OutcomeRow = Database["public"]["Tables"]["outcomes"]["Row"];
 export type SavedPlanRow = Database["public"]["Tables"]["saved_plans"]["Row"];
 export type CheckinRow = Database["public"]["Tables"]["plan_checkins"]["Row"];
+export type GovernmentSchemeRow = Database["public"]["Tables"]["government_schemes"]["Row"];
+export type SchemeMatchRow = Database["public"]["Tables"]["scheme_matches"]["Row"];

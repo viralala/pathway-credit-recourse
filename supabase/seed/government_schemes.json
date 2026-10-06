@@ -1,0 +1,479 @@
+[
+  {
+    "slug": "pmegp",
+    "version": 1,
+    "status": "active",
+    "name": "Prime Minister's Employment Generation Programme (PMEGP)",
+    "short_name": "PMEGP",
+    "scheme_type": "credit_linked_subsidy",
+    "summary": "A credit-linked margin money subsidy for setting up new micro-enterprises in the non-farm sector, with the rest of the project cost financed by a bank term loan. UNVERIFIED: the current revised guidelines could not be opened on 6 October 2026, so age, education and new-unit conditions come from an older published copy of the guidelines; whether the scheme continues after 2025-26 is not confirmed.",
+    "benefits": [
+      "Margin money subsidy of 15% (urban) or 25% (rural) of the project cost for general category applicants",
+      "Margin money subsidy of 25% (urban) or 35% (rural) of the project cost for special category applicants (SC, ST, OBC, women, transgender, physically disabled, North Eastern Region, aspirational and border district applicants)",
+      "Maximum project cost of ₹50 lakh for manufacturing units and ₹20 lakh for service units (raised from ₹25 lakh and ₹10 lakh in the 2022 revision)",
+      "The balance of the project cost is provided by a bank as a term loan",
+      "Older guidelines: beneficiary's own contribution of 10% of the project cost (general) or 5% (special category); check the current figure"
+    ],
+    "implementing_agency": "Khadi and Village Industries Commission (KVIC), with State KVIBs, District Industries Centres and banks",
+    "ministry": "Ministry of Micro, Small and Medium Enterprises",
+    "min_loan_amount": null,
+    "max_loan_amount": null,
+    "eligibility_rules": {
+      "schemaVersion": 1,
+      "required": {
+        "type": "all",
+        "rules": [
+          {
+            "type": "any",
+            "rules": [
+              {
+                "type": "criterion",
+                "id": "institution-applicant",
+                "field": "enterpriseForm",
+                "op": "in",
+                "value": ["shg", "cooperative", "trust"],
+                "label": "Applicant is a self-help group, production co-operative society or charitable trust (the age rule applies to individuals)",
+                "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+              },
+              {
+                "type": "criterion",
+                "id": "age-min",
+                "field": "age",
+                "op": "gte",
+                "value": 18,
+                "label": "Individual applicant is above 18 years of age",
+                "sourceRef": "KVIC PMEGP guidelines (older copy), para 4(i)"
+              }
+            ]
+          },
+          {
+            "type": "criterion",
+            "id": "new-unit",
+            "field": "businessStage",
+            "op": "eq",
+            "value": "new",
+            "label": "Assistance is for new projects only; existing units are not eligible",
+            "sourceRef": "KVIC PMEGP guidelines (older copy), para 4 and 4.1(v)"
+          },
+          {
+            "type": "criterion",
+            "id": "no-prior-subsidy",
+            "field": "hasAvailedGovtSubsidy",
+            "op": "is_false",
+            "label": "The unit has not already availed a government subsidy under any other Central or State scheme",
+            "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+          },
+          {
+            "type": "any",
+            "rules": [
+              {
+                "type": "all",
+                "rules": [
+                  {
+                    "type": "criterion",
+                    "id": "cost-mfg-sector",
+                    "field": "sector",
+                    "op": "eq",
+                    "value": "manufacturing",
+                    "label": "Project is in the manufacturing sector",
+                    "sourceRef": "PIB release of 30 May 2022"
+                  },
+                  {
+                    "type": "criterion",
+                    "id": "cost-mfg-max",
+                    "field": "projectCost",
+                    "op": "lte",
+                    "value": 5000000,
+                    "label": "Project cost is at most ₹50 lakh for a manufacturing unit",
+                    "sourceRef": "PIB release of 30 May 2022"
+                  }
+                ]
+              },
+              {
+                "type": "all",
+                "rules": [
+                  {
+                    "type": "criterion",
+                    "id": "cost-svc-sector",
+                    "field": "sector",
+                    "op": "in",
+                    "value": ["services", "trading"],
+                    "label": "Project is in the service or business sector",
+                    "sourceRef": "PIB release of 30 May 2022"
+                  },
+                  {
+                    "type": "criterion",
+                    "id": "cost-svc-max",
+                    "field": "projectCost",
+                    "op": "lte",
+                    "value": 2000000,
+                    "label": "Project cost is at most ₹20 lakh for a service or business unit",
+                    "sourceRef": "PIB release of 30 May 2022"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "any",
+            "rules": [
+              {
+                "type": "criterion",
+                "id": "education-viii",
+                "field": "educationClass",
+                "op": "gte",
+                "value": 8,
+                "label": "At least VIII standard pass (needed for larger projects)",
+                "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+              },
+              {
+                "type": "all",
+                "rules": [
+                  {
+                    "type": "criterion",
+                    "id": "education-exempt-mfg-sector",
+                    "field": "sector",
+                    "op": "eq",
+                    "value": "manufacturing",
+                    "label": "Manufacturing project",
+                    "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+                  },
+                  {
+                    "type": "criterion",
+                    "id": "education-exempt-mfg-cost",
+                    "field": "projectCost",
+                    "op": "lte",
+                    "value": 1000000,
+                    "label": "Manufacturing project costing up to ₹10 lakh needs no minimum education",
+                    "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+                  }
+                ]
+              },
+              {
+                "type": "all",
+                "rules": [
+                  {
+                    "type": "criterion",
+                    "id": "education-exempt-svc-sector",
+                    "field": "sector",
+                    "op": "in",
+                    "value": ["services", "trading"],
+                    "label": "Service or business project",
+                    "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+                  },
+                  {
+                    "type": "criterion",
+                    "id": "education-exempt-svc-cost",
+                    "field": "projectCost",
+                    "op": "lte",
+                    "value": 500000,
+                    "label": "Service or business project costing up to ₹5 lakh needs no minimum education",
+                    "sourceRef": "KVIC PMEGP guidelines (older copy), para 4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "how_to_apply": "Apply online on the PMEGP e-portal; applications are handled by KVIC, a State KVIB or a District Industries Centre and the loan is sanctioned by a bank. Published but not evaluated here: only one person from a family (self and spouse) is eligible, and the portal was not reachable when this entry was prepared, so check its current guidelines.",
+    "application_url": "https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp",
+    "official_url": "https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp",
+    "sources": [
+      {
+        "title": "PIB: Continuation of PMEGP over the 15th Finance Commission cycle, 2021-22 to 2025-26 (30 May 2022)",
+        "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=1829437"
+      },
+      {
+        "title": "KVIC: PMEGP guidelines (older copy; project-cost limits have since been raised)",
+        "url": "https://www.kvic.gov.in/kvicres/update/pmegp/New%20PMEGP%20guidelines.pdf"
+      }
+    ],
+    "last_verified_at": "2026-10-06",
+    "verification_status": "unverified",
+    "effective_from": null
+  },
+  {
+    "slug": "pmmy",
+    "version": 1,
+    "status": "active",
+    "name": "Pradhan Mantri MUDRA Yojana (PMMY)",
+    "short_name": "PMMY",
+    "scheme_type": "loan",
+    "summary": "Loans up to ₹10 lakh (up to ₹20 lakh under Tarun Plus, for entrepreneurs who have availed and successfully repaid previous loans in the Tarun category) to non-corporate, non-farm small and micro enterprises, given by banks, RRBs, small finance banks, MFIs and NBFCs. MUDRA refinances these lenders and does not lend directly. Not evaluated here: that the enterprise is non-farm and small or micro, and whether an earlier Tarun loan was repaid.",
+    "benefits": [
+      "Shishu: loans up to ₹50,000",
+      "Kishor: loans above ₹50,000 and up to ₹5 lakh",
+      "Tarun: loans above ₹5 lakh and up to ₹10 lakh",
+      "Tarun Plus: loans above ₹10 lakh and up to ₹20 lakh, for entrepreneurs who have availed and successfully repaid previous loans under the Tarun category",
+      "Loans are given by commercial banks, RRBs, small finance banks, MFIs and NBFCs"
+    ],
+    "implementing_agency": "Micro Units Development and Refinance Agency (MUDRA), through banks, RRBs, small finance banks, MFIs and NBFCs",
+    "ministry": null,
+    "min_loan_amount": null,
+    "max_loan_amount": 2000000,
+    "eligibility_rules": {
+      "schemaVersion": 1,
+      "required": {
+        "type": "all",
+        "rules": [
+          {
+            "type": "criterion",
+            "id": "non-corporate",
+            "field": "enterpriseForm",
+            "op": "not_in",
+            "value": ["company"],
+            "label": "The enterprise is non-corporate",
+            "sourceRef": "mudra.org.in home page, PMMY description"
+          },
+          {
+            "type": "criterion",
+            "id": "loan-ceiling",
+            "field": "loanAmount",
+            "op": "lte",
+            "value": 2000000,
+            "label": "Loan sought is up to ₹10 lakh, or up to ₹20 lakh under Tarun Plus (only for entrepreneurs who repaid an earlier Tarun loan)",
+            "sourceRef": "mudra.org.in home page, loan categories"
+          }
+        ]
+      }
+    },
+    "how_to_apply": "Approach a commercial bank, RRB, small finance bank, MFI or NBFC, or apply online on the Udyami Mitra portal (udyamimitra.in). Agents or middlemen are not engaged by MUDRA for Mudra loans.",
+    "application_url": "https://www.udyamimitra.in",
+    "official_url": "https://www.mudra.org.in/",
+    "sources": [
+      {
+        "title": "MUDRA: PMMY home page (read 6 October 2026; loan categories and Tarun Plus note)",
+        "url": "https://www.mudra.org.in/"
+      }
+    ],
+    "last_verified_at": "2026-10-06",
+    "verification_status": "verified",
+    "effective_from": "2015-04-08"
+  },
+  {
+    "slug": "cgtmse",
+    "version": 1,
+    "status": "active",
+    "name": "Credit Guarantee Fund Scheme for Micro and Small Enterprises (CGTMSE)",
+    "short_name": "CGTMSE",
+    "scheme_type": "credit_guarantee",
+    "summary": "A guarantee cover for collateral-free and/or third-party-guarantee-free credit that eligible lenders extend to new or existing micro and small enterprises. The enterprise applies to a lender, not to CGTMSE, and the Trust can accept or reject a proposal. The credit facility cap is ₹10 crore for banks and select financial institutions, ₹2 crore for RRBs, small finance banks, state financial institutions and co-operative banks, and ₹50 lakh for microfinance institutions. Not evaluated here: that the borrower is a micro or small enterprise.",
+    "benefits": [
+      "Guarantee cover on term loan and/or working capital facilities given without collateral or third-party guarantee, up to ₹10 crore per borrower",
+      "Hybrid option: the lender may take collateral for part of a facility and the unsecured part, up to ₹10 crore, can be covered",
+      "Trading (retail or wholesale) and educational or training institutions are eligible activities",
+      "Higher extent of guarantee cover for women entrepreneurs, SC/ST entrepreneurs, persons with disability and MSEs in the North East, Jammu and Kashmir and Ladakh (see the scheme document)",
+      "Annual guarantee fee reduced to a minimum of 0.37% per annum"
+    ],
+    "implementing_agency": "Credit Guarantee Fund Trust for Micro and Small Enterprises (CGTMSE), through Member Lending Institutions",
+    "ministry": "Ministry of Micro, Small and Medium Enterprises",
+    "min_loan_amount": null,
+    "max_loan_amount": 100000000,
+    "eligibility_rules": {
+      "schemaVersion": 1,
+      "required": {
+        "type": "criterion",
+        "id": "credit-ceiling",
+        "field": "loanAmount",
+        "op": "lte",
+        "value": 100000000,
+        "label": "Credit facility does not exceed ₹10 crore (₹2 crore or ₹50 lakh for some types of lender)",
+        "sourceRef": "CGS-I scheme document, para 4"
+      }
+    },
+    "how_to_apply": "Approach a Member Lending Institution (a bank, NBFC or financial institution registered with CGTMSE) for an MSE loan without collateral; the lender requests the guarantee cover. CGTMSE does not lend directly.",
+    "application_url": null,
+    "official_url": "https://www.cgtmse.in/",
+    "sources": [
+      {
+        "title": "CGTMSE home page (read 6 October 2026)",
+        "url": "https://www.cgtmse.in/"
+      },
+      {
+        "title": "CGTMSE: Credit Guarantee Fund Scheme for Micro and Small Enterprises (CGS-I) scheme document, updated as on 1 April 2025",
+        "url": "https://www.cgtmse.in/Default/ViewFile/?id=1743176302611_CGTMSE%20-%20Scheme%20Document%20CGS%20I_updated%20as%20on%20Apr%201%202025.pdf&path=Page"
+      }
+    ],
+    "last_verified_at": "2026-10-06",
+    "verification_status": "verified",
+    "effective_from": "2000-08-01"
+  },
+  {
+    "slug": "pm-vishwakarma",
+    "version": 1,
+    "status": "active",
+    "name": "PM Vishwakarma",
+    "short_name": "PM Vishwakarma",
+    "scheme_type": "composite",
+    "summary": "Support for artisans and craftspeople in 18 family-based traditional trades: recognition, skill training with a stipend, a toolkit incentive, collateral-free credit in two tranches at a concessional interest rate, and an incentive for digital transactions. Not evaluated here: the 18 listed trades, registration limited to one family member, and the rule that a person who took a loan under a similar Central or State scheme (such as PMEGP, PM SVANidhi or Mudra) in the past 5 years is not eligible unless a Mudra or SVANidhi loan was fully repaid. The portal reports its registration target of 30,00,000 as reached in September 2025, so confirm that registration is open.",
+    "benefits": [
+      "Recognition as a Vishwakarma",
+      "Basic training of 5-7 days (40 hours) with a stipend of ₹500 per day; optional advanced training of 15 days (120 hours)",
+      "Toolkit incentive of up to ₹15,000",
+      "Collateral-free credit of up to ₹1 lakh (18-month repayment), then up to ₹2 lakh (30-month repayment) in a second tranche after the first is repaid; ₹3 lakh in total",
+      "Concessional interest of 5% charged to the beneficiary; the Government of India bears the interest subvention (capped at 8%) and the credit guarantee fee",
+      "Incentive of ₹1 per digital transaction, up to 100 transactions a month",
+      "Marketing support through the National Committee for Marketing"
+    ],
+    "implementing_agency": "Ministry of MSME, with the Ministry of Skill Development and Entrepreneurship and the Department of Financial Services",
+    "ministry": "Ministry of Micro, Small and Medium Enterprises",
+    "min_loan_amount": null,
+    "max_loan_amount": 300000,
+    "eligibility_rules": {
+      "schemaVersion": 1,
+      "required": {
+        "type": "all",
+        "rules": [
+          {
+            "type": "criterion",
+            "id": "traditional-artisan",
+            "field": "isTraditionalArtisan",
+            "op": "is_true",
+            "label": "An artisan or craftsperson working with hands and tools in one of the 18 family-based traditional trades, self-employed in the unorganised sector",
+            "sourceRef": "Guidelines para 4(i)"
+          },
+          {
+            "type": "criterion",
+            "id": "age-min",
+            "field": "age",
+            "op": "gte",
+            "value": 18,
+            "label": "At least 18 years of age on the date of registration",
+            "sourceRef": "Guidelines para 4(ii)"
+          },
+          {
+            "type": "criterion",
+            "id": "not-government-service",
+            "field": "isGovernmentEmployee",
+            "op": "is_false",
+            "label": "Neither the person nor a family member is in government service",
+            "sourceRef": "Guidelines para 4(v)"
+          }
+        ]
+      }
+    },
+    "how_to_apply": "Register on the PM Vishwakarma portal (applicant login, or through a Common Service Centre). The first credit tranche follows skill assessment and basic training.",
+    "application_url": null,
+    "official_url": "https://pmvishwakarma.gov.in/",
+    "sources": [
+      {
+        "title": "PM Vishwakarma portal home page: eligibility and benefits (read 6 October 2026)",
+        "url": "https://pmvishwakarma.gov.in/"
+      },
+      {
+        "title": "PM Vishwakarma: Guidelines for Implementation",
+        "url": "https://pmvishwakarma.gov.in/cdn/MiscFiles/eng_v30.0_PM_Vishwakarma_Guidelines_final.pdf"
+      }
+    ],
+    "last_verified_at": "2026-10-06",
+    "verification_status": "verified",
+    "effective_from": null
+  },
+  {
+    "slug": "stand-up-india",
+    "version": 1,
+    "status": "retired",
+    "name": "Stand-Up India Scheme",
+    "short_name": "Stand-Up India",
+    "scheme_type": "loan",
+    "summary": "RETIRED. The Department of Financial Services page states that the scheme ran up to 31 March 2025, in line with the 15th Finance Commission cycle, and mentions a new scheme for first-time women, SC and ST entrepreneurs (term loans up to ₹2 crore) announced in Budget 2025-26. No later extension was found on the official sources read on 6 October 2026, although the Stand-Up India portal still shows the original scheme features. Kept for reference; its published criteria are encoded below. Not evaluated here: for non-individual enterprises, at least 51% of shareholding and control must be held by an SC/ST or woman entrepreneur.",
+    "benefits": [
+      "Composite bank loan (term loan plus working capital) between ₹10 lakh and ₹1 crore",
+      "Loan expected to cover 85% of the project cost; promoter margin money of 15%, with at least 10% of the project cost as the borrower's own contribution",
+      "Repayment in up to 7 years with a moratorium of up to 18 months",
+      "Security cover under the Credit Guarantee Fund Scheme for Stand-Up India Loans (CGFSIL), or collateral, as decided by the bank"
+    ],
+    "implementing_agency": "Scheduled commercial banks, with the Stand-Up India portal run by SIDBI",
+    "ministry": "Ministry of Finance (Department of Financial Services)",
+    "min_loan_amount": 1000000,
+    "max_loan_amount": 10000000,
+    "eligibility_rules": {
+      "schemaVersion": 1,
+      "required": {
+        "type": "all",
+        "rules": [
+          {
+            "type": "any",
+            "rules": [
+              {
+                "type": "criterion",
+                "id": "woman-entrepreneur",
+                "field": "gender",
+                "op": "eq",
+                "value": "female",
+                "label": "Woman entrepreneur",
+                "sourceRef": "standupmitra.in, Scheme Features: Eligibility"
+              },
+              {
+                "type": "criterion",
+                "id": "sc-st-entrepreneur",
+                "field": "socialCategory",
+                "op": "in",
+                "value": ["sc", "st"],
+                "label": "Scheduled Caste or Scheduled Tribe entrepreneur",
+                "sourceRef": "standupmitra.in, Scheme Features: Eligibility"
+              }
+            ]
+          },
+          {
+            "type": "criterion",
+            "id": "age-min",
+            "field": "age",
+            "op": "gte",
+            "value": 18,
+            "label": "Above 18 years of age",
+            "sourceRef": "standupmitra.in, Scheme Features: Eligibility"
+          },
+          {
+            "type": "criterion",
+            "id": "greenfield",
+            "field": "businessStage",
+            "op": "eq",
+            "value": "new",
+            "label": "Loans are for a greenfield project only: the borrower's first-time venture",
+            "sourceRef": "standupmitra.in, Scheme Features: Eligibility"
+          },
+          {
+            "type": "criterion",
+            "id": "not-in-default",
+            "field": "hasLoanDefault",
+            "op": "is_false",
+            "label": "The borrower is not in default to any bank or financial institution",
+            "sourceRef": "standupmitra.in, Scheme Features: Eligibility"
+          },
+          {
+            "type": "criterion",
+            "id": "loan-range",
+            "field": "loanAmount",
+            "op": "between",
+            "value": [1000000, 10000000],
+            "label": "Composite loan between ₹10 lakh and ₹1 crore",
+            "sourceRef": "standupmitra.in, Scheme Features: Nature and Size of Loan"
+          }
+        ]
+      }
+    },
+    "how_to_apply": "Retired scheme: no application route is listed. Ask a bank branch or check the official sources about the successor scheme for first-time women, SC and ST entrepreneurs.",
+    "application_url": null,
+    "official_url": "https://www.standupmitra.in/",
+    "sources": [
+      {
+        "title": "Department of Financial Services: Stand Up India Scheme (SUPI), validity up to 31.03.2025",
+        "url": "https://financialservices.gov.in/stand-india-scheme-supi"
+      },
+      {
+        "title": "Stand-Up India portal: Scheme Features (eligibility, loan size, margin money)",
+        "url": "https://www.standupmitra.in/Home/SUISchemes"
+      },
+      {
+        "title": "PIB: Stand-Up India Scheme release of 22 July 2025 (scheme described in the past tense)",
+        "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2146820&reg=3&lang=2"
+      }
+    ],
+    "last_verified_at": "2026-10-06",
+    "verification_status": "verified",
+    "effective_from": "2016-04-05"
+  }
+]

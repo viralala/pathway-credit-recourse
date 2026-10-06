@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDown, BookmarkCheck, Check } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { analyze } from "@/lib/analyze";
@@ -21,6 +22,12 @@ import { Summary } from "./workbench/Summary";
 import { TimelineSection } from "./workbench/TimelineSection";
 
 const DEFAULT_NAME = "Applicant";
+
+/** The scheme section loads after the page is interactive, like the timeline chart; the placeholder keeps its place. */
+const SchemePathways = dynamic(() => import("./workbench/SchemePathways").then((m) => m.SchemePathways), {
+  ssr: false,
+  loading: () => <div aria-hidden className="page-container min-h-96 py-16 sm:py-20" />,
+});
 
 /**
  * The applicant workbench (home page): edit a profile or pick a demo applicant, and see the score,
@@ -312,6 +319,7 @@ export function Workbench({
         thresholdScore={r.thresholdScore}
         horizon={r.horizon}
       />
+      <SchemePathways lang={lang} applicant={analyzed} />
       <MoreTools ui={ui} goalHref={goalHref} offerHref={offerHref} fairnessHref={fairnessHref} />
     </div>
   );

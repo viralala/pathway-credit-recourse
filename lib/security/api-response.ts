@@ -8,7 +8,8 @@ export type ApiErrorCode =
   | "RATE_LIMITED"
   | "PAYLOAD_TOO_LARGE"
   | "UNSUPPORTED_MEDIA_TYPE"
-  | "INTERNAL_ERROR";
+  | "INTERNAL_ERROR"
+  | "SERVICE_UNAVAILABLE";
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
 

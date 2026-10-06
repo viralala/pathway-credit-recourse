@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "evaluate": "tsx scripts/evaluate.ts",
+    "seed:schemes": "tsx scripts/seed-schemes.ts",
     "parity": "python ml/export_parity.py && tsx scripts/parity.ts",
     "export-model": "python ml/export_model.py",
     "preview": "next build && next start --port 3108"
