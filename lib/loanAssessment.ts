@@ -1,9 +1,10 @@
-import type { Applicant, LoanAssessment, LoanType } from "./types";
+import type { Applicant, InquiryActivity, LoanAssessment, LoanType } from "./types";
 
 export interface LoanAssessmentInput {
   loanType: LoanType;
   loanAmount?: number;
   collateralValue?: number | null;
+  recentHardInquiries?: number;
   applicant: Applicant;
   predictedScore?: number;
   pd?: number;
@@ -21,9 +22,9 @@ export const DEFAULT_COLLATERAL_VALUE = 800_000;
  * NOTE: The credit score and 2-year default probability (PD) are generated strictly
  * by the core ML model based on borrower financial features.
  *
- * Loan type (secured vs unsecured), Loan Amount, Collateral Value, and LTV
+ * Loan type (secured vs unsecured), Loan Amount, Collateral Value, LTV, and Recent Hard Inquiries
  * are evaluated as a separate contextual assessment layer to reflect collateral backing,
- * loss-given-default (LGD) dynamics, and repayment capacity (FOIR/DTI) without altering
+ * loss-given-default (LGD) dynamics, inquiry velocity, and repayment capacity (FOIR/DTI) without altering
  * the underlying ML credit score mathematics.
  */
 export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
@@ -31,6 +32,7 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
     loanType,
     loanAmount = DEFAULT_LOAN_AMOUNT,
     collateralValue: rawCollateral,
+    recentHardInquiries: rawInquiries,
     applicant,
     predictedScore,
     decision,
@@ -53,6 +55,36 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
       ? Number(((validLoanAmount / validCollateral) * 100).toFixed(2))
       : null;
 
+  const recentHardInquiries =
+    typeof rawInquiries === "number" && Number.isFinite(rawInquiries) && rawInquiries >= 0
+      ? Math.floor(rawInquiries)
+      : 0;
+
+  const inquiryActivity: InquiryActivity =
+    recentHardInquiries === 0
+      ? {
+          count: 0,
+          level: "low",
+          label: "Low recent inquiry activity",
+          explanation:
+            "No recent hard inquiries in the past 6 months suggests stable credit-seeking activity.",
+        }
+      : recentHardInquiries <= 2
+        ? {
+            count: recentHardInquiries,
+            level: "moderate",
+            label: "Moderate recent inquiry activity",
+            explanation:
+              "Recent inquiry activity is considered alongside the overall credit profile and does not independently determine approval.",
+          }
+        : {
+            count: recentHardInquiries,
+            level: "high",
+            label: "Higher recent inquiry activity",
+            explanation:
+              "Higher recent inquiry activity may indicate multiple recent credit applications and can be considered alongside the overall credit profile.",
+          };
+
   const foir = Number((applicant.debtRatio * 100).toFixed(1));
   const utilPct = Number((applicant.utilization * 100).toFixed(1));
   const totalLate = applicant.late30 + applicant.late60 + applicant.late90;
@@ -60,6 +92,9 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
   const relevantFactors: string[] = [];
   const assessmentNotes: string[] = [];
   const warnings: string[] = [];
+
+  relevantFactors.push(`Recent Hard Inquiries (6M): ${recentHardInquiries} (${inquiryActivity.label})`);
+  assessmentNotes.push(inquiryActivity.explanation);
 
   if (isSecured) {
     relevantFactors.push(`Loan Amount: ₹${validLoanAmount.toLocaleString()}`);
@@ -202,6 +237,8 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
     collateralValue: validCollateral,
     ltv,
     foir,
+    recentHardInquiries,
+    inquiryActivity,
     collateralBacking: isSecured,
     riskContext,
     underwritingFocus,
@@ -210,6 +247,7 @@ export function assessLoan(input: LoanAssessmentInput): LoanAssessment {
     warnings,
     eligibilityContext,
     collateralConsideration,
-    disclaimer: "For this assessment, loan type, loan amount, and collateral are considered separately from the credit-risk model.",
+    disclaimer:
+      "For this assessment, loan type, loan amount, collateral, and inquiry activity are considered separately from the credit-risk model.",
   };
 }

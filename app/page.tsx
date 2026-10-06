@@ -6,7 +6,7 @@ import { applicantFromParams, type SearchParams } from "@/lib/url";
 
 export default async function Home({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
-  const { applicant, name, sampleId, loanType, loanAmount, collateralValue } = applicantFromParams(sp);
+  const { applicant, name, sampleId, loanType, loanAmount, collateralValue, recentHardInquiries } = applicantFromParams(sp);
   const lang = asLang(Array.isArray(sp.lang) ? sp.lang[0] : sp.lang);
   const rawPlan = Array.isArray(sp.plan) ? sp.plan[0] : sp.plan;
   // Only the shape is checked here; the API checks the plan belongs to the signed-in person.
@@ -14,13 +14,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
   return (
     <>
       <Workbench
-        key={`${sampleId ?? "custom"}-${lang}-${planId ?? ""}-${loanType}`}
+        key={`${sampleId ?? "custom"}-${lang}-${planId ?? ""}-${loanType}-${recentHardInquiries}`}
         initialApplicant={applicant}
         initialName={name}
         initialSampleId={sampleId}
         initialLoanType={loanType}
         initialLoanAmount={loanAmount}
         initialCollateralValue={collateralValue}
+        initialRecentHardInquiries={recentHardInquiries}
         lang={lang}
         planId={planId}
       />

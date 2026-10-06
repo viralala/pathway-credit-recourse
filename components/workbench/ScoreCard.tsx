@@ -115,6 +115,27 @@ export function ScorePanel({
               </div>
             )}
 
+            {loanAssessment?.recentHardInquiries !== undefined && (
+              <div className="flex justify-between items-center gap-4 py-2.5">
+                <dt className="text-muted-foreground">Hard Inquiries (6M)</dt>
+                <dd className="font-semibold tabular-nums text-foreground flex items-center gap-2">
+                  <span>{loanAssessment.recentHardInquiries}</span>
+                  {loanAssessment.inquiryActivity && (
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                      loanAssessment.inquiryActivity.level === "low"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : loanAssessment.inquiryActivity.level === "moderate"
+                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    )}>
+                      {loanAssessment.inquiryActivity.label}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            )}
+
             <div className="flex justify-between gap-4 py-2.5">
               <dt className="text-muted-foreground">{ui.threshold}</dt>
               <dd className="font-semibold tabular-nums">{thresholdScore}</dd>

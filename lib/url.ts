@@ -27,7 +27,7 @@ export const GOAL_PARAM: Record<keyof Goal, string> = {
 export type SearchParams = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-/** Applicant from the URL: a demo sample, optionally overridden field by field, plus selected loanType, loanAmount, collateralValue. */
+/** Applicant from the URL: a demo sample, optionally overridden field by field, plus selected loanType, loanAmount, collateralValue, recentHardInquiries. */
 export function applicantFromParams(sp: SearchParams): {
   applicant: Applicant;
   name: string;
@@ -35,6 +35,7 @@ export function applicantFromParams(sp: SearchParams): {
   loanType: LoanType;
   loanAmount: number;
   collateralValue: number | null;
+  recentHardInquiries: number;
 } {
   const sample = getSample(first(sp.sample)) ?? (Object.values(PARAM).some((p) => first(sp[p]) !== undefined) ? null : DEFAULT_SAMPLE);
   const applicant: Applicant = { ...(sample ?? DEFAULT_SAMPLE).applicant };
@@ -65,6 +66,11 @@ export function applicantFromParams(sp: SearchParams): {
         : 800_000
       : null;
 
+  const rawInquiries = first(sp.inquiries) || first(sp.recentHardInquiries);
+  const parsedInquiries = rawInquiries !== undefined ? Number(rawInquiries) : NaN;
+  const recentHardInquiries =
+    Number.isFinite(parsedInquiries) && parsedInquiries >= 0 ? Math.floor(parsedInquiries) : 0;
+
   return {
     applicant,
     name: sample && !custom ? sample.name : first(sp.name) || "Applicant",
@@ -72,6 +78,7 @@ export function applicantFromParams(sp: SearchParams): {
     loanType,
     loanAmount,
     collateralValue,
+    recentHardInquiries,
   };
 }
 
@@ -110,6 +117,7 @@ export function paramsFor(
     loanType?: LoanType;
     loanAmount?: number;
     collateralValue?: number | null;
+    recentHardInquiries?: number;
   } = {},
 ): string {
   const q = new URLSearchParams();
@@ -122,6 +130,9 @@ export function paramsFor(
   if (opts.loanAmount) q.set("loanAmount", String(Math.round(opts.loanAmount)));
   if (opts.loanType === "secured" && opts.collateralValue) {
     q.set("collateralValue", String(Math.round(opts.collateralValue)));
+  }
+  if (opts.recentHardInquiries !== undefined && opts.recentHardInquiries > 0) {
+    q.set("inquiries", String(Math.floor(opts.recentHardInquiries)));
   }
   if (opts.goal) for (const [k, v] of goalParamEntries(opts.goal)) q.set(k, v);
   if (opts.lang && opts.lang !== "en") q.set("lang", opts.lang);

@@ -23,7 +23,14 @@ export interface Analysis {
 
 export function analyze(
   applicant: Applicant,
-  loanOpts: LoanType | { loanType?: LoanType; loanAmount?: number; collateralValue?: number | null } = "unsecured",
+  loanOpts:
+    | LoanType
+    | {
+        loanType?: LoanType;
+        loanAmount?: number;
+        collateralValue?: number | null;
+        recentHardInquiries?: number;
+      } = "unsecured",
 ): Analysis {
   const assessment = assess(applicant);
   const recourse = findRecourse(applicant);
@@ -32,11 +39,13 @@ export function analyze(
   const loanType: LoanType = typeof loanOpts === "string" ? loanOpts : (loanOpts.loanType || "unsecured");
   const loanAmount = typeof loanOpts === "object" ? loanOpts.loanAmount : undefined;
   const collateralValue = typeof loanOpts === "object" ? loanOpts.collateralValue : undefined;
+  const recentHardInquiries = typeof loanOpts === "object" ? loanOpts.recentHardInquiries : undefined;
 
   const loanAssessment = assessLoan({
     loanType,
     loanAmount,
     collateralValue,
+    recentHardInquiries,
     applicant,
     predictedScore: assessment.score,
     pd: assessment.pd,

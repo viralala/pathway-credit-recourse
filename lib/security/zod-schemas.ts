@@ -21,6 +21,7 @@ export const createAssessmentSchema = z
     loanType: loanTypeSchema,
     loanAmount: z.number().positive().max(100_000_000).default(500_000),
     collateralValue: z.number().positive().max(500_000_000).nullable().optional(),
+    recentHardInquiries: z.number().int().min(0).max(50).default(0),
   })
   .passthrough()
   .refine(

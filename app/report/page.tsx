@@ -38,8 +38,8 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
   const ui = t(lang);
   const s = pagesText(lang);
   const h = s.report;
-  const { applicant, name, sampleId, loanType, loanAmount, collateralValue } = applicantFromParams(sp);
-  const r = analyze(applicant, { loanType, loanAmount, collateralValue });
+  const { applicant, name, sampleId, loanType, loanAmount, collateralValue, recentHardInquiries } = applicantFromParams(sp);
+  const r = analyze(applicant, { loanType, loanAmount, collateralValue, recentHardInquiries });
   const a = r.assessment;
   const ref = `PW-${(sampleId ?? "custom").toUpperCase()}-${displayScore(a.score, a.approved)}`;
   const summary = summaryText(lang, {
@@ -63,7 +63,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
           <Breadcrumbs items={[{ label: s.crumbs.report }]} homeHref={hrefWithLang("/", lang)} homeLabel={s.crumbs.home} />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button asChild variant="ghost" className="-ml-2 h-10 rounded-xl px-3 text-primary">
-              <Link href={`/?${paramsFor(applicant, { sampleId, lang, name, loanType, loanAmount, collateralValue })}`}>
+              <Link href={`/?${paramsFor(applicant, { sampleId, lang, name, loanType, loanAmount, collateralValue, recentHardInquiries })}`}>
                 <ArrowLeft aria-hidden />
                 {h.back}
               </Link>
@@ -120,6 +120,18 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                       )}
                     </div>
                   )}
+
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-2 text-foreground">
+                    <div>
+                      <span className="text-muted-foreground">Hard Inquiries (6M): </span>
+                      <strong>{r.loanAssessment.recentHardInquiries}</strong>
+                      {r.loanAssessment.inquiryActivity && (
+                        <span className="ml-2 rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                          {r.loanAssessment.inquiryActivity.label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
                   <p className="mt-2 text-muted-foreground">{r.loanAssessment.riskContext}</p>
                   <p className="mt-1 text-[11px] font-medium text-muted-foreground/80 italic">

@@ -34,6 +34,7 @@ export function Workbench({
   initialLoanType = "unsecured",
   initialLoanAmount = 500_000,
   initialCollateralValue,
+  initialRecentHardInquiries = 0,
   lang,
   planId,
 }: {
@@ -43,6 +44,7 @@ export function Workbench({
   initialLoanType?: LoanType;
   initialLoanAmount?: number;
   initialCollateralValue?: number | null;
+  initialRecentHardInquiries?: number;
   lang: Lang;
   /** A saved plan being updated (from "My plans"), or null. */
   planId: string | null;
@@ -60,6 +62,7 @@ export function Workbench({
         ? 800_000
         : null
   );
+  const [recentHardInquiries, setRecentHardInquiries] = useState<number>(initialRecentHardInquiries ?? 0);
   const [aiText, setAiText] = useState<{ key: string; text: string; source: "ai" | "template" } | null>(null);
   const [rewriting, setRewriting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -70,8 +73,8 @@ export function Workbench({
   // Inputs stay instant; the (heavier) analysis follows a beat behind while typing.
   const analyzed = useDeferredValue(applicant);
   const r = useMemo(
-    () => analyze(analyzed, { loanType, loanAmount, collateralValue }),
-    [analyzed, loanType, loanAmount, collateralValue]
+    () => analyze(analyzed, { loanType, loanAmount, collateralValue, recentHardInquiries }),
+    [analyzed, loanType, loanAmount, collateralValue, recentHardInquiries]
   );
   const { assessment: a, plan, timeline } = r;
 
@@ -81,7 +84,8 @@ export function Workbench({
     nextName: string,
     nextLoanType: LoanType = loanType,
     nextLoanAmount: number = loanAmount,
-    nextCollateral: number | null = collateralValue
+    nextCollateral: number | null = collateralValue,
+    nextInquiries: number = recentHardInquiries
   ) => {
     const q = new URLSearchParams(
       paramsFor(next, {
@@ -91,6 +95,7 @@ export function Workbench({
         loanType: nextLoanType,
         loanAmount: nextLoanAmount,
         collateralValue: nextCollateral,
+        recentHardInquiries: nextInquiries,
       })
     );
     if (planId) q.set("plan", planId);
@@ -101,21 +106,26 @@ export function Workbench({
     setApplicant(next);
     setSampleId(null);
     setName(DEFAULT_NAME);
-    sync(next, null, DEFAULT_NAME, loanType, loanAmount, collateralValue);
+    sync(next, null, DEFAULT_NAME, loanType, loanAmount, collateralValue, recentHardInquiries);
   };
   const handleLoanType = (type: LoanType) => {
     setLoanType(type);
     const nextCollateral = type === "secured" ? (collateralValue ?? 800_000) : null;
     setCollateralValue(nextCollateral);
-    sync(applicant, sampleId, name, type, loanAmount, nextCollateral);
+    sync(applicant, sampleId, name, type, loanAmount, nextCollateral, recentHardInquiries);
   };
   const handleLoanAmount = (amount: number) => {
     setLoanAmount(amount);
-    sync(applicant, sampleId, name, loanType, amount, collateralValue);
+    sync(applicant, sampleId, name, loanType, amount, collateralValue, recentHardInquiries);
   };
   const handleCollateralValue = (val: number | null) => {
     setCollateralValue(val);
-    sync(applicant, sampleId, name, loanType, loanAmount, val);
+    sync(applicant, sampleId, name, loanType, loanAmount, val, recentHardInquiries);
+  };
+  const handleRecentHardInquiries = (inquiries: number) => {
+    const clean = Math.max(0, Math.round(inquiries));
+    setRecentHardInquiries(clean);
+    sync(applicant, sampleId, name, loanType, loanAmount, collateralValue, clean);
   };
   const loadSample = (id: string) => {
     const s = SAMPLES.find((x) => x.id === id);
@@ -123,7 +133,7 @@ export function Workbench({
     setApplicant(s.applicant);
     setSampleId(s.id);
     setName(s.name);
-    sync(s.applicant, s.id, s.name, loanType, loanAmount, collateralValue);
+    sync(s.applicant, s.id, s.name, loanType, loanAmount, collateralValue, recentHardInquiries);
   };
 
   const feasible = r.recourse.status === "plan";
@@ -145,11 +155,11 @@ export function Workbench({
   });
 
   const langQuery = lang !== "en" ? `?lang=${lang}` : "";
-  const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name, loanType, loanAmount, collateralValue })}`;
+  const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name, loanType, loanAmount, collateralValue, recentHardInquiries })}`;
   const fairnessHref = `/fairness${langQuery}`;
-  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue })}`;
+  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue, recentHardInquiries })}`;
   const offerHref = `/offer-check${langQuery}`;
-  const homeQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue }));
+  const homeQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name, loanType, loanAmount, collateralValue, recentHardInquiries }));
   if (planId) homeQuery.set("plan", planId);
   const returnTo = `/?${homeQuery}`;
 
@@ -178,7 +188,8 @@ export function Workbench({
     applicantName: string,
     selectedLoanType: LoanType = loanType,
     selectedLoanAmount: number = loanAmount,
-    selectedCollateralValue: number | null = collateralValue
+    selectedCollateralValue: number | null = collateralValue,
+    selectedInquiries: number = recentHardInquiries
   ) {
     setSaving(true);
     setSaveError(null);
@@ -193,6 +204,7 @@ export function Workbench({
           loanType: selectedLoanType,
           loanAmount: selectedLoanAmount,
           collateralValue: selectedLoanType === "secured" ? selectedCollateralValue : null,
+          recentHardInquiries: selectedInquiries,
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -244,6 +256,7 @@ export function Workbench({
             loanType,
             loanAmount,
             collateralValue: loanType === "secured" ? collateralValue : null,
+            recentHardInquiries,
           })
         );
       } catch {
@@ -253,7 +266,7 @@ export function Workbench({
       return;
     }
 
-    await saveAssessmentWithData(analyzed, name, loanType, loanAmount, collateralValue);
+    await saveAssessmentWithData(analyzed, name, loanType, loanAmount, collateralValue, recentHardInquiries);
   }
 
   // Check and process any pending assessment saved prior to OAuth redirect
@@ -275,16 +288,19 @@ export function Workbench({
               : pendingLoanType === "secured"
                 ? 800_000
                 : null;
+          const pendingInquiries = typeof pending.recentHardInquiries === "number" ? pending.recentHardInquiries : 0;
           setTimeout(() => {
             if (pending.loanType) setLoanType(pendingLoanType);
             setLoanAmount(pendingLoanAmount);
             setCollateralValue(pendingCollateral);
+            setRecentHardInquiries(pendingInquiries);
             saveAssessmentWithData(
               applicantData,
               applicantName,
               pendingLoanType,
               pendingLoanAmount,
-              pendingCollateral
+              pendingCollateral,
+              pendingInquiries
             );
           }, 0);
         }
@@ -327,10 +343,12 @@ export function Workbench({
                 loanType={loanType}
                 loanAmount={loanAmount}
                 collateralValue={collateralValue}
+                recentHardInquiries={recentHardInquiries}
                 onField={setField}
                 onLoanType={handleLoanType}
                 onLoanAmount={handleLoanAmount}
                 onCollateralValue={handleCollateralValue}
+                onRecentHardInquiries={handleRecentHardInquiries}
               />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">

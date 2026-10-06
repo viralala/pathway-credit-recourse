@@ -51,6 +51,7 @@ export type Database = {
           loan_amount: number;
           collateral_value: number | null;
           ltv: number | null;
+          recent_hard_inquiries: number;
           predicted_score: number;
           pd: number;
           decision: "approved" | "declined";
@@ -76,6 +77,7 @@ export type Database = {
           loan_amount?: number;
           collateral_value?: number | null;
           ltv?: number | null;
+          recent_hard_inquiries?: number;
           predicted_score: number;
           pd: number;
           decision: "approved" | "declined";
@@ -101,6 +103,7 @@ export type Database = {
           loan_amount?: number;
           collateral_value?: number | null;
           ltv?: number | null;
+          recent_hard_inquiries?: number;
           predicted_score?: number;
           pd?: number;
           decision?: "approved" | "declined";

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.assessments (
   loan_amount NUMERIC NOT NULL DEFAULT 500000 CHECK (loan_amount > 0),
   collateral_value NUMERIC CHECK (collateral_value IS NULL OR collateral_value > 0),
   ltv NUMERIC CHECK (ltv IS NULL OR ltv >= 0),
+  recent_hard_inquiries INTEGER NOT NULL DEFAULT 0 CHECK (recent_hard_inquiries >= 0),
 
   -- Server-side calculated outputs (Never trusted from client)
   predicted_score NUMERIC NOT NULL,
