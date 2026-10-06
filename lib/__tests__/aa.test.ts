@@ -249,3 +249,36 @@ describe("consent redirect URL", () => {
     expect(consentRedirectUrl(undefined)).toBe(CONSENT_REDIRECT_URL);
   });
 });
+
+describe("statements without a salary label", () => {
+  const upi = (date: string, amount: number, name: string): AATransaction => ({
+    date,
+    amount,
+    type: "CREDIT",
+    mode: "UPI",
+    narration: `UPI/CR/457233689286/${name}/CZBR/64321752`,
+  });
+
+  it("estimates income from money received and says it is an estimate", () => {
+    const transactions: AATransaction[] = [];
+    for (let m = 1; m <= 6; m++) {
+      const mm = String(m).padStart(2, "0");
+      transactions.push(upi(`2026-${mm}-05`, 30000, "Gatik Yohannan"), upi(`2026-${mm}-20`, 20000, "Dhruv Desai"));
+    }
+    transactions.push({ date: "2026-03-10", amount: 90000, type: "CREDIT", mode: "UPI", narration: "REFUND/ORDER 123" });
+    const out = normalize({ period: { from: "2026-01-01", to: "2026-06-30" }, deposits: [{ institution: "x", masked: "XX1", transactions }], cards: [], loans: [] });
+    expect(out.applicant.monthlyIncome).toBe(50000);
+    expect(out.sources.monthlyIncome).toMatchObject({ origin: "bank-statement", detail: expect.stringContaining("Estimate") });
+    expect(out.sources.debtRatio).toMatchObject({ origin: "bank-statement", detail: expect.stringContaining("No EMI") });
+    expect(out.applicant.debtRatio).toBe(0);
+  });
+
+  it("reads the statement's own months when it has nothing in the requested period", () => {
+    const transactions: AATransaction[] = [];
+    for (let m = 1; m <= 12; m++) transactions.push(upi(`2020-${String(m).padStart(2, "0")}-08`, 40000, "Gatik Yohannan"));
+    const out = normalize({ period: { from: "2025-10-01", to: "2026-09-30" }, deposits: [{ institution: "x", masked: "XX1", transactions }], cards: [], loans: [] });
+    expect(out.period).toEqual({ from: "2020-01-01", to: "2020-12-08" });
+    expect(out.applicant.monthlyIncome).toBe(40000);
+    expect(out.sources.monthlyIncome?.detail).toContain("2020-01 to 2020-12");
+  });
+});
