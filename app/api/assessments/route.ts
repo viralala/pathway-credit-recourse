@@ -2,6 +2,7 @@ import { getAuthenticatedUser } from "@/lib/security/auth-check";
 import { apiError, apiSuccess } from "@/lib/security/api-response";
 import { createAssessmentSchema } from "@/lib/security/zod-schemas";
 import { assess, MODEL } from "@/lib/model";
+import { assessLoan } from "@/lib/loanAssessment";
 import type { Applicant } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -23,32 +24,83 @@ export async function POST(req: Request) {
       return apiError("VALIDATION_ERROR", "Invalid assessment input parameters", 400, parseResult.error.flatten());
     }
 
-    const { applicant, applicantName } = parseResult.data;
+    const { applicant, applicantName, loanType, loanAmount, collateralValue, recentHardInquiries = 0 } = parseResult.data;
 
-    // Server-side calculation using existing TypeScript ML inference
+    // Server-side calculation using existing TypeScript ML inference (ML MODEL REMAINS INVARIANT)
     const result = assess(applicant as Applicant, MODEL);
-    const decision = result.approved ? "approved" : "declined";
+    const decision: "approved" | "declined" = result.approved ? "approved" : "declined";
     const modelVersion = `v${MODEL.version}`;
+
+    // Loan-Type Contextual Assessment Layer (evaluated around/after the ML model)
+    const loanAssessment = assessLoan({
+      loanType,
+      loanAmount,
+      collateralValue: loanType === "secured" ? (collateralValue ?? null) : null,
+      recentHardInquiries,
+      applicant: applicant as Applicant,
+      predictedScore: result.score,
+      pd: result.pd,
+      decision,
+    });
 
     // Defensively ensure user profile exists in public.profiles to satisfy foreign key
     const userMeta = user.user_metadata || {};
     const fullName = userMeta.full_name || userMeta.name || user.email?.split("@")[0] || applicantName || "Applicant";
     const avatarUrl = userMeta.avatar_url || userMeta.picture || null;
 
-    await supabase.from("profiles").upsert({
-      id: user.id,
-      full_name: fullName,
-      email: user.email ?? null,
-      avatar_url: avatarUrl,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "id" });
+    try {
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        full_name: fullName,
+        email: user.email ?? null,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "id" });
+    } catch {
+      // Non-blocking if profile already exists or trigger handles it
+    }
 
     // Persist to Supabase
-    const { data: savedAssessment, error: dbError } = await supabase
+    const insertPayload = {
+      user_id: user.id,
+      monthly_income: Number.isNaN(applicant.monthlyIncome) ? 0 : applicant.monthlyIncome,
+      utilization: applicant.utilization,
+      debt_ratio: applicant.debtRatio,
+      open_credit_lines: applicant.openCreditLines,
+      late_30: applicant.late30,
+      late_60: applicant.late60,
+      late_90: applicant.late90,
+      applicant_name: applicantName || "Applicant",
+      loan_type: loanType,
+      loan_amount: loanAssessment.loanAmount,
+      collateral_value: loanAssessment.collateralValue,
+      ltv: loanAssessment.ltv,
+      recent_hard_inquiries: loanAssessment.recentHardInquiries,
+      predicted_score: result.score,
+      pd: result.pd,
+      decision,
+      reasons: result.reasons,
+      model_version: modelVersion,
+    };
+
+    let { data: savedAssessment, error: dbError } = await supabase
       .from("assessments")
-      .insert({
+      .insert(insertPayload)
+      .select()
+      .single();
+
+    // Fallback if loan_type or recent_hard_inquiries columns are not yet created in the remote database
+    if (
+      dbError &&
+      (dbError.code === "42703" ||
+        dbError.message?.toLowerCase().includes("loan_type") ||
+        dbError.message?.toLowerCase().includes("loan_amount") ||
+        dbError.message?.toLowerCase().includes("recent_hard_inquiries") ||
+        dbError.message?.toLowerCase().includes("column"))
+    ) {
+      const fallbackPayload = {
         user_id: user.id,
-        monthly_income: applicant.monthlyIncome,
+        monthly_income: Number.isNaN(applicant.monthlyIncome) ? 0 : applicant.monthlyIncome,
         utilization: applicant.utilization,
         debt_ratio: applicant.debtRatio,
         open_credit_lines: applicant.openCreditLines,
@@ -61,9 +113,26 @@ export async function POST(req: Request) {
         decision,
         reasons: result.reasons,
         model_version: modelVersion,
-      })
-      .select()
-      .single();
+      };
+
+      const fallbackResult = await supabase
+        .from("assessments")
+        .insert(fallbackPayload)
+        .select()
+        .single();
+
+      if (!fallbackResult.error && fallbackResult.data) {
+        savedAssessment = {
+          ...fallbackResult.data,
+          loan_type: loanType,
+          loan_amount: loanAssessment.loanAmount,
+          collateral_value: loanAssessment.collateralValue,
+          ltv: loanAssessment.ltv,
+          recent_hard_inquiries: loanAssessment.recentHardInquiries,
+        };
+        dbError = null;
+      }
+    }
 
     if (dbError || !savedAssessment) {
       return apiError("INTERNAL_ERROR", dbError?.message || "Failed to save assessment to database", 500, dbError);
@@ -71,6 +140,13 @@ export async function POST(req: Request) {
 
     return apiSuccess({
       assessment: savedAssessment,
+      loanType,
+      loanAmount: loanAssessment.loanAmount,
+      collateralValue: loanAssessment.collateralValue,
+      ltv: loanAssessment.ltv,
+      recentHardInquiries: loanAssessment.recentHardInquiries,
+      inquiryActivity: loanAssessment.inquiryActivity,
+      loanAssessment,
       score: result.score,
       decision,
       pd: result.pd,

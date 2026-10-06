@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, CircleCheck, CircleAlert } from "lucide-react";
+import { ArrowRight, CircleCheck, CircleAlert, CreditCard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { CountUp } from "@/components/motion/CountUp";
-import { displayScore, pct, type UIStrings } from "@/lib/i18n";
+import { displayScore, money, pct, type UIStrings } from "@/lib/i18n";
 import type { Assessment } from "@/lib/model";
+import type { LoanAssessment, LoanType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { BauhausArt, Scribble } from "../BauhausArt";
 
@@ -18,6 +19,8 @@ export function ScorePanel({
   approvalLabel,
   reportHref,
   fairnessHref,
+  loanType = "unsecured",
+  loanAssessment,
 }: {
   ui: UIStrings;
   assessment: Assessment;
@@ -25,6 +28,8 @@ export function ScorePanel({
   approvalLabel: string;
   reportHref: string;
   fairnessHref: string;
+  loanType?: LoanType;
+  loanAssessment?: LoanAssessment;
 }) {
   const a = assessment;
   return (
@@ -68,6 +73,69 @@ export function ScorePanel({
           </div>
 
           <dl className="mt-4 divide-y divide-border text-sm">
+            <div className="flex justify-between items-center gap-4 py-2.5">
+              <dt className="text-muted-foreground">Loan Type</dt>
+              <dd className="font-semibold text-foreground flex items-center gap-1.5">
+                {loanType === "secured" ? (
+                  <>
+                    <ShieldCheck className="size-3.5 text-primary" />
+                    <span>Secured Loan</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="size-3.5 text-primary" />
+                    <span>Unsecured Loan</span>
+                  </>
+                )}
+              </dd>
+            </div>
+
+            <div className="flex justify-between items-center gap-4 py-2.5">
+              <dt className="text-muted-foreground">Loan Amount</dt>
+              <dd className="font-semibold tabular-nums text-foreground">
+                {money(loanAssessment?.loanAmount ?? 500_000)}
+              </dd>
+            </div>
+
+            {loanType === "secured" && loanAssessment?.collateralValue && (
+              <div className="flex justify-between items-center gap-4 py-2.5">
+                <dt className="text-muted-foreground">Collateral Value</dt>
+                <dd className="font-semibold tabular-nums text-foreground">
+                  {money(loanAssessment.collateralValue)}
+                </dd>
+              </div>
+            )}
+
+            {loanType === "secured" && loanAssessment?.ltv !== null && loanAssessment?.ltv !== undefined && (
+              <div className="flex justify-between items-center gap-4 py-2.5">
+                <dt className="text-muted-foreground">Loan-to-Value (LTV)</dt>
+                <dd className={cn("font-bold tabular-nums", (loanAssessment.ltv > 80 ? "text-amber-600 dark:text-amber-400" : "text-primary"))}>
+                  {loanAssessment.ltv}%
+                </dd>
+              </div>
+            )}
+
+            {loanAssessment?.recentHardInquiries !== undefined && (
+              <div className="flex justify-between items-center gap-4 py-2.5">
+                <dt className="text-muted-foreground">Hard Inquiries (6M)</dt>
+                <dd className="font-semibold tabular-nums text-foreground flex items-center gap-2">
+                  <span>{loanAssessment.recentHardInquiries}</span>
+                  {loanAssessment.inquiryActivity && (
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                      loanAssessment.inquiryActivity.level === "low"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : loanAssessment.inquiryActivity.level === "moderate"
+                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    )}>
+                      {loanAssessment.inquiryActivity.label}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            )}
+
             <div className="flex justify-between gap-4 py-2.5">
               <dt className="text-muted-foreground">{ui.threshold}</dt>
               <dd className="font-semibold tabular-nums">{thresholdScore}</dd>
@@ -83,6 +151,11 @@ export function ScorePanel({
               </dd>
             </div>
           </dl>
+
+          <div className="mt-3 rounded-xl bg-muted/50 p-2.5 text-[11px] leading-relaxed text-muted-foreground border border-border/50">
+            <span className="font-semibold text-foreground">Assessment Note: </span>
+            {loanAssessment?.disclaimer || "For this assessment, loan type, loan amount, and collateral are considered separately from the credit-risk model."}
+          </div>
 
           <ul className="mt-4 grid gap-1 text-sm">
             {[

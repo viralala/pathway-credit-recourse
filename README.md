@@ -197,6 +197,23 @@ Model numbers come from `ml/artifacts/phase7_evaluation.json` and `phase8_cutoff
 
 **Caveats.** The model's probabilities were not recalibrated, and it understates risk somewhat between 5% and 40% (validation applicants scored 10–20% defaulted at 17.5%, against a mean prediction of 13.9%). 65 of the 4,035 rejected test applicants have no plan within the 36-month horizon. APR tiers, paces of change and Monte Carlo settings are illustrative assumptions, not calibrated to any lender. The fairness audit compares age and income bands only.
 
+## Fill from your bank (Account Aggregator)
+
+The home page can fill the applicant form from linked bank, card and loan accounts through India's Account Aggregator (RBI consent) framework. Each filled field carries a small tag saying where the number came from (bank statement, credit card or loan account), or "Not found" when the accounts do not show it. Editing a field by hand removes its tag.
+
+- **Sandbox mode (default).** No keys needed. The consent screen is simulated and the data comes from three fictional profiles (salaried, stretched, thin-file) at "Sandbox Bank (demo)". No real bank is contacted.
+- **Setu mode.** Set all three variables below and the same flow goes through Setu's Account Aggregator API instead. The person enters a mobile number and approves on Setu's page.
+
+| Variable | Purpose |
+|---|---|
+| `SETU_AA_CLIENT_ID` | Setu client id |
+| `SETU_AA_CLIENT_SECRET` | Setu client secret |
+| `SETU_AA_PRODUCT_INSTANCE_ID` | Setu product instance |
+
+In the Setu Bridge product settings, set the **redirect URL** to `https://<your domain>/connect/done` (for this deployment, `https://pathway-credit-recourse.vercel.app/connect/done`). Setu sends the approval window there after the person approves or declines; the page tells them to close it, and the Pathway tab picks up the consent by polling. The app also sends this URL with each consent request, built from the address the request came in on. The **notification (webhook) URL** is a separate field that Pathway does not use; a test endpoint is fine in sandbox.
+
+`lib/aa/setu.ts` follows Setu's FIU API v2: Bridge credentials are exchanged for a Bearer token, consents ask for one-time access to bank (deposit) accounts, and the data session is polled for up to about 40 seconds. Setu has no credit card data type, so card utilization and late payments show as "Not found" in Setu mode. The routes under `app/api/aa/` are same-origin checked and rate limited, send no-store headers, and never log or store financial data. Bank-filled numbers are kept out of the URL, browser storage and the share and report links until the person edits a field or loads a sample.
+
 ## Testing and verification
 
 | Check | Command | Result (2026-10-05) |

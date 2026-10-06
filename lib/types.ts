@@ -53,3 +53,42 @@ export interface CreditModel {
 
 /** How an applicant input may be used in a plan. */
 export type FeatureClass = "actionable" | "slow-moving";
+
+/** Loan category: secured with collateral backing vs unsecured. */
+export type LoanType = "secured" | "unsecured";
+
+export interface LoanDetails {
+  loanType: LoanType;
+  loanAmount: number;
+  collateralValue?: number | null;
+  recentHardInquiries?: number;
+}
+
+/** Recent credit inquiry activity level and contextual explanation. */
+export interface InquiryActivity {
+  count: number;
+  level: "low" | "moderate" | "high";
+  label: string;
+  explanation: string;
+}
+
+/** Loan-specific contextual assessment produced separately from the credit-risk ML model. */
+export interface LoanAssessment {
+  loanType: LoanType;
+  loanTypeLabel: string;
+  loanAmount: number;
+  collateralValue: number | null;
+  ltv: number | null;
+  foir: number;
+  recentHardInquiries: number;
+  inquiryActivity: InquiryActivity;
+  collateralBacking: boolean;
+  riskContext: string;
+  underwritingFocus: string;
+  relevantFactors: string[];
+  assessmentNotes: string[];
+  warnings: string[];
+  eligibilityContext: string;
+  collateralConsideration: string;
+  disclaimer: string;
+}

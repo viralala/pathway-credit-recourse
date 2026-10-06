@@ -32,7 +32,14 @@ import { PARAM } from "../url";
 
 const ROOT = path.resolve(__dirname, "../..");
 const readJson = (rel: string) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8"));
-const sha256 = (rel: string) => createHash("sha256").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex");
+const digest = (b: Buffer) => createHash("sha256").update(b).digest("hex");
+/** The reports were hashed from a Windows checkout (CRLF); git stores them with LF. Accept either, the content is the same. */
+const sha256 = (rel: string, stored: string) => {
+  const raw = fs.readFileSync(path.join(ROOT, rel));
+  if (digest(raw) === stored) return stored;
+  const crlf = Buffer.from(raw.toString("utf8").replace(/\r?\n/g, "\r\n"), "utf8");
+  return digest(crlf) === stored ? stored : digest(raw);
+};
 const meta = readJson("lib/model.meta.json");
 const training = readJson("ml/artifacts/phase6_training.json");
 const cutoff = readJson("ml/artifacts/phase8_cutoff.json");
@@ -63,8 +70,8 @@ describe("shipped model is the Phase 6 Kaggle model", () => {
   });
 
   it("was exported from the training and cut-off reports on disk", () => {
-    expect(meta.provenance.trainingReportSha256).toBe(sha256("ml/artifacts/phase6_training.json"));
-    expect(meta.provenance.cutoffReportSha256).toBe(sha256("ml/artifacts/phase8_cutoff.json"));
+    expect(meta.provenance.trainingReportSha256).toBe(sha256("ml/artifacts/phase6_training.json", meta.provenance.trainingReportSha256));
+    expect(meta.provenance.cutoffReportSha256).toBe(sha256("ml/artifacts/phase8_cutoff.json", meta.provenance.cutoffReportSha256));
   });
 
   it("uses the cleaning thresholds and medians learned in Phase 6", () => {
