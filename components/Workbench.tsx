@@ -160,13 +160,19 @@ export function Workbench({
   };
   const fillFromBank = (result: AAFetchResult) => {
     const fetched = result.applicant;
-    // Income comes back as null when fewer than 3 salary months were found: keep the current figure
-    // (its badge reads "not found") so the person can type their own.
-    const income = Number.isFinite(fetched.monthlyIncome) && fetched.monthlyIncome >= APPLICANT_LIMITS.monthlyIncome.min;
-    setApplicant({ ...fetched, monthlyIncome: income ? fetched.monthlyIncome : applicant.monthlyIncome });
+    // A field the accounts could not show (badge "not found") keeps the number already in the form, so the
+    // person can type their own; income also falls back when it came back unusable.
+    const next = { ...applicant };
+    for (const key of Object.keys(fetched) as FeatureKey[]) {
+      if (result.sources[key]?.origin === "not-available") continue;
+      next[key] = fetched[key];
+    }
+    const income = Number.isFinite(next.monthlyIncome) && next.monthlyIncome >= APPLICANT_LIMITS.monthlyIncome.min;
+    if (!income) next.monthlyIncome = applicant.monthlyIncome;
+    setApplicant(next);
     setSources(result.sources);
     setSampleId(null);
-    setName(DEFAULT_NAME);
+    setName(result.holderName || DEFAULT_NAME);
     setFromBank(true);
     // No sync(): fetched numbers stay out of the URL until the person edits a field.
   };
@@ -393,9 +399,12 @@ export function Workbench({
               </div>
             </div>
             <div className="lg:col-span-7">
-              <div className="mb-4">
-                <ConnectBank lang={lang} onFilled={fillFromBank} />
-              </div>
+              {/* Once the form holds bank numbers the connect card has done its job; it returns after a sample or full edit. */}
+              {!sources && (
+                <div className="mb-4">
+                  <ConnectBank lang={lang} onFilled={fillFromBank} />
+                </div>
+              )}
               <ApplicantForm
                 ui={ui}
                 lang={lang}

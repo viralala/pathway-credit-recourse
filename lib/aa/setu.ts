@@ -127,7 +127,9 @@ export function mapSetuFiData(fips: unknown, period: { from: string; to: string 
             mode: str(tx.mode),
           };
         });
-        out.deposits.push({ institution, masked, transactions } satisfies DepositAccount);
+        const holder = obj(arr(obj(obj(account.profile).holders).holder)[0]);
+        const holderName = str(holder.name).trim().slice(0, 60) || undefined;
+        out.deposits.push({ institution, masked, transactions, holderName } satisfies DepositAccount);
       } else if (type.includes("credit")) {
         out.cards.push({
           institution,
@@ -314,7 +316,8 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
         if (SESSION_READY.has(status)) {
           const data = mapSetuFiData(body.fips, { from, to });
           const { applicant, sources, period } = normalize(data);
-          return { mode: "setu", applicant, sources, period, accounts: linkedAccounts(data) };
+          const holderName = data.deposits.find((d) => d.holderName)?.holderName;
+          return { mode: "setu", applicant, sources, period, accounts: linkedAccounts(data), holderName };
         }
         if (SESSION_FAILED.has(status)) throw new AAError("upstream");
         await new Promise((r) => setTimeout(r, POLL_DELAY_MS));
