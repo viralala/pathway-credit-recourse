@@ -5,10 +5,14 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { analyze } from "@/lib/analyze";
 import { summaryText, t, tf, type Lang } from "@/lib/i18n";
+import { APPLICANT_LIMITS } from "@/lib/security/validate";
 import { SAMPLES } from "@/lib/samples";
 import type { Applicant, FeatureKey } from "@/lib/types";
 import { paramsFor } from "@/lib/url";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { AAFetchResult, FieldSource } from "@/lib/aa/types";
+import { ConnectBank } from "./connect/ConnectBank";
+import { AnswerHero } from "./workbench/AnswerHero";
 import { ApplicantForm } from "./workbench/ApplicantForm";
 import { HeroBackdrop, HeroIntro } from "./workbench/Hero";
 import { MoneySaved } from "./workbench/MoneySaved";
@@ -16,9 +20,11 @@ import { MoreTools } from "./workbench/MoreTools";
 import { Plan } from "./workbench/Plan";
 import { Reasons } from "./workbench/Reasons";
 import { SavePlan } from "./workbench/SavePlan";
+import { ScoreBreakdown } from "./workbench/ScoreBreakdown";
 import { ScorePanel } from "./workbench/ScoreCard";
 import { Summary } from "./workbench/Summary";
 import { TimelineSection } from "./workbench/TimelineSection";
+import { WhatIf } from "./workbench/WhatIf";
 
 const DEFAULT_NAME = "Applicant";
 
@@ -50,6 +56,11 @@ export function Workbench({
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  // Fields filled from a linked bank, by feature. A hand edit drops that field's entry.
+  const [sources, setSources] = useState<Partial<Record<FeatureKey, FieldSource>> | undefined>(undefined);
+  // True from a bank fill until the first hand edit or sample. While true, nothing derived from the
+  // fetched numbers goes into the URL, localStorage or the share/report links.
+  const [fromBank, setFromBank] = useState(false);
   const ui = t(lang);
 
   // Inputs stay instant; the (heavier) analysis follows a beat behind while typing.
@@ -62,17 +73,50 @@ export function Workbench({
     if (planId) q.set("plan", planId);
     window.history.replaceState(null, "", `${window.location.pathname}?${q}${window.location.hash}`);
   };
+  const dropSources = (keys: FeatureKey[]) =>
+    setSources((prev) => {
+      if (!prev) return prev;
+      const rest = { ...prev };
+      for (const k of keys) delete rest[k];
+      return Object.keys(rest).length ? rest : undefined;
+    });
   const setField = (key: FeatureKey, v: number) => {
     const next = { ...applicant, [key]: v };
     setApplicant(next);
     setSampleId(null);
     setName(DEFAULT_NAME);
+    dropSources([key]);
+    setFromBank(false);
     sync(next, null, DEFAULT_NAME);
+  };
+  // "What if" apply: a deliberate edit, so changed fields lose their bank source.
+  const applyWhatIf = (next: Applicant) => {
+    const changed = (Object.keys(next) as FeatureKey[]).filter((k) => next[k] !== applicant[k]);
+    setApplicant(next);
+    setSampleId(null);
+    setName(DEFAULT_NAME);
+    dropSources(changed);
+    setFromBank(false);
+    sync(next, null, DEFAULT_NAME);
+  };
+  const fillFromBank = (result: AAFetchResult) => {
+    const fetched = result.applicant;
+    // Income comes back as null when fewer than 3 salary months were found: keep the current figure
+    // (its badge reads "not found") so the person can type their own.
+    const income = Number.isFinite(fetched.monthlyIncome) && fetched.monthlyIncome >= APPLICANT_LIMITS.monthlyIncome.min;
+    setApplicant({ ...fetched, monthlyIncome: income ? fetched.monthlyIncome : applicant.monthlyIncome });
+    setSources(result.sources);
+    setSampleId(null);
+    setName(DEFAULT_NAME);
+    setFromBank(true);
+    // No sync(): fetched numbers stay out of the URL until the person edits a field.
   };
   const loadSample = (id: string) => {
     const s = SAMPLES.find((x) => x.id === id);
     if (!s) return;
     setApplicant(s.applicant);
+    setSources(undefined);
+    setFromBank(false);
     setSampleId(s.id);
     setName(s.name);
     sync(s.applicant, s.id, s.name);
@@ -97,13 +141,14 @@ export function Workbench({
   });
 
   const langQuery = lang !== "en" ? `?lang=${lang}` : "";
-  const reportHref = `/report?${paramsFor(applicant, { sampleId, lang, name })}`;
+  // Bank-fetched numbers never ride in a link: those point at the plain page until the person edits.
+  const reportHref = fromBank ? `/report${langQuery}` : `/report?${paramsFor(applicant, { sampleId, lang, name })}`;
   const fairnessHref = `/fairness${langQuery}`;
-  const goalHref = `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name })}`;
+  const goalHref = fromBank ? `/goal${langQuery}` : `/goal?${paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name })}`;
   const offerHref = `/offer-check${langQuery}`;
-  const homeQuery = new URLSearchParams(paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name }));
+  const homeQuery = new URLSearchParams(fromBank ? { ...(lang !== "en" ? { lang } : {}) } : paramsFor(applicant, { sampleId, lang, name: name === DEFAULT_NAME ? undefined : name }));
   if (planId) homeQuery.set("plan", planId);
-  const returnTo = `/?${homeQuery}`;
+  const returnTo = homeQuery.size ? `/?${homeQuery}` : "/";
 
   async function rewrite() {
     const key = summary;
@@ -176,10 +221,10 @@ export function Workbench({
   async function saveAssessment() {
     if (!user) {
       try {
-        localStorage.setItem(
-          "pathway_pending_assessment",
-          JSON.stringify({ applicant: analyzed, name })
-        );
+        // Bank-fetched numbers are never written to browser storage.
+        if (!fromBank) {
+          localStorage.setItem("pathway_pending_assessment", JSON.stringify({ applicant: analyzed, name }));
+        }
       } catch {
         // Ignore storage errors
       }
@@ -235,7 +280,10 @@ export function Workbench({
               </div>
             </div>
             <div className="lg:col-span-7">
-              <ApplicantForm ui={ui} applicant={applicant} onField={setField} />
+              <div className="mb-4">
+                <ConnectBank lang={lang} onFilled={fillFromBank} />
+              </div>
+              <ApplicantForm ui={ui} lang={lang} applicant={applicant} sources={sources} onField={setField} />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-bold">
                   <a href="#why">
@@ -281,6 +329,8 @@ export function Workbench({
         </div>
       </section>
 
+      <AnswerHero lang={lang} analysis={r} />
+
       <div className="page-container grid gap-4">
         <SavePlan
           key={JSON.stringify(applicant)}
@@ -301,7 +351,9 @@ export function Workbench({
       </div>
 
       <Reasons ui={ui} lang={lang} reasons={a.reasons} />
+      <ScoreBreakdown lang={lang} applicant={analyzed} />
       <Plan ui={ui} lang={lang} approved={a.approved} feasible={feasible} plan={plan} horizon={r.horizon} />
+      <WhatIf lang={lang} applicant={applicant} onApply={applyWhatIf} />
       <MoneySaved ui={ui} lang={lang} analysis={r} />
       <TimelineSection
         ui={ui}
