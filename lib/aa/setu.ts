@@ -1,3 +1,4 @@
+import { SITE_URL } from "../site";
 import { sandboxPeriod } from "./fixtures";
 import {
   linkedAccounts,
@@ -30,6 +31,8 @@ export interface SetuConfig {
 
 // TODO(verify with Setu sandbox): sandbox base URL.
 export const DEFAULT_SETU_BASE_URL = "https://aa-sandbox.setu.co";
+/** Where the approval window lands after approve/decline (app/connect/done). The Pathway tab polls the status itself. */
+export const CONSENT_REDIRECT_URL = `${SITE_URL}/connect/done`;
 
 // TODO(verify with Setu sandbox): endpoint paths.
 const PATHS = {
@@ -173,7 +176,13 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
       const { from, to } = sandboxPeriod();
       const body = await call(PATHS.createConsent, {
         method: "POST",
-        body: { ...CONSENT_TEMPLATE, vua: vuaOf(mobile), dataRange: { from: `${from}T00:00:00Z`, to: `${to}T23:59:59Z` } },
+        body: {
+          ...CONSENT_TEMPLATE,
+          vua: vuaOf(mobile),
+          dataRange: { from: `${from}T00:00:00Z`, to: `${to}T23:59:59Z` },
+          // TODO(verify with Setu sandbox): field name. Same value as the redirect URL in the Bridge dashboard.
+          redirectUrl: CONSENT_REDIRECT_URL,
+        },
       });
       const consentId = str(body.id);
       if (!ID_RE.test(consentId)) throw new AAError("upstream");

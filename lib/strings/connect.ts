@@ -88,6 +88,15 @@ const en = {
     loan: "From loan",
     none: "Not found",
   },
+  done: {
+    meta: "Consent recorded",
+    title: "Your answer has been recorded",
+    body: "You can close this window. Go back to the Pathway tab: it picks up your approval by itself and fills in the form.",
+    declined: "If you declined, nothing was shared. You can start again from the Pathway tab at any time.",
+    close: "Close this window",
+    closeBlocked: "Your browser kept this window open. Close it yourself, or switch back to the Pathway tab.",
+    home: "Open Pathway",
+  },
 };
 
 export type ConnectStrings = typeof en;
@@ -176,6 +185,15 @@ const hi: ConnectStrings = {
     loan: "लोन से",
     none: "नहीं मिला",
   },
+  done: {
+    meta: "सहमति दर्ज हुई",
+    title: "आपका जवाब दर्ज हो गया है",
+    body: "आप यह विंडो बंद कर सकते हैं। Pathway टैब पर वापस जाएं: वह आपकी मंज़ूरी अपने आप पहचान लेगा और फ़ॉर्म भर देगा।",
+    declined: "अगर आपने मना किया, तो कुछ भी शेयर नहीं हुआ। आप Pathway टैब से कभी भी फिर शुरू कर सकते हैं।",
+    close: "यह विंडो बंद करें",
+    closeBlocked: "आपके ब्राउज़र ने यह विंडो खुली रखी। इसे खुद बंद करें, या Pathway टैब पर वापस जाएं।",
+    home: "Pathway खोलें",
+  },
 };
 
 const mr: ConnectStrings = {
@@ -261,6 +279,15 @@ const mr: ConnectStrings = {
     card: "कार्डवरून",
     loan: "कर्जातून",
     none: "सापडले नाही",
+  },
+  done: {
+    meta: "संमती नोंदवली",
+    title: "तुमचे उत्तर नोंदवले गेले आहे",
+    body: "तुम्ही ही विंडो बंद करू शकता. Pathway टॅबवर परत जा: तो तुमची मंजुरी आपोआप ओळखेल आणि फॉर्म भरेल.",
+    declined: "तुम्ही नकार दिला असल्यास, काहीही शेअर झाले नाही. तुम्ही Pathway टॅबवरून कधीही पुन्हा सुरू करू शकता.",
+    close: "ही विंडो बंद करा",
+    closeBlocked: "तुमच्या ब्राउझरने ही विंडो उघडी ठेवली. ती स्वतः बंद करा, किंवा Pathway टॅबवर परत जा.",
+    home: "Pathway उघडा",
   },
 };
 
