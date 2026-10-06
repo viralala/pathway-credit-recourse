@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     if (!read.ok) return read.response;
     const parsed = bodySchema.safeParse(read.json);
     if (!parsed.success) return apiError("VALIDATION_ERROR", "Invalid request", 400);
-    return apiSuccess(await getProvider().createConsent(parsed.data));
+    return apiSuccess(await getProvider().createConsent({ ...parsed.data, origin: new URL(req.url).origin }));
   } catch (err) {
     return aaErrorResponse(err);
   }

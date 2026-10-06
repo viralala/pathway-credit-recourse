@@ -4,7 +4,7 @@ import { APPLICANT_LIMITS } from "../security/validate";
 import { buildFixture, sandboxPeriod } from "../aa/fixtures";
 import { dpdBucket, normalize, type AAFinancialData, type AATransaction } from "../aa/normalize";
 import { sandboxProvider } from "../aa/sandbox";
-import { mapSetuFiData, readSetuConfig } from "../aa/setu";
+import { CONSENT_REDIRECT_URL, SETU_LOGIN_URL, consentRedirectUrl, createSetuProvider, mapSetuFiData, readSetuConfig } from "../aa/setu";
 import type { DemoProfile } from "../aa/types";
 import type { FeatureKey } from "../types";
 
@@ -146,5 +146,99 @@ describe("Setu response mapping", () => {
     expect(data.deposits[0].transactions[0]).toMatchObject({ amount: 5000, type: "CREDIT", date: "2026-01-02" });
     expect(data.cards[0].creditLimit).toBe(10000);
     expect(data.loans[0].emi).toBe(2500);
+  });
+});
+
+describe("Setu provider requests", () => {
+  const config = { clientId: "cid", clientSecret: "sec", productInstanceId: "pid", baseUrl: "https://fiu.test" };
+  const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+
+  function mockSetu(handlers: Record<string, () => Response>) {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fetchImpl = vi.fn(async (url: string | URL | Request, init: RequestInit = {}) => {
+      calls.push({ url: String(url), init });
+      const key = `${init.method ?? "GET"} ${String(url)}`;
+      const handler = handlers[key];
+      if (!handler) throw new Error(`unexpected ${key}`);
+      return handler();
+    }) as unknown as typeof fetch;
+    return { calls, fetchImpl };
+  }
+
+  it("logs in for a Bearer token and creates a consent Setu accepts", async () => {
+    const { calls, fetchImpl } = mockSetu({
+      [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: "tok" }),
+      "POST https://fiu.test/v2/consents": () => json({ id: "consent-123", url: "https://fiu.test/v2/consents/webview/consent-123", status: "PENDING" }),
+    });
+    const provider = createSetuProvider({ ...config, clientId: "cid-consent" }, fetchImpl);
+    const out = await provider.createConsent({ mobile: "9876543210", origin: "https://pathway.example" });
+    expect(out).toEqual({ consentId: "consent-123", mode: "setu", redirectUrl: "https://fiu.test/v2/consents/webview/consent-123" });
+
+    expect(calls[0].init.headers).toMatchObject({ client: "bridge" });
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({ clientID: "cid-consent", grant_type: "client_credentials", secret: "sec" });
+
+    const headers = calls[1].init.headers as Record<string, string>;
+    expect(headers.authorization).toBe("Bearer tok");
+    expect(headers["x-product-instance-id"]).toBe("pid");
+    const body = JSON.parse(String(calls[1].init.body));
+    expect(body.redirectUrl).toBe("https://pathway.example/connect/done");
+    expect(body.fiTypes).toEqual(["DEPOSIT"]);
+    expect(body.purpose).toMatchObject({ code: "105", refUri: expect.stringContaining("105") });
+    expect(body.dataLife).toBeDefined();
+    expect(body.frequency).toBeDefined();
+  });
+
+  it("reuses the token and logs in again once after a 401", async () => {
+    let consentCalls = 0;
+    let logins = 0;
+    const { fetchImpl } = mockSetu({
+      [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: `tok${++logins}` }),
+      "GET https://fiu.test/v2/consents/consent-123": () => (++consentCalls === 2 ? json({ error: "expired" }, 401) : json({ status: "ACTIVE" })),
+    });
+    const provider = createSetuProvider({ ...config, clientId: "cid-retry" }, fetchImpl);
+    expect((await provider.consentStatus("consent-123")).status).toBe("ACTIVE");
+    expect((await provider.consentStatus("consent-123")).status).toBe("ACTIVE");
+    expect(logins).toBe(2);
+    expect(consentCalls).toBe(3);
+  });
+
+  it("folds revoked and failed consents into REJECTED", async () => {
+    const { fetchImpl } = mockSetu({
+      [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: "tok" }),
+      "GET https://fiu.test/v2/consents/consent-123": () => json({ status: "REVOKED" }),
+    });
+    expect((await createSetuProvider({ ...config, clientId: "cid-revoked" }, fetchImpl).consentStatus("consent-123")).status).toBe("REJECTED");
+  });
+
+  it("creates a data session and maps a completed one", async () => {
+    const tx = Array.from({ length: 6 }, (_, i) => ({
+      type: "CREDIT",
+      mode: "NEFT",
+      amount: "60000.00",
+      narration: "SALARY ACME LTD",
+      valueDate: `2026-0${i + 1}-01`,
+    }));
+    const { fetchImpl } = mockSetu({
+      [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: "tok" }),
+      "POST https://fiu.test/v2/sessions": () => json({ id: "session-1", status: "PENDING" }),
+      "GET https://fiu.test/v2/sessions/session-1": () =>
+        json({
+          status: "COMPLETED",
+          fips: [{ fipID: "setu-fip", accounts: [{ maskedAccNumber: "XXXX4321", data: { account: { type: "deposit", transactions: { transaction: tx } } } }] }],
+        }),
+    });
+    const result = await createSetuProvider({ ...config, clientId: "cid-data" }, fetchImpl).fetchData("consent-123");
+    expect(result.mode).toBe("setu");
+    expect(result.accounts).toEqual([expect.objectContaining({ kind: "deposit", masked: "XXXX4321" })]);
+    expect(Object.keys(result.applicant).sort()).toEqual(["debtRatio", "late30", "late60", "late90", "monthlyIncome", "openCreditLines", "utilization"]);
+  });
+});
+
+describe("consent redirect URL", () => {
+  it("follows the request origin and refuses plain-http hosts", () => {
+    expect(consentRedirectUrl("https://pathway.example")).toBe("https://pathway.example/connect/done");
+    expect(consentRedirectUrl("http://localhost:3107")).toBe("http://localhost:3107/connect/done");
+    expect(consentRedirectUrl("http://evil.example")).toBe(CONSENT_REDIRECT_URL);
+    expect(consentRedirectUrl(undefined)).toBe(CONSENT_REDIRECT_URL);
   });
 });

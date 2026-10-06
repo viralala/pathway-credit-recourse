@@ -16,10 +16,10 @@ import type { ConsentStatus } from "./types";
 /**
  * Setu Account Aggregator API v2 (https://docs.setu.co/data/account-aggregator).
  *
- * The public docs pages reachable without an account describe the flow (consent, consent status, data session
- * create and fetch) but not the exact payloads. Everything below that could not be confirmed is isolated in the
- * constants and mapper functions marked TODO(verify with Setu sandbox), so fixing a field name is a one-line change.
- * No request or response body is ever logged or stored.
+ * Endpoints, auth and payloads follow Setu's OpenAPI spec (as published in the generated setu-aa-sdk): a Bridge
+ * client id and secret are exchanged for a Bearer token at the org service, and every FIU call sends that token plus
+ * x-product-instance-id. Anything still unconfirmed is marked TODO(verify with Setu sandbox).
+ * No request or response body is ever logged or stored; on failure only Setu's HTTP status and error code are logged.
  */
 
 export interface SetuConfig {
@@ -29,12 +29,30 @@ export interface SetuConfig {
   baseUrl: string;
 }
 
-// TODO(verify with Setu sandbox): sandbox base URL.
-export const DEFAULT_SETU_BASE_URL = "https://aa-sandbox.setu.co";
+/** FIU API base URL. Production is https://fiu.setu.co (set SETU_AA_BASE_URL). */
+export const DEFAULT_SETU_BASE_URL = "https://fiu-sandbox.setu.co";
+/** Exchanges Bridge credentials for a Bearer token (same endpoint for sandbox and production credentials). */
+export const SETU_LOGIN_URL = "https://orgservice-prod.setu.co/v1/users/login";
 /** Where the approval window lands after approve/decline (app/connect/done). The Pathway tab polls the status itself. */
-export const CONSENT_REDIRECT_URL = `${SITE_URL}/connect/done`;
+export const CONSENT_REDIRECT_PATH = "/connect/done";
+export const CONSENT_REDIRECT_URL = `${SITE_URL}${CONSENT_REDIRECT_PATH}`;
 
-// TODO(verify with Setu sandbox): endpoint paths.
+/**
+ * The redirect for one consent: the origin the request came in on, so a deployment whose NEXT_PUBLIC_SITE_URL is
+ * missing or points at localhost still sends people back to itself. Falls back to SITE_URL; never a non-https host
+ * other than localhost.
+ */
+export function consentRedirectUrl(origin?: string): string {
+  try {
+    const url = new URL(origin ?? "");
+    const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    if (url.protocol === "https:" || local) return `${url.origin}${CONSENT_REDIRECT_PATH}`;
+  } catch {
+    // No usable origin.
+  }
+  return CONSENT_REDIRECT_URL;
+}
+
 const PATHS = {
   createConsent: "/v2/consents",
   consent: (id: string) => `/v2/consents/${encodeURIComponent(id)}`,
@@ -42,27 +60,37 @@ const PATHS = {
   session: (id: string) => `/v2/sessions/${encodeURIComponent(id)}`,
 } as const;
 
-// TODO(verify with Setu sandbox): the consent request body. Purpose code 101 is "wealth management service" in the ReBIT list.
+// Purpose 105 is ReBIT's "explicit one-time consent for accessing data from the accounts". Setu requires purpose,
+// dataLife and frequency even for a one-time fetch. CREDIT_CARD is not in Setu's fiTypes list, so card utilization and
+// late payments come back as "not available" in Setu mode.
 const CONSENT_TEMPLATE = {
   consentTypes: ["PROFILE", "SUMMARY", "TRANSACTIONS"],
-  fiTypes: ["DEPOSIT", "CREDIT_CARD", "TERM_DEPOSIT"],
-  consentDuration: { unit: "MONTH", value: "1" },
+  fiTypes: ["DEPOSIT"],
+  consentDuration: { unit: "DAY", value: 1 },
+  dataLife: { unit: "DAY", value: 1 },
+  frequency: { unit: "HOUR", value: 1 },
   context: [] as unknown[],
-  purpose: { code: "101", text: "Explain a credit decision and plan improvements" },
+  purpose: {
+    code: "105",
+    refUri: "https://api.rebit.org.in/aa/purpose/105.xml",
+    text: "Explicit one-time consent for accessing data from the accounts",
+    category: { type: "string" },
+  },
   fetchType: "ONETIME",
 } as const;
 
-// TODO(verify with Setu sandbox): the virtual user address format for a mobile number.
+// TODO(verify with Setu sandbox): the AA handle. Setu's examples use both @onemoney and @setu.
 const vuaOf = (mobile: string) => `${mobile}@onemoney`;
 
-// TODO(verify with Setu sandbox): how Setu reports consent states (REVOKED, PAUSED and the like fold into REJECTED).
+// FAILED, PAUSED, REVOKED and REJECTED all fold into REJECTED.
 const CONSENT_STATUS: Record<string, ConsentStatus> = { PENDING: "PENDING", ACTIVE: "ACTIVE", EXPIRED: "EXPIRED" };
 
-// TODO(verify with Setu sandbox): session states that mean the data can be read.
 const SESSION_READY = new Set(["COMPLETED", "PARTIAL"]);
-const SESSION_FAILED = new Set(["EXPIRED", "FAILED", "REJECTED"]);
-const POLL_ATTEMPTS = 5;
-const POLL_DELAY_MS = 1_000;
+const SESSION_FAILED = new Set(["EXPIRED", "FAILED"]);
+// The FIP prepares data asynchronously; wait up to ~40 s inside one request (the data route allows 60 s).
+const POLL_ATTEMPTS = 20;
+const POLL_DELAY_MS = 2_000;
+const TOKEN_TTL_MS = 10 * 60_000;
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const ID_RE = /^[A-Za-z0-9_-]{6,128}$/;
@@ -86,7 +114,7 @@ export function readSetuConfig(env: Record<string, string | undefined>): SetuCon
 }
 
 /** Maps one account of a Setu FI response into the normalizer's input. Lenient: unknown shapes are skipped. */
-// TODO(verify with Setu sandbox): the FI type names and the credit card / loan summary field names.
+// TODO(verify with Setu sandbox): the credit card / loan summary field names (not requested today: Setu's fiTypes have no CREDIT_CARD).
 export function mapSetuFiData(fips: unknown, period: { from: string; to: string }): AAFinancialData {
   const out: AAFinancialData = { period, deposits: [], cards: [], loans: [] };
   for (const fip of arr(fips)) {
@@ -96,7 +124,8 @@ export function mapSetuFiData(fips: unknown, period: { from: string; to: string 
       const type = str(account.type).toLowerCase();
       const summary = obj(account.summary);
       const masked = str(obj(acc).maskedAccNumber) || str(obj(account.profile).maskedAccNumber) || "XXXX";
-      if (type.includes("deposit") && !type.includes("term")) {
+      const hasTransactions = Array.isArray(obj(account.transactions).transaction);
+      if ((type.includes("deposit") && !type.includes("term") && !type.includes("recurring")) || (!type && hasTransactions)) {
         const transactions: AATransaction[] = arr(obj(account.transactions).transaction).map((t) => {
           const tx = obj(t);
           return {
@@ -116,7 +145,7 @@ export function mapSetuFiData(fips: unknown, period: { from: string; to: string 
           creditLimit: num(summary.creditLimit),
           dpd: dpdOf(summary.dpdHistory),
         } satisfies CardAccount);
-      } else if (type.includes("loan") || type.includes("term")) {
+      } else if (type.includes("loan")) {
         const closed = ["CLOSED", "MATURED"].includes(str(summary.status).toUpperCase());
         out.loans.push({
           institution,
@@ -135,17 +164,67 @@ function dpdOf(history: unknown): DpdEntry[] {
   return arr(history).map((h) => ({ month: str(obj(h).month).slice(0, 7), dpd: num(obj(h).dpd) }));
 }
 
+/** Setu's error bodies carry an errorCode/errorMsg (no customer data); log only the status and the code. */
+async function logSetuError(where: string, res: Response): Promise<void> {
+  let code = "";
+  try {
+    const body = obj(await res.json());
+    code = str(body.errorCode) || str(obj(body.error).code) || str(body.code);
+  } catch {
+    // Not JSON: the status is enough.
+  }
+  console.error(`[aa/setu] ${where} failed: HTTP ${res.status}${code ? ` ${code}` : ""}`);
+}
+
+/** Bearer tokens by client id, shared across requests served by the same server instance. */
+const tokens = new Map<string, { value: string; until: number }>();
+
 export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch = fetch): AAProvider {
-  async function call(path: string, init: { method: "GET" | "POST"; body?: unknown }): Promise<Json> {
+
+  async function bearer(): Promise<string> {
+    const cached = tokens.get(config.clientId);
+    if (cached && Date.now() < cached.until) return cached.value;
+    let res: Response;
+    try {
+      res = await fetchImpl(SETU_LOGIN_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json", client: "bridge" },
+        body: JSON.stringify({ clientID: config.clientId, grant_type: "client_credentials", secret: config.clientSecret }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        cache: "no-store",
+      });
+    } catch {
+      console.error("[aa/setu] login failed: network");
+      throw new AAError("upstream");
+    }
+    if (!res.ok) {
+      await logSetuError("login", res);
+      throw new AAError("upstream");
+    }
+    let body: Json;
+    try {
+      body = obj(await res.json());
+    } catch {
+      throw new AAError("upstream");
+    }
+    const value = str(body.access_token) || str(obj(body.data).token) || str(body.token);
+    if (!value) {
+      console.error("[aa/setu] login failed: no token in response");
+      throw new AAError("upstream");
+    }
+    tokens.set(config.clientId, { value, until: Date.now() + TOKEN_TTL_MS });
+    return value;
+  }
+
+  async function call(path: string, init: { method: "GET" | "POST"; body?: unknown }, retried = false): Promise<Json> {
+    const auth = await bearer();
     let res: Response;
     try {
       res = await fetchImpl(`${config.baseUrl}${path}`, {
         method: init.method,
         headers: {
           "content-type": "application/json",
-          // TODO(verify with Setu sandbox): header names.
-          "x-client-id": config.clientId,
-          "x-client-secret": config.clientSecret,
+          authorization: `Bearer ${auth}`,
           "x-product-instance-id": config.productInstanceId,
         },
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
@@ -153,10 +232,19 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
         cache: "no-store",
       });
     } catch {
+      console.error(`[aa/setu] ${init.method} ${path.split("/").slice(0, 3).join("/")} failed: network`);
       throw new AAError("upstream");
     }
+    // An expired or revoked token: log in again once.
+    if ((res.status === 401 || res.status === 403) && !retried) {
+      tokens.delete(config.clientId);
+      return call(path, init, true);
+    }
     if (res.status === 404) throw new AAError("not_found");
-    if (!res.ok) throw new AAError("upstream");
+    if (!res.ok) {
+      await logSetuError(`${init.method} ${path.split("/").slice(0, 3).join("/")}`, res);
+      throw new AAError("upstream");
+    }
     try {
       return obj(await res.json());
     } catch {
@@ -171,7 +259,7 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
   return {
     mode: "setu",
 
-    async createConsent({ mobile }) {
+    async createConsent({ mobile, origin }) {
       if (!mobile || !/^[6-9]\d{9}$/.test(mobile)) throw new AAError("invalid_request", "mobile required");
       const { from, to } = sandboxPeriod();
       const body = await call(PATHS.createConsent, {
@@ -180,8 +268,7 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
           ...CONSENT_TEMPLATE,
           vua: vuaOf(mobile),
           dataRange: { from: `${from}T00:00:00Z`, to: `${to}T23:59:59Z` },
-          // TODO(verify with Setu sandbox): field name. Same value as the redirect URL in the Bridge dashboard.
-          redirectUrl: CONSENT_REDIRECT_URL,
+          redirectUrl: consentRedirectUrl(origin),
         },
       });
       const consentId = str(body.id);
