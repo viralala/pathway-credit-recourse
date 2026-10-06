@@ -61,6 +61,15 @@ export interface LoanDetails {
   loanType: LoanType;
   loanAmount: number;
   collateralValue?: number | null;
+  recentHardInquiries?: number;
+}
+
+/** Recent credit inquiry activity level and contextual explanation. */
+export interface InquiryActivity {
+  count: number;
+  level: "low" | "moderate" | "high";
+  label: string;
+  explanation: string;
 }
 
 /** Loan-specific contextual assessment produced separately from the credit-risk ML model. */
@@ -71,6 +80,8 @@ export interface LoanAssessment {
   collateralValue: number | null;
   ltv: number | null;
   foir: number;
+  recentHardInquiries: number;
+  inquiryActivity: InquiryActivity;
   collateralBacking: boolean;
   riskContext: string;
   underwritingFocus: string;

@@ -77,23 +77,28 @@ export function ApplicantForm({
   loanType = "unsecured",
   loanAmount = 500_000,
   collateralValue,
+  recentHardInquiries = 0,
   onField,
   onLoanType,
   onLoanAmount,
   onCollateralValue,
+  onRecentHardInquiries,
 }: {
   ui: UIStrings;
   applicant: Applicant;
   loanType?: LoanType;
   loanAmount?: number;
   collateralValue?: number | null;
+  recentHardInquiries?: number;
   onField: (key: FeatureKey, v: number) => void;
   onLoanType?: (type: LoanType) => void;
   onLoanAmount?: (amount: number) => void;
   onCollateralValue?: (value: number | null) => void;
+  onRecentHardInquiries?: (inquiries: number) => void;
 }) {
   const loanAmountId = useId();
   const collateralId = useId();
+  const hardInquiriesId = useId();
 
   return (
     <section
@@ -253,6 +258,24 @@ export function ApplicantForm({
               />
             </div>
           )}
+
+          <div className={cn("grid content-start gap-1.5", loanType === "secured" ? "min-[420px]:col-span-2" : "")}>
+            <Label htmlFor={hardInquiriesId} className="leading-snug font-medium text-muted-foreground">
+              Recent Hard Credit Inquiries (Last 6 Months)
+            </Label>
+            <NumberField
+              id={hardInquiriesId}
+              value={recentHardInquiries}
+              min={0}
+              max={20}
+              step={1}
+              onValue={(v) => onRecentHardInquiries?.(Math.max(0, Math.round(v)))}
+              inputClassName="h-12 text-lg font-bold"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Number of recent hard credit inquiries. Soft inquiries are not included.
+            </p>
+          </div>
         </div>
       </div>
     </section>

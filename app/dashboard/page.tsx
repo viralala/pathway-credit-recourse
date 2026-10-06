@@ -42,6 +42,7 @@ interface AssessmentRecord {
   loan_amount?: number | null;
   collateral_value?: number | null;
   ltv?: number | null;
+  recent_hard_inquiries?: number | null;
   predicted_score: number;
   pd: number;
   decision: "approved" | "declined";
@@ -138,6 +139,7 @@ export default function DashboardPage() {
                 loanType: pending.loanType || "unsecured",
                 loanAmount: pending.loanAmount,
                 collateralValue: pending.loanType === "secured" ? pending.collateralValue : null,
+                recentHardInquiries: pending.recentHardInquiries ?? 0,
               }),
             });
             const json = await res.json().catch(() => ({}));
@@ -573,6 +575,7 @@ export default function DashboardPage() {
                       loanType: selectedAssessment.loan_type === "secured" ? "secured" : "unsecured",
                       loanAmount: selectedAssessment.loan_amount ?? undefined,
                       collateralValue: selectedAssessment.collateral_value ?? undefined,
+                      recentHardInquiries: selectedAssessment.recent_hard_inquiries ?? 0,
                     });
                     return (
                       <Button asChild variant="outline" size="sm" className="gap-1.5 rounded-xl font-bold">
@@ -617,6 +620,10 @@ export default function DashboardPage() {
                             </strong>
                           </div>
                         )}
+                        <div>
+                          <span className="text-muted-foreground">Hard Inquiries (6M): </span>
+                          <strong>{selectedAssessment.recent_hard_inquiries ?? 0}</strong>
+                        </div>
                       </div>
                     </div>
                     <div className="rounded-xl bg-muted/40 p-2.5">

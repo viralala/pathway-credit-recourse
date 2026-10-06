@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return apiError("VALIDATION_ERROR", "Invalid assessment input parameters", 400, parseResult.error.flatten());
     }
 
-    const { applicant, applicantName, loanType, loanAmount, collateralValue } = parseResult.data;
+    const { applicant, applicantName, loanType, loanAmount, collateralValue, recentHardInquiries = 0 } = parseResult.data;
 
     // Server-side calculation using existing TypeScript ML inference (ML MODEL REMAINS INVARIANT)
     const result = assess(applicant as Applicant, MODEL);
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       loanType,
       loanAmount,
       collateralValue: loanType === "secured" ? (collateralValue ?? null) : null,
+      recentHardInquiries,
       applicant: applicant as Applicant,
       predictedScore: result.score,
       pd: result.pd,
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
       loan_amount: loanAssessment.loanAmount,
       collateral_value: loanAssessment.collateralValue,
       ltv: loanAssessment.ltv,
+      recent_hard_inquiries: loanAssessment.recentHardInquiries,
       predicted_score: result.score,
       pd: result.pd,
       decision,
@@ -87,12 +89,13 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    // Fallback if loan_type columns are not yet created in the remote database
+    // Fallback if loan_type or recent_hard_inquiries columns are not yet created in the remote database
     if (
       dbError &&
       (dbError.code === "42703" ||
         dbError.message?.toLowerCase().includes("loan_type") ||
         dbError.message?.toLowerCase().includes("loan_amount") ||
+        dbError.message?.toLowerCase().includes("recent_hard_inquiries") ||
         dbError.message?.toLowerCase().includes("column"))
     ) {
       const fallbackPayload = {
@@ -125,6 +128,7 @@ export async function POST(req: Request) {
           loan_amount: loanAssessment.loanAmount,
           collateral_value: loanAssessment.collateralValue,
           ltv: loanAssessment.ltv,
+          recent_hard_inquiries: loanAssessment.recentHardInquiries,
         };
         dbError = null;
       }
@@ -140,6 +144,8 @@ export async function POST(req: Request) {
       loanAmount: loanAssessment.loanAmount,
       collateralValue: loanAssessment.collateralValue,
       ltv: loanAssessment.ltv,
+      recentHardInquiries: loanAssessment.recentHardInquiries,
+      inquiryActivity: loanAssessment.inquiryActivity,
       loanAssessment,
       score: result.score,
       decision,
