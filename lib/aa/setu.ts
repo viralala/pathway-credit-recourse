@@ -164,16 +164,21 @@ function dpdOf(history: unknown): DpdEntry[] {
   return arr(history).map((h) => ({ month: str(obj(h).month).slice(0, 7), dpd: num(obj(h).dpd) }));
 }
 
-/** Setu's error bodies carry an errorCode/errorMsg (no customer data); log only the status and the code. */
+/**
+ * Setu's error bodies carry an error code and a short message about the request (for example "Invalid client
+ * credentials"), never customer data. Log the status, code and the first 160 characters of the message.
+ */
 async function logSetuError(where: string, res: Response): Promise<void> {
-  let code = "";
+  let detail = "";
   try {
     const body = obj(await res.json());
-    code = str(body.errorCode) || str(obj(body.error).code) || str(body.code);
+    const code = str(body.errorCode) || str(obj(body.error).code) || str(body.code);
+    const message = str(body.errorMsg) || str(body.message) || str(obj(body.error).message);
+    detail = [code, message.replace(/\s+/g, " ").slice(0, 160)].filter(Boolean).join(" ");
   } catch {
     // Not JSON: the status is enough.
   }
-  console.error(`[aa/setu] ${where} failed: HTTP ${res.status}${code ? ` ${code}` : ""}`);
+  console.error(`[aa/setu] ${where} failed: HTTP ${res.status}${detail ? ` ${detail}` : ""}`);
 }
 
 /** Bearer tokens by client id, shared across requests served by the same server instance. */
