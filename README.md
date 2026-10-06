@@ -210,9 +210,9 @@ The home page can fill the applicant form from linked bank, card and loan accoun
 | `SETU_AA_CLIENT_SECRET` | Setu client secret |
 | `SETU_AA_PRODUCT_INSTANCE_ID` | Setu product instance |
 
-In the Setu Bridge product settings, set the **redirect URL** to `https://<your domain>/connect/done` (for this deployment, `https://pathway-credit-recourse.vercel.app/connect/done`). Setu sends the approval window there after the person approves or declines; the page tells them to close it, and the Pathway tab picks up the consent by polling. The app also sends this URL with each consent request, built from `NEXT_PUBLIC_SITE_URL`. The **notification (webhook) URL** is a separate field that Pathway does not use; a test endpoint is fine in sandbox.
+In the Setu Bridge product settings, set the **redirect URL** to `https://<your domain>/connect/done` (for this deployment, `https://pathway-credit-recourse.vercel.app/connect/done`). Setu sends the approval window there after the person approves or declines; the page tells them to close it, and the Pathway tab picks up the consent by polling. The app also sends this URL with each consent request, built from the address the request came in on. The **notification (webhook) URL** is a separate field that Pathway does not use; a test endpoint is fine in sandbox.
 
-The Setu request and response shapes in `lib/aa/setu.ts` are unverified against a live Setu sandbox (marked `TODO(verify with Setu sandbox)`). The routes under `app/api/aa/` are same-origin checked and rate limited, send no-store headers, and never log or store financial data. Bank-filled numbers are kept out of the URL, browser storage and the share and report links until the person edits a field or loads a sample.
+`lib/aa/setu.ts` follows Setu's FIU API v2: Bridge credentials are exchanged for a Bearer token, consents ask for one-time access to bank (deposit) accounts, and the data session is polled for up to about 40 seconds. Setu has no credit card data type, so card utilization and late payments show as "Not found" in Setu mode. The routes under `app/api/aa/` are same-origin checked and rate limited, send no-store headers, and never log or store financial data. Bank-filled numbers are kept out of the URL, browser storage and the share and report links until the person edits a field or loads a sample.
 
 ## Testing and verification
 

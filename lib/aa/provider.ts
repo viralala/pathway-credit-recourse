@@ -4,6 +4,8 @@ export interface CreateConsentInput {
   demoProfile?: DemoProfile;
   /** 10-digit Indian mobile number. Used once to create the consent; never stored, logged or echoed. */
   mobile?: string;
+  /** Public origin of the site handling this request, for the consent redirect (e.g. https://pathway.example). */
+  origin?: string;
 }
 
 export interface CreateConsentResult {
