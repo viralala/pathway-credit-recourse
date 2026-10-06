@@ -153,34 +153,31 @@ describe("Setu provider requests", () => {
   const config = { clientId: "cid", clientSecret: "sec", productInstanceId: "pid", baseUrl: "https://fiu.test" };
   const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
-  function mockSetu(handlers: Record<string, () => Response>) {
+  type Handler = (headers: Record<string, string>) => Response;
+  function mockSetu(handlers: Record<string, Handler>) {
     const calls: { url: string; init: RequestInit }[] = [];
     const fetchImpl = vi.fn(async (url: string | URL | Request, init: RequestInit = {}) => {
       calls.push({ url: String(url), init });
       const key = `${init.method ?? "GET"} ${String(url)}`;
       const handler = handlers[key];
       if (!handler) throw new Error(`unexpected ${key}`);
-      return handler();
+      return handler((init.headers ?? {}) as Record<string, string>);
     }) as unknown as typeof fetch;
     return { calls, fetchImpl };
   }
 
-  it("logs in for a Bearer token and creates a consent Setu accepts", async () => {
+  it("sends Bridge credentials as headers and creates a consent Setu accepts", async () => {
     const { calls, fetchImpl } = mockSetu({
-      [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: "tok" }),
       "POST https://fiu.test/v2/consents": () => json({ id: "consent-123", url: "https://fiu.test/v2/consents/webview/consent-123", status: "PENDING" }),
     });
     const provider = createSetuProvider({ ...config, clientId: "cid-consent" }, fetchImpl);
     const out = await provider.createConsent({ mobile: "9876543210", origin: "https://pathway.example" });
     expect(out).toEqual({ consentId: "consent-123", mode: "setu", redirectUrl: "https://fiu.test/v2/consents/webview/consent-123" });
 
-    expect(calls[0].init.headers).toMatchObject({ client: "bridge" });
-    expect(JSON.parse(String(calls[0].init.body))).toEqual({ clientID: "cid-consent", grant_type: "client_credentials", secret: "sec" });
-
-    const headers = calls[1].init.headers as Record<string, string>;
-    expect(headers.authorization).toBe("Bearer tok");
-    expect(headers["x-product-instance-id"]).toBe("pid");
-    const body = JSON.parse(String(calls[1].init.body));
+    expect(calls).toHaveLength(1);
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers).toMatchObject({ "x-client-id": "cid-consent", "x-client-secret": "sec", "x-product-instance-id": "pid" });
+    const body = JSON.parse(String(calls[0].init.body));
     expect(body.redirectUrl).toBe("https://pathway.example/connect/done");
     expect(body.fiTypes).toEqual(["DEPOSIT"]);
     expect(body.purpose).toMatchObject({ code: "105", refUri: expect.stringContaining("105") });
@@ -188,18 +185,30 @@ describe("Setu provider requests", () => {
     expect(body.frequency).toBeDefined();
   });
 
-  it("reuses the token and logs in again once after a 401", async () => {
-    let consentCalls = 0;
+  it("falls back to a Bearer token when header auth is refused, and remembers it", async () => {
     let logins = 0;
-    const { fetchImpl } = mockSetu({
+    const { calls, fetchImpl } = mockSetu({
       [`POST ${SETU_LOGIN_URL}`]: () => json({ access_token: `tok${++logins}` }),
-      "GET https://fiu.test/v2/consents/consent-123": () => (++consentCalls === 2 ? json({ error: "expired" }, 401) : json({ status: "ACTIVE" })),
+      "GET https://fiu.test/v2/consents/consent-123": (h) => (h.authorization === "Bearer tok1" ? json({ status: "ACTIVE" }) : json({ errorCode: "Unauthorized" }, 403)),
     });
-    const provider = createSetuProvider({ ...config, clientId: "cid-retry" }, fetchImpl);
+    const provider = createSetuProvider({ ...config, clientId: "cid-bearer" }, fetchImpl);
     expect((await provider.consentStatus("consent-123")).status).toBe("ACTIVE");
+    expect(JSON.parse(String(calls[1].init.body))).toEqual({ clientID: "cid-bearer", grant_type: "client_credentials", secret: "sec" });
+    expect(calls[1].init.headers).toMatchObject({ client: "bridge" });
+
+    calls.length = 0;
     expect((await provider.consentStatus("consent-123")).status).toBe("ACTIVE");
-    expect(logins).toBe(2);
-    expect(consentCalls).toBe(3);
+    // Straight to the cached Bearer token: no header attempt, no new login.
+    expect(calls).toHaveLength(1);
+    expect(logins).toBe(1);
+  });
+
+  it("reports a failure when both auth styles are refused", async () => {
+    const { fetchImpl } = mockSetu({
+      [`POST ${SETU_LOGIN_URL}`]: () => json({ errorCode: "Forbidden" }, 403),
+      "GET https://fiu.test/v2/consents/consent-123": () => json({ errorCode: "Unauthorized" }, 401),
+    });
+    await expect(createSetuProvider({ ...config, clientId: "cid-refused" }, fetchImpl).consentStatus("consent-123")).rejects.toMatchObject({ code: "upstream" });
   });
 
   it("folds revoked and failed consents into REJECTED", async () => {

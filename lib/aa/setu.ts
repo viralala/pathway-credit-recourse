@@ -16,9 +16,9 @@ import type { ConsentStatus } from "./types";
 /**
  * Setu Account Aggregator API v2 (https://docs.setu.co/data/account-aggregator).
  *
- * Endpoints, auth and payloads follow Setu's OpenAPI spec (as published in the generated setu-aa-sdk): a Bridge
- * client id and secret are exchanged for a Bearer token at the org service, and every FIU call sends that token plus
- * x-product-instance-id. Anything still unconfirmed is marked TODO(verify with Setu sandbox).
+ * Endpoints and payloads follow Setu's OpenAPI spec (as published in the generated setu-aa-sdk). Auth: current Bridge
+ * credentials are sent as x-client-id / x-client-secret headers; older ones are exchanged for a Bearer token at the
+ * org service. Every FIU call also sends x-product-instance-id. Anything still unconfirmed is marked TODO(verify with Setu sandbox).
  * No request or response body is ever logged or stored; on failure only Setu's HTTP status and error code are logged.
  */
 
@@ -178,6 +178,8 @@ async function logSetuError(where: string, res: Response): Promise<void> {
 
 /** Bearer tokens by client id, shared across requests served by the same server instance. */
 const tokens = new Map<string, { value: string; until: number }>();
+/** Which auth style worked for a client id, so later requests skip the failed attempt. */
+const authModes = new Map<string, "headers" | "bearer">();
 
 export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch = fetch): AAProvider {
 
@@ -216,17 +218,17 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
     return value;
   }
 
-  async function call(path: string, init: { method: "GET" | "POST"; body?: unknown }, retried = false): Promise<Json> {
-    const auth = await bearer();
-    let res: Response;
+  type AuthMode = "headers" | "bearer";
+
+  async function send(path: string, init: { method: "GET" | "POST"; body?: unknown }, mode: AuthMode): Promise<Response> {
+    const auth: Record<string, string> =
+      mode === "headers"
+        ? { "x-client-id": config.clientId, "x-client-secret": config.clientSecret }
+        : { authorization: `Bearer ${await bearer()}` };
     try {
-      res = await fetchImpl(`${config.baseUrl}${path}`, {
+      return await fetchImpl(`${config.baseUrl}${path}`, {
         method: init.method,
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${auth}`,
-          "x-product-instance-id": config.productInstanceId,
-        },
+        headers: { "content-type": "application/json", ...auth, "x-product-instance-id": config.productInstanceId },
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         cache: "no-store",
@@ -235,10 +237,28 @@ export function createSetuProvider(config: SetuConfig, fetchImpl: typeof fetch =
       console.error(`[aa/setu] ${init.method} ${path.split("/").slice(0, 3).join("/")} failed: network`);
       throw new AAError("upstream");
     }
-    // An expired or revoked token: log in again once.
-    if ((res.status === 401 || res.status === 403) && !retried) {
+  }
+
+  /**
+   * Current Bridge credentials go straight into x-client-id / x-client-secret headers; older ones are exchanged for a
+   * Bearer token. Try the remembered mode (headers first), and on 401/403 try the other one once.
+   */
+  async function call(path: string, init: { method: "GET" | "POST"; body?: unknown }): Promise<Json> {
+    const first = authModes.get(config.clientId) ?? "headers";
+    let res = await send(path, init, first);
+    if (res.status === 401 || res.status === 403) {
+      const other: AuthMode = first === "headers" ? "bearer" : "headers";
       tokens.delete(config.clientId);
-      return call(path, init, true);
+      try {
+        const retry = await send(path, init, other);
+        if (retry.status !== 401 && retry.status !== 403) authModes.set(config.clientId, other);
+        res = retry;
+      } catch (err) {
+        // The other mode could not even start (e.g. token login refused): report the original failure.
+        if (!(err instanceof AAError)) throw err;
+      }
+    } else {
+      authModes.set(config.clientId, first);
     }
     if (res.status === 404) throw new AAError("not_found");
     if (!res.ok) {
